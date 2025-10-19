@@ -49,4 +49,6 @@ class AccommodationModel {
         return '🏨';
     }
   }
+
+  get awayKilometer => null;
 }

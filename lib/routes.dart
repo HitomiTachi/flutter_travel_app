@@ -14,7 +14,9 @@ import 'package:flutter_travels_apps/representation/screen/detailed_trip_plan_sc
 import 'package:flutter_travels_apps/representation/screen/accommodation_booking_screen.dart';
 import 'package:flutter_travels_apps/representation/screen/accommodation_details_screen.dart';
 import 'package:flutter_travels_apps/representation/screen/accommodation_list_screen.dart';
+import 'package:flutter_travels_apps/representation/screen/like_screen.dart';
 import 'package:flutter_travels_apps/representation/screen/profile_screen.dart';
+import 'package:flutter_travels_apps/representation/screen/personal_info_screen.dart';
 import 'package:flutter_travels_apps/representation/screen/trip_plans_list_screen.dart';
 
 final Map<String, WidgetBuilder> routes = {
@@ -31,7 +33,9 @@ final Map<String, WidgetBuilder> routes = {
   AccommodationBookingScreen.routeName: (context) => const AccommodationBookingScreen(),
   AccommodationDetailsScreen.routeName: (context) => const AccommodationDetailsScreen(),
   AccommodationListScreen.routeName: (context) => const AccommodationListScreen(),
+  LikeScreen.routeName: (context) => const LikeScreen(),
   ProfileScreen.routeName: (context) => const ProfileScreen(),
+  PersonalInfoScreen.routeName: (context) => const PersonalInfoScreen(),
   TripPlansListScreen.routeName: (context) => const TripPlansListScreen(),
   HotelScreen.routeName: (context) => HotelScreen(),
   HotelDetailScreen.routeName: (context) => HotelDetailScreen(),

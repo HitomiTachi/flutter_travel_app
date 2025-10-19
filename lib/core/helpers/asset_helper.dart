@@ -28,5 +28,5 @@ class AssetHelper {
   static const String icoMinusButton = 'assets/icons/minus-sign.png';
   static const String icoGuest = 'assets/icons/traveling.png';
   static const String icoStar = 'assets/icons/star.png';
-
+  static const String icoMap = 'assets/icons/maps.png';
 }

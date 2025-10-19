@@ -938,7 +938,11 @@ class _TripPlansListScreenState extends State<TripPlansListScreen>
   }
 
   void _navigateToCreateTrip() {
-    Navigator.pushNamed(context, '/trip_creation_screen');
+    Navigator.pushNamed(
+      context, 
+      '/trip_creation_screen',
+      arguments: {'fromTripList': true},
+    );
   }
 
   void _handleTripAction(TripPlan trip) {

@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
+import 'package:flutter_travels_apps/core/helpers/asset_helper.dart';
 import 'package:flutter_travels_apps/core/helpers/images_helpers.dart';
+import 'package:flutter_travels_apps/representation/widgets/button_widget.dart';
+import 'package:flutter_travels_apps/representation/widgets/dashline_widget.dart';
+import 'package:flutter_travels_apps/representation/screen/accommodation_details_screen.dart';
 import 'package:flutter_travels_apps/data/models/accommodation_model.dart';
 import 'package:flutter_travels_apps/data/models/trip_plan_data.dart';
 
@@ -16,477 +21,160 @@ class ItemAccommodationWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: kMediumPadding),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(kTopPadding),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(kDefaultPadding),
+        color: Colors.white,
       ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(kTopPadding),
-        onTap: () {
-          _showAccommodationDetails(context);
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(kMediumPadding),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Hình ảnh
-              ClipRRect(
-                borderRadius: BorderRadius.circular(kDefaultPadding),
-                child: ImageHelper.loadFromAsset(
-                  accommodationModel.imageUrl,
-                  width: 100,
-                  height: 80,
-                  fit: BoxFit.cover,
-                ),
+      margin: const EdgeInsets.only(bottom: kMediumPadding),
+      child: Column(
+        children: [
+          // Ảnh lớn, bo góc trên trái + dưới phải như Hotel
+          Container(
+            width: double.infinity,
+            margin: const EdgeInsets.only(right: kDefaultPadding),
+            child: ImageHelper.loadFromAsset(
+              accommodationModel.imageUrl,
+              radius: const BorderRadius.only(
+                topLeft: Radius.circular(kDefaultPadding),
+                bottomRight: Radius.circular(kDefaultPadding),
               ),
-              
-              const SizedBox(width: kMediumPadding),
-              
-              // Thông tin
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            ),
+          ),
+
+          // Nội dung
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: kDefaultPadding,
+              vertical: kDefaultPadding,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Tên nơi lưu trú
+                Text(
+                  accommodationModel.name,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: kDefaultPadding),
+
+                // Dòng vị trí (icon location + location + khoảng cách giả lập nếu cần)
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Tên và loại
-                    Row(
-                      children: [
-                        Text(
-                          accommodationModel.typeIcon,
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            accommodationModel.name,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
+                    SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: ImageHelper.loadFromAsset(AssetHelper.iconlocation),
                     ),
-                    
-                    const SizedBox(height: 4),
-                    
-                    // Địa điểm
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.location_on,
-                          size: 14,
-                          color: Colors.grey[600],
-                        ),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            accommodationModel.location,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
+                    const SizedBox(width: kMinPadding),
+                    Text(
+                      accommodationModel.location,
+                      style: const TextStyle(fontWeight: FontWeight.w500),
                     ),
-                    
-                    const SizedBox(height: 8),
-                    
-                    // Rating và reviews
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.star,
-                          size: 16,
-                          color: Colors.amber[600],
+                    const SizedBox(width: kMinPadding),
+                    Expanded(
+                      child: Text(
+                        // Nếu có field khoảng cách thì thay bằng field thật;
+                        // ở đây mô phỏng “gần trung tâm”
+                        'gần trung tâm',
+                        style: TextStyle(
+                          color: ColorPalette.subTitleColor,
+                          fontSize: 12,
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          accommodationModel.rating.toString(),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '(${accommodationModel.reviewCount})',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                    
-                    const SizedBox(height: 8),
-                    
-                    // Giá và nút chọn
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${accommodationModel.formattedPrice}/đêm',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green[700],
-                              ),
-                            ),
-                            Text(
-                              'Tổng: ${_calculateTotalPrice()}',
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                        
-                        ElevatedButton(
-                          onPressed: () {
-                            _addToTripPlan(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            foregroundColor: Colors.white,
-                            minimumSize: const Size(80, 32),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          child: const Text(
-                            'Chọn',
-                            style: TextStyle(fontSize: 12),
-                          ),
-                        ),
-                      ],
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
-  String _calculateTotalPrice() {
-    final totalPrice = accommodationModel.pricePerNight * tripData.totalDays;
-    if (totalPrice >= 1000000) {
-      return '${(totalPrice / 1000000).toStringAsFixed(1)}M VNĐ';
-    } else if (totalPrice >= 1000) {
-      return '${(totalPrice / 1000).toStringAsFixed(0)}K VNĐ';
-    } else {
-      return '$totalPrice VNĐ';
-    }
-  }
+                const SizedBox(height: kDefaultPadding),
 
-  void _showAccommodationDetails(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.7,
-          maxChildSize: 0.9,
-          minChildSize: 0.5,
-          builder: (context, scrollController) {
-            return Container(
-              padding: const EdgeInsets.all(kMediumPadding),
-              child: SingleChildScrollView(
-                controller: scrollController,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                // Dòng sao + reviews (icoStar)
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Handle bar
-                    Center(
-                      child: Container(
-                        width: 40,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
+                    SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: ImageHelper.loadFromAsset(AssetHelper.icoStar),
                     ),
-                    
-                    const SizedBox(height: kMediumPadding),
-                    
-                    // Hình ảnh lớn
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(kTopPadding),
-                      child: ImageHelper.loadFromAsset(
-                        accommodationModel.imageUrl,
-                        width: double.infinity,
-                        height: 200,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    
-                    const SizedBox(height: kMediumPadding),
-                    
-                    // Tên và loại
-                    Row(
-                      children: [
-                        Text(
-                          accommodationModel.typeIcon,
-                          style: const TextStyle(fontSize: 24),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            accommodationModel.name,
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    
-                    const SizedBox(height: 8),
-                    
-                    // Loại và địa điểm
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.blue[100],
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            accommodationModel.type,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.blue[700],
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Icon(
-                          Icons.location_on,
-                          size: 16,
-                          color: Colors.grey[600],
-                        ),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            accommodationModel.location,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    
-                    const SizedBox(height: kMediumPadding),
-                    
-                    // Rating
-                    Row(
-                      children: [
-                        ...List.generate(5, (index) {
-                          return Icon(
-                            Icons.star,
-                            size: 20,
-                            color: index < accommodationModel.rating.floor() 
-                                ? Colors.amber 
-                                : Colors.grey[300],
-                          );
-                        }),
-                        const SizedBox(width: 8),
-                        Text(
-                          '${accommodationModel.rating} (${accommodationModel.reviewCount} đánh giá)',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                    
-                    const SizedBox(height: kMediumPadding),
-                    
-                    // Mô tả
-                    const Text(
-                      'Mô tả',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
+                    const SizedBox(width: kMinPadding),
                     Text(
-                      accommodationModel.description,
+                      accommodationModel.rating.toStringAsFixed(1),
                       style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[700],
+                        fontWeight: FontWeight.w600,
+                        color: Colors.amber[700],
                       ),
                     ),
-                    
-                    const SizedBox(height: kMediumPadding),
-                    
-                    // Tiện nghi
-                    const Text(
-                      'Tiện nghi',
+                    const SizedBox(width: kMinPadding),
+                    Text(
+                      '(${accommodationModel.reviewCount} reviews)',
                       style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                        color: ColorPalette.subTitleColor,
+                        fontSize: 12,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: accommodationModel.amenities.map((amenity) {
-                        return Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[100],
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.grey[300]!),
-                          ),
-                          child: Text(
-                            amenity,
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                    
-                    const SizedBox(height: kMediumPadding * 2),
-                    
-                    // Giá và nút chọn
-                    Container(
-                      padding: const EdgeInsets.all(kMediumPadding),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(kTopPadding),
-                        border: Border.all(color: Colors.grey[200]!),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  ],
+                ),
+
+                const SizedBox(height: kDefaultPadding),
+                const DashlineWidget(),
+                const SizedBox(height: kDefaultPadding),
+
+                // Giá + nút bên phải (giống Hotel)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '${accommodationModel.formattedPrice}/đêm',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green[700],
-                                ),
-                              ),
-                              Text(
-                                'Tổng ${tripData.totalDays} đêm: ${_calculateTotalPrice()}',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                            ],
-                          ),
-                          
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                              _addToTripPlan(context);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 12,
-                              ),
+                          // formattedPrice là VNĐ; bạn có thể đổi sang $ nếu muốn
+                          Text(
+                            accommodationModel.formattedPrice,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: ColorPalette.primaryColor,
                             ),
-                            child: const Text('Thêm vào kế hoạch'),
+                          ),
+                          const SizedBox(height: kMinPadding),
+                          Text(
+                            '/đêm',
+                            style: TextStyle(
+                              color: ColorPalette.subTitleColor,
+                              fontSize: 12,
+                            ),
                           ),
                         ],
                       ),
                     ),
+                    Expanded(
+                      child: ButtonWidget(
+                        title: 'Xem chi tiết',
+                        onTap: () => _addToTripPlan(context),
+                      ),
+                    ),
                   ],
                 ),
-              ),
-            );
-          },
-        );
-      },
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   void _addToTripPlan(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Thêm vào kế hoạch'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Đã thêm ${accommodationModel.name} vào kế hoạch chuyến đi của bạn!'),
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.blue[50],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Chi tiết:',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue[700],
-                      ),
-                    ),
-                    Text('📍 ${accommodationModel.location}'),
-                    Text('📅 ${tripData.dateRange}'),
-                    Text('💰 ${_calculateTotalPrice()} tổng cộng'),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop(); // Quay về trip creation
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
+    // Điều hướng đến trang chi tiết accommodation
+    Navigator.of(context).pushNamed(
+      AccommodationDetailsScreen.routeName,
+      arguments: {
+        'accommodationModel': accommodationModel,
+        'tripData': tripData,
       },
     );
   }

@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/helpers/asset_helper.dart';
+import 'package:flutter_travels_apps/representation/screen/personal_info_screen.dart';
+import 'package:flutter_travels_apps/representation/widgets/app_bar_container.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -24,7 +26,6 @@ class _ProfileScreenState extends State<ProfileScreen>
   final int completedTrips = 12;
   final int savedPlaces = 47;
   final String memberSince = "Tháng 3, 2023";
-  final double profileCompletion = 0.85;
 
   late AnimationController _headerAnimationController;
   late AnimationController _listAnimationController;
@@ -76,116 +77,79 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      body: CustomScrollView(
-        slivers: [
-          // Custom App Bar với hiệu ứng parallax
-          _buildSliverAppBar(),
-          
-          // Profile Content
-          SliverToBoxAdapter(
-            child: AnimatedBuilder(
-              animation: _listAnimation,
-              builder: (context, child) {
-                return Transform.translate(
-                  offset: Offset(0, 50 * (1 - _listAnimation.value)),
-                  child: Opacity(
-                    opacity: _listAnimation.value,
-                    child: Column(
-                      children: [
-                        const SizedBox(height: kMediumPadding),
-                        
-                        // Profile Completion Card
-                        _buildProfileCompletionCard(),
-                        
-                        const SizedBox(height: kMediumPadding),
-                        
-                        // Quick Stats
-                        _buildQuickStatsSection(),
-                        
-                        const SizedBox(height: kMediumPadding),
-                        
-                        // Quick Actions
-                        _buildQuickActionsSection(),
-                        
-                        const SizedBox(height: kMediumPadding),
-                        
-                        // Main Menu
-                        _buildMainMenuSection(),
-                        
-                        const SizedBox(height: kMediumPadding),
-                        
-                        // Settings Menu
-                        _buildSettingsMenuSection(),
-                        
-                        const SizedBox(height: kMediumPadding),
-                        
-                        // Logout Button
-                        _buildLogoutSection(),
-                        
-                        const SizedBox(height: kMediumPadding * 3),
-                      ],
-                    ),
-                  ),
-                );
-              },
+    return AppBarContainerWidget(
+      implementLeading: false,
+      titleString: 'Hồ Sơ Cá Nhân',
+      child: AnimatedBuilder(
+        animation: _listAnimation,
+        builder: (context, child) {
+          return Transform.translate(
+            offset: Offset(0, 50 * (1 - _listAnimation.value)),
+            child: Opacity(
+              opacity: _listAnimation.value,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const SizedBox(height: kMediumPadding),
+                    
+                    // Profile Header
+                    _buildProfileHeader(),
+                    
+                    const SizedBox(height: kMediumPadding),
+                    
+                    // Quick Stats
+                    _buildQuickStatsSection(),
+                    
+                    const SizedBox(height: kMediumPadding),
+                    
+                    // Main Menu
+                    _buildMainMenuSection(),
+                    
+                    const SizedBox(height: kMediumPadding),
+                    
+                    // Settings Menu
+                    _buildSettingsMenuSection(),
+                    
+                    const SizedBox(height: kMediumPadding),
+                    
+                    // Logout Button
+                    _buildLogoutSection(),
+                    
+                    const SizedBox(height: kMediumPadding * 3),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
 
-  // Sliver App Bar với hiệu ứng parallax
-  Widget _buildSliverAppBar() {
-    return SliverAppBar(
-      expandedHeight: 280,
-      floating: false,
-      pinned: true,
-      elevation: 0,
-      backgroundColor: ColorPalette.primaryColor,
-      systemOverlayStyle: SystemUiOverlayStyle.light,
-      flexibleSpace: FlexibleSpaceBar(
-        background: AnimatedBuilder(
-          animation: _headerAnimation,
-          builder: (context, child) {
-            return Transform.scale(
-              scale: 0.8 + (0.2 * _headerAnimation.value),
-              child: Opacity(
-                opacity: _headerAnimation.value,
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        ColorPalette.primaryColor,
-                        ColorPalette.primaryColor.withOpacity(0.8),
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                    ),
-                  ),
-                  child: SafeArea(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const SizedBox(height: 40),
-                        // Avatar với animation
-                        _buildAnimatedAvatar(),
-                        const SizedBox(height: 16),
-                        // User Info
-                        _buildUserInfo(),
-                        const SizedBox(height: 16),
-                        // Member Badge
-                        _buildMemberBadge(),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
+  // Profile Header Section
+  Widget _buildProfileHeader() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: kMediumPadding),
+      padding: const EdgeInsets.all(kMediumPadding),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          _buildAnimatedAvatar(),
+          const SizedBox(height: kMediumPadding),
+          _buildUserInfo(),
+          const SizedBox(height: kMediumPadding),
+          _buildMemberBadge(),
+        ],
       ),
     );
   }
@@ -196,16 +160,16 @@ class _ProfileScreenState extends State<ProfileScreen>
       child: Stack(
         children: [
           Container(
-            width: 90,
-            height: 90,
+            width: 100,
+            height: 100,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 3),
+              border: Border.all(color: ColorPalette.primaryColor, width: 3),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 10,
-                  offset: const Offset(0, 5),
+                  color: ColorPalette.primaryColor.withOpacity(0.3),
+                  blurRadius: 15,
+                  offset: const Offset(0, 8),
                 ),
               ],
             ),
@@ -218,7 +182,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     color: Colors.grey[300],
                     child: const Icon(
                       FontAwesomeIcons.user,
-                      size: 40,
+                      size: 45,
                       color: Colors.grey,
                     ),
                   );
@@ -227,26 +191,27 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
           ),
           Positioned(
-            bottom: 0,
-            right: 0,
+            bottom: 2,
+            right: 2,
             child: Container(
-              width: 28,
-              height: 28,
+              width: 32,
+              height: 32,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: ColorPalette.primaryColor,
                 shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.2),
-                    blurRadius: 4,
+                    blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
                 ],
               ),
               child: const Icon(
                 FontAwesomeIcons.camera,
-                size: 12,
-                color: ColorPalette.primaryColor,
+                size: 14,
+                color: Colors.white,
               ),
             ),
           ),
@@ -260,26 +225,34 @@ class _ProfileScreenState extends State<ProfileScreen>
       children: [
         Text(
           userName,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: Colors.grey[800],
             fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 6),
+        Text(
+          userEmail,
+          style: TextStyle(
+            color: Colors.grey[600],
+            fontSize: 16,
+          ),
+        ),
+        const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               FontAwesomeIcons.locationDot,
-              color: Colors.white70,
+              color: ColorPalette.primaryColor,
               size: 14,
             ),
             const SizedBox(width: 6),
             Text(
               userLocation,
-              style: const TextStyle(
-                color: Colors.white70,
+              style: TextStyle(
+                color: Colors.grey[600],
                 fontSize: 14,
               ),
             ),
@@ -291,96 +264,32 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   Widget _buildMemberBadge() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
+        gradient: LinearGradient(
+          colors: [
+            ColorPalette.primaryColor.withOpacity(0.1),
+            ColorPalette.primaryColor.withOpacity(0.05),
+          ],
+        ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.3)),
+        border: Border.all(color: ColorPalette.primaryColor.withOpacity(0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
+          Icon(
             FontAwesomeIcons.crown,
-            color: Colors.amber,
+            color: Colors.amber[600],
             size: 14,
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 8),
           Text(
             'Thành viên từ $memberSince',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProfileCompletionCard() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: kMediumPadding),
-      padding: const EdgeInsets.all(kMediumPadding),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.orange[400]!, Colors.orange[600]!],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(kTopPadding),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.orange.withOpacity(0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(
-                FontAwesomeIcons.chartLine,
-                color: Colors.white,
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              const Expanded(
-                child: Text(
-                  'Hoàn thiện hồ sơ',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Text(
-                '${(profileCompletion * 100).toInt()}%',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          LinearProgressIndicator(
-            value: profileCompletion,
-            backgroundColor: Colors.white.withOpacity(0.3),
-            valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Thêm số điện thoại để hoàn thiện 100%',
             style: TextStyle(
-              color: Colors.white70,
+              color: Colors.grey[700],
               fontSize: 12,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -464,28 +373,28 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildQuickActionsSection() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: kMediumPadding),
-      child: Row(
-        children: [
-          Expanded(child: _buildQuickActionButton(
-            FontAwesomeIcons.plus,
-            'Tạo kế hoạch',
-            ColorPalette.primaryColor,
-            () => _navigateToCreateTrip(),
-          )),
-          const SizedBox(width: 12),
-          Expanded(child: _buildQuickActionButton(
-            FontAwesomeIcons.magnifyingGlass,
-            'Khám phá',
-            Colors.orange,
-            () => _navigateToExplore(),
-          )),
-        ],
-      ),
-    );
-  }
+  // Widget _buildQuickActionsSection() {
+  //   return Container(
+  //     margin: const EdgeInsets.symmetric(horizontal: kMediumPadding),
+  //     child: Row(
+  //       children: [
+  //         Expanded(child: _buildQuickActionButton(
+  //           FontAwesomeIcons.plus,
+  //           'Tạo kế hoạch',
+  //           ColorPalette.primaryColor,
+  //           () => _navigateToCreateTrip(),
+  //         )),
+  //         const SizedBox(width: 12),
+  //         Expanded(child: _buildQuickActionButton(
+  //           FontAwesomeIcons.magnifyingGlass,
+  //           'Khám phá',
+  //           Colors.orange,
+  //           () => _navigateToExplore(),
+  //         )),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildQuickActionButton(IconData icon, String label, Color color, VoidCallback onTap) {
     return GestureDetector(
@@ -899,7 +808,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   void _navigateToPersonalInfo() {
-    _showComingSoonDialog('Thông tin cá nhân');
+    Navigator.pushNamed(context, PersonalInfoScreen.routeName);
   }
 
   void _navigateToMyTrips() {
