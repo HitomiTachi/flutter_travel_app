@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
-import 'package:flutter_travels_apps/core/extenstions/date_ext.dart';
+import 'package:flutter_travels_apps/core/extensions/date_ext.dart';
 import 'package:flutter_travels_apps/core/helpers/asset_helper.dart';
 import 'package:flutter_travels_apps/core/helpers/accommodation_selection_helper.dart';
 import 'package:flutter_travels_apps/representation/screen/trip_planning_screen.dart';
