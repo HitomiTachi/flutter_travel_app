@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/core/constants/color_constants.dart';
+import 'package:flutter_travels_apps/core/constants/textstyle_constants.dart';
 import 'package:flutter_travels_apps/representation/widgets/app_bar_container.dart';
-
 import 'package:flutter_travels_apps/data/models/trip_plan_data.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -35,7 +35,7 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
     _pageController = PageController();
-    
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final args = ModalRoute.of(context)?.settings.arguments;
       if (args != null && args is TripPlanData) {
@@ -60,14 +60,12 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
     super.dispose();
   }
 
-  // Dữ liệu mẫu cho kế hoạch chi tiết với icon và màu sắc
+  // ================== SAMPLE DATA BUILDER ==================
   Map<int, List<TripActivity>> get tripPlan => {
-    for (int i = 1; i <= tripData.totalDays; i++)
-      i: _getActivitiesForDay(i),
-  };
+        for (int i = 1; i <= tripData.totalDays; i++) i: _getActivitiesForDay(i),
+      };
 
   List<TripActivity> _getActivitiesForDay(int day) {
-    // Tạo dữ liệu mẫu cho từng ngày
     switch (day) {
       case 1:
         return [
@@ -79,7 +77,7 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
             duration: '2 giờ',
             cost: '500,000 VNĐ',
             icon: FontAwesomeIcons.planeDeparture,
-            color: Colors.orange,
+            color: ColorPalette.yellowColor,
           ),
           TripActivity(
             time: '14:00',
@@ -89,7 +87,7 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
             duration: '30 phút',
             cost: '${tripData.budget ~/ tripData.totalDays} VNĐ/ngày',
             icon: FontAwesomeIcons.bed,
-            color: Colors.blue,
+            color: ColorPalette.secondColor,
           ),
           TripActivity(
             time: '16:00',
@@ -181,6 +179,7 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
     }
   }
 
+  // ================== UI ==================
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
@@ -190,23 +189,139 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
     }
 
     return AppBarContainerWidget(
-      titleString: 'Kế Hoạch Chi Tiết',
-      implementLeading: true,
+      title: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: kDefaultPadding),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          'Kế Hoạch Chi Tiết',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyles.defaultStyle.copyWith(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Icon(
+                        FontAwesomeIcons.route,
+                        size: 16,
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    tripData.destination.isNotEmpty
+                        ? 'Điểm đến: ${tripData.destination}'
+                        : 'Điền thông tin chuyến đi của bạn',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyles.defaultStyle.copyWith(
+                      fontSize: 13,
+                      color: Colors.white.withOpacity(0.9),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            _buildMiniSummaryBadge(),
+          ],
+        ),
+      ),
       child: Column(
         children: [
-          // Trip Summary Card
           _buildTripSummaryCard(),
-          
-          // Day Navigation
+          _buildSectionHeader('Lịch Trình Theo Ngày'),
           _buildModernDaySelector(),
-          
-          // Activities Content
-          Expanded(
-            child: _buildActivitiesPageView(),
-          ),
-          
-          // Bottom Action Bar
+          Expanded(child: _buildActivitiesPageView()),
           _buildBottomActionBar(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: kDefaultPadding)
+          .copyWith(top: kTopPadding),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: TextStyles.defaultStyle.copyWith(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: ColorPalette.textColor,
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text('Tính năng đang phát triển'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+            child: Text(
+              'Xem thêm',
+              style: TextStyles.defaultStyle.copyWith(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: ColorPalette.primaryColor,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMiniSummaryBadge() {
+    return Container(
+      height: 40,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.white.withOpacity(0.25)),
+      ),
+      child: Row(
+        children: [
+          const Icon(FontAwesomeIcons.calendar, size: 14, color: Colors.white),
+          const SizedBox(width: 6),
+          Text(
+            '${tripData.totalDays}N',
+            style: TextStyles.defaultStyle.copyWith(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(width: 10),
+          const Icon(FontAwesomeIcons.users, size: 14, color: Colors.white),
+          const SizedBox(width: 6),
+          Text(
+            '${tripData.travelers}',
+            style: TextStyles.defaultStyle.copyWith(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ],
       ),
     );
@@ -218,119 +333,111 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
       child: Container(
         margin: const EdgeInsets.all(kMediumPadding),
         child: Card(
-          elevation: 8,
+          elevation: 12,
+          shadowColor: ColorPalette.primaryColor.withOpacity(0.18),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(kTopPadding * 1.5),
+            borderRadius: BorderRadius.circular(kTopPadding * 2),
           ),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(kTopPadding * 1.5),
-              gradient: LinearGradient(
-                colors: [
-                  ColorPalette.primaryColor,
-                  ColorPalette.primaryColor.withOpacity(0.8),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(kTopPadding * 2),
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: Gradients.defaultGradientBackground,
               ),
-            ),
-            padding: const EdgeInsets.all(kMediumPadding * 1.5),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(
-                        FontAwesomeIcons.mapLocationDot,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            tripData.destination,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            'Từ ${tripData.departure}',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                
-                const SizedBox(height: kMediumPadding),
-                
-                Row(
-                  children: [
-                    _buildInfoChip(
-                      FontAwesomeIcons.calendar,
-                      '${tripData.totalDays} ngày',
-                    ),
-                    const SizedBox(width: 12),
-                    _buildInfoChip(
-                      FontAwesomeIcons.users,
-                      '${tripData.travelers} người',
-                    ),
-                    const SizedBox(width: 12),
-                    _buildInfoChip(
-                      FontAwesomeIcons.coins,
-                      '${_formatCurrency(tripData.budget)}',
-                    ),
-                  ],
-                ),
-                
-                const SizedBox(height: kDefaultPadding),
-                
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
+              padding: const EdgeInsets.all(kMediumPadding * 1.5),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      const Icon(
-                        FontAwesomeIcons.clockFour,
-                        color: Colors.white,
-                        size: 12,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        tripData.dateRange,
-                        style: const TextStyle(
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.18),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          FontAwesomeIcons.mapLocationDot,
                           color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
+                          size: 18,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              tripData.destination.isNotEmpty
+                                  ? tripData.destination
+                                  : 'Điểm đến chưa xác định',
+                              style: TextStyles.defaultStyle.copyWith(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              tripData.departure.isNotEmpty
+                                  ? 'Từ ${tripData.departure}'
+                                  : 'Nơi khởi hành chưa có',
+                              style: TextStyles.defaultStyle.copyWith(
+                                color: Colors.white70,
+                                fontSize: 13,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: kMediumPadding),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _buildInfoChip(FontAwesomeIcons.calendar,
+                          '${tripData.totalDays} ngày'),
+                      _buildInfoChip(FontAwesomeIcons.users,
+                          '${tripData.travelers} người'),
+                      _buildInfoChip(FontAwesomeIcons.coins,
+                          _formatCurrency(tripData.budget)),
+                    ],
+                  ),
+                  const SizedBox(height: kDefaultPadding),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.18),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(FontAwesomeIcons.clock,
+                            color: Colors.white, size: 12),
+                        const SizedBox(width: 6),
+                        Text(
+                          tripData.dateRange.isNotEmpty
+                              ? tripData.dateRange
+                              : 'Chưa chọn ngày',
+                          style: TextStyles.defaultStyle.copyWith(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -340,22 +447,22 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
 
   Widget _buildInfoChip(IconData icon, String text) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
+        color: Colors.white.withOpacity(0.18),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, color: Colors.white, size: 12),
-          const SizedBox(width: 4),
+          const SizedBox(width: 6),
           Text(
             text,
-            style: const TextStyle(
+            style: TextStyles.defaultStyle.copyWith(
               color: Colors.white,
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -365,7 +472,7 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
 
   Widget _buildModernDaySelector() {
     return Container(
-      height: 80,
+      height: 86,
       margin: const EdgeInsets.symmetric(horizontal: kMediumPadding),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
@@ -375,69 +482,69 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
           final day = index + 1;
           final isSelected = day == selectedDay;
           final hasActivities = tripPlan[day]?.isNotEmpty ?? false;
-          
+
           return GestureDetector(
             onTap: () {
-              setState(() {
-                selectedDay = day;
-              });
+              setState(() => selectedDay = day);
               _pageController.animateToPage(
                 index,
-                duration: const Duration(milliseconds: 300),
+                duration: const Duration(milliseconds: 280),
                 curve: Curves.easeInOut,
               );
             },
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               margin: const EdgeInsets.symmetric(horizontal: 6),
-              width: 60,
+              width: 64,
               decoration: BoxDecoration(
                 gradient: isSelected
-                    ? LinearGradient(
+                    ? const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomLeft,
                         colors: [
-                          ColorPalette.primaryColor,
-                          ColorPalette.primaryColor.withOpacity(0.8),
+                          ColorPalette.secondColor,
+                          ColorPalette.primaryColor
                         ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
                       )
                     : null,
-                color: !isSelected ? Colors.grey[50] : null,
-                borderRadius: BorderRadius.circular(kTopPadding),
+                color: !isSelected ? Colors.white : null,
+                borderRadius: BorderRadius.circular(kTopPadding * 1.2),
                 border: Border.all(
                   color: isSelected
-                      ? ColorPalette.primaryColor
-                      : Colors.grey[300]!,
-                  width: isSelected ? 2 : 1,
+                      ? Colors.transparent
+                      : ColorPalette.dividerColor,
+                  width: 1,
                 ),
-                boxShadow: isSelected
-                    ? [
-                        BoxShadow(
-                          color: ColorPalette.primaryColor.withOpacity(0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ]
-                    : null,
+                boxShadow: [
+                  if (isSelected)
+                    BoxShadow(
+                      color: ColorPalette.primaryColor.withOpacity(0.25),
+                      blurRadius: 10,
+                      offset: const Offset(0, 6),
+                    ),
+                ],
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     'Ngày',
-                    style: TextStyle(
+                    style: TextStyles.defaultStyle.copyWith(
                       fontSize: 11,
-                      color: isSelected ? Colors.white : Colors.grey[600],
+                      color: isSelected
+                          ? Colors.white
+                          : ColorPalette.subTitleColor,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     '$day',
-                    style: TextStyle(
+                    style: TextStyles.defaultStyle.copyWith(
                       fontSize: 20,
+                      color:
+                          isSelected ? Colors.white : ColorPalette.textColor,
                       fontWeight: FontWeight.bold,
-                      color: isSelected ? Colors.white : Colors.grey[800],
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -446,7 +553,9 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
                     height: 6,
                     decoration: BoxDecoration(
                       color: hasActivities
-                          ? (isSelected ? Colors.white : ColorPalette.primaryColor)
+                          ? (isSelected
+                              ? Colors.white
+                              : ColorPalette.primaryColor)
                           : Colors.transparent,
                       shape: BoxShape.circle,
                     ),
@@ -463,19 +572,14 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
   Widget _buildActivitiesPageView() {
     return PageView.builder(
       controller: _pageController,
-      onPageChanged: (index) {
-        setState(() {
-          selectedDay = index + 1;
-        });
-      },
+      onPageChanged: (index) => setState(() => selectedDay = index + 1),
       itemCount: tripData.totalDays,
       itemBuilder: (context, index) {
         final day = index + 1;
         final activities = tripPlan[day] ?? [];
-        
         return AnimatedOpacity(
           opacity: 1.0,
-          duration: const Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 250),
           child: _buildDayActivities(day, activities),
         );
       },
@@ -483,17 +587,16 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
   }
 
   Widget _buildDayActivities(int day, List<TripActivity> activities) {
-    if (activities.isEmpty) {
-      return _buildEmptyDayState(day);
-    }
+    if (activities.isEmpty) return _buildEmptyDayState(day);
 
     return ListView.builder(
       padding: const EdgeInsets.all(kMediumPadding),
       itemCount: activities.length,
-      itemBuilder: (context, index) {
-        final activity = activities[index];
-        return _buildModernActivityCard(activity, index, activities.length);
-      },
+      itemBuilder: (context, index) => _buildModernActivityCard(
+        activities[index],
+        index,
+        activities.length,
+      ),
     );
   }
 
@@ -503,51 +606,49 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
+            width: 84,
+            height: 84,
+            decoration: const BoxDecoration(
+              color: ColorPalette.backgroundScaffoldColor,
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              FontAwesomeIcons.calendarPlus,
-              size: 32,
-              color: Colors.grey[400],
-            ),
+            child: const Icon(FontAwesomeIcons.calendarPlus,
+                size: 28, color: ColorPalette.subTitleColor),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 18),
           Text(
             'Ngày $day chưa có kế hoạch',
-            style: const TextStyle(
-              fontSize: 18,
+            style: TextStyles.defaultStyle.copyWith(
+              fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: Colors.grey,
+              color: ColorPalette.subTitleColor,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
             'Thêm hoạt động để tạo kế hoạch chi tiết',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
+            style: TextStyles.defaultStyle.copyWith(
+              fontSize: 13,
+              color: ColorPalette.subTitleColor,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 18),
           ElevatedButton.icon(
             onPressed: () => _showAddActivityDialog(day),
-            icon: const Icon(FontAwesomeIcons.plus, size: 16),
-            label: const Text('Thêm hoạt động'),
+            icon: const Icon(FontAwesomeIcons.plus, size: 14),
+            label: Text(
+              'Thêm hoạt động',
+              style: TextStyles.defaultStyle.copyWith(color: Colors.white),
+            ),
             style: ElevatedButton.styleFrom(
               backgroundColor: ColorPalette.primaryColor,
-              foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(kTopPadding),
               ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 12,
-              ),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              elevation: 0,
             ),
           ),
         ],
@@ -555,15 +656,16 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
     );
   }
 
-  Widget _buildModernActivityCard(TripActivity activity, int index, int total) {
+  Widget _buildModernActivityCard(
+      TripActivity activity, int index, int total) {
     final isLast = index == total - 1;
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: kMediumPadding),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Timeline với animation
+          // Timeline avatar + connector
           Column(
             children: [
               Container(
@@ -571,51 +673,43 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
                 height: 50,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      activity.color,
-                      activity.color.withOpacity(0.7),
-                    ],
+                    colors: [activity.color, activity.color.withOpacity(0.7)],
                   ),
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: activity.color.withOpacity(0.3),
+                      color: activity.color.withOpacity(0.28),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
                   ],
                 ),
-                child: Icon(
-                  activity.icon,
-                  color: Colors.white,
-                  size: 20,
-                ),
+                child: Icon(activity.icon, color: Colors.white, size: 20),
               ),
               if (!isLast)
                 Container(
                   width: 2,
-                  height: 40,
+                  height: 42,
                   margin: const EdgeInsets.symmetric(vertical: 8),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [
-                        activity.color.withOpacity(0.3),
-                        Colors.grey[300]!,
-                      ],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
+                      colors: [
+                        activity.color.withOpacity(0.35),
+                        ColorPalette.dividerColor
+                      ],
                     ),
                   ),
                 ),
             ],
           ),
-          
           const SizedBox(width: kMediumPadding),
-          
-          // Activity Card
+          // Card
           Expanded(
             child: Card(
               elevation: 2,
+              shadowColor: ColorPalette.primaryColor.withOpacity(0.08),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(kTopPadding),
               ),
@@ -624,10 +718,7 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(kTopPadding),
                   gradient: LinearGradient(
-                    colors: [
-                      Colors.white,
-                      Colors.grey[50]!,
-                    ],
+                    colors: [Colors.white, Colors.grey[50]!],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -639,16 +730,14 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
                       children: [
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: activity.color.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
                             activity.time,
-                            style: TextStyle(
+                            style: TextStyles.defaultStyle.copyWith(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                               color: activity.color,
@@ -659,44 +748,32 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
                         _buildActivityTypeChip(activity.type),
                       ],
                     ),
-                    
                     const SizedBox(height: 8),
-                    
                     Text(
                       activity.title,
-                      style: const TextStyle(
+                      style: TextStyles.defaultStyle.copyWith(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: ColorPalette.textColor,
                       ),
                     ),
-                    
                     const SizedBox(height: 4),
-                    
                     Text(
                       activity.description,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                        height: 1.3,
+                      style: TextStyles.defaultStyle.copyWith(
+                        fontSize: 13,
+                        color: ColorPalette.subTitleColor,
+                        height: 1.35,
                       ),
                     ),
-                    
                     const SizedBox(height: 12),
-                    
                     Row(
                       children: [
-                        _buildActivityInfo(
-                          FontAwesomeIcons.clock,
-                          activity.duration,
-                          Colors.blue,
-                        ),
+                        _buildActivityInfo(FontAwesomeIcons.clock,
+                            activity.duration, ColorPalette.secondColor),
                         const SizedBox(width: 16),
-                        _buildActivityInfo(
-                          FontAwesomeIcons.coins,
-                          activity.cost,
-                          Colors.green,
-                        ),
+                        _buildActivityInfo(FontAwesomeIcons.coins,
+                            activity.cost, ColorPalette.yellowColor),
                       ],
                     ),
                   ],
@@ -711,18 +788,19 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
 
   Widget _buildActivityTypeChip(ActivityType type) {
     final typeInfo = _getActivityTypeInfo(type);
+    final Color c = typeInfo['color'] as Color;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: typeInfo['color'].withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
+        color: c.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Text(
-        typeInfo['label'],
-        style: TextStyle(
-          fontSize: 10,
+        typeInfo['label'] as String,
+        style: TextStyles.defaultStyle.copyWith(
+          fontSize: 11,
           fontWeight: FontWeight.w600,
-          color: typeInfo['color'],
+          color: c,
         ),
       ),
     );
@@ -733,13 +811,13 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, size: 12, color: color),
-        const SizedBox(width: 4),
+        const SizedBox(width: 6),
         Text(
           text,
-          style: TextStyle(
+          style: TextStyles.defaultStyle.copyWith(
             fontSize: 12,
             color: color,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
@@ -749,13 +827,13 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
   Widget _buildBottomActionBar() {
     return Container(
       padding: const EdgeInsets.all(kMediumPadding),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
+            color: Color(0x1A000000),
+            blurRadius: 10,
+            offset: Offset(0, -4),
           ),
         ],
       ),
@@ -765,10 +843,15 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
             child: OutlinedButton.icon(
               onPressed: () => _showAddActivityDialog(selectedDay),
               icon: const Icon(FontAwesomeIcons.plus, size: 16),
-              label: const Text('Thêm hoạt động'),
+              label: Text(
+                'Thêm hoạt động',
+                style: TextStyles.defaultStyle.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               style: OutlinedButton.styleFrom(
                 foregroundColor: ColorPalette.primaryColor,
-                side: BorderSide(color: ColorPalette.primaryColor),
+                side: const BorderSide(color: ColorPalette.primaryColor),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(kTopPadding),
                 ),
@@ -781,7 +864,13 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
             child: ElevatedButton.icon(
               onPressed: _saveTripPlan,
               icon: const Icon(FontAwesomeIcons.floppyDisk, size: 16),
-              label: const Text('Lưu kế hoạch'),
+              label: Text(
+                'Lưu kế hoạch',
+                style: TextStyles.defaultStyle.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: ColorPalette.primaryColor,
                 foregroundColor: Colors.white,
@@ -789,6 +878,7 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
                   borderRadius: BorderRadius.circular(kTopPadding),
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 12),
+                elevation: 0,
               ),
             ),
           ),
@@ -800,9 +890,9 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
   Map<String, dynamic> _getActivityTypeInfo(ActivityType type) {
     switch (type) {
       case ActivityType.transport:
-        return {'label': 'Di chuyển', 'color': Colors.orange};
+        return {'label': 'Di chuyển', 'color': ColorPalette.yellowColor};
       case ActivityType.accommodation:
-        return {'label': 'Lưu trú', 'color': Colors.blue};
+        return {'label': 'Lưu trú', 'color': ColorPalette.secondColor};
       case ActivityType.sightseeing:
         return {'label': 'Tham quan', 'color': Colors.green};
       case ActivityType.dining:
@@ -855,18 +945,22 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 18),
           Text(
             'Thêm hoạt động - Ngày $day',
-            style: const TextStyle(
-              fontSize: 20,
+            style: TextStyles.defaultStyle.copyWith(
+              fontSize: 18,
               fontWeight: FontWeight.bold,
+              color: ColorPalette.textColor,
             ),
           ),
-          const SizedBox(height: 20),
-          const Text(
+          const SizedBox(height: 14),
+          Text(
             'Tính năng này đang phát triển...',
-            style: TextStyle(fontSize: 16),
+            style: TextStyles.defaultStyle.copyWith(
+              fontSize: 14,
+              color: ColorPalette.subTitleColor,
+            ),
           ),
           const Spacer(),
           SizedBox(
@@ -875,12 +969,18 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
               onPressed: () => Navigator.pop(context),
               style: ElevatedButton.styleFrom(
                 backgroundColor: ColorPalette.primaryColor,
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(kTopPadding),
                 ),
               ),
-              child: const Text('Đóng', style: TextStyle(color: Colors.white)),
+              child: Text(
+                'Đóng',
+                style: TextStyles.defaultStyle.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ),
         ],
@@ -891,18 +991,20 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
   void _saveTripPlan() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Kế hoạch đã được lưu thành công!'),
+        content: Text(
+          'Kế hoạch đã được lưu thành công!',
+          style: TextStyles.defaultStyle.copyWith(color: Colors.white),
+        ),
         backgroundColor: Colors.green,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }
 }
 
-// Enum cho loại hoạt động
+// ================== MODELS ==================
+
 enum ActivityType {
   transport,
   accommodation,
@@ -913,7 +1015,6 @@ enum ActivityType {
   leisure,
 }
 
-// Enhanced Activity Model
 class TripActivity {
   final String time;
   final String title;
