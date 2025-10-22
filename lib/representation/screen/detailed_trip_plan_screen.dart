@@ -8,7 +8,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class DetailedTripPlanScreen extends StatefulWidget {
   const DetailedTripPlanScreen({Key? key}) : super(key: key);
-
   static const String routeName = '/detailed_trip_plan_screen';
 
   @override
@@ -19,36 +18,31 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
     with TickerProviderStateMixin {
   int selectedDay = 1;
   late TripPlanData tripData;
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-  late PageController _pageController;
+  late final AnimationController _animationController;
+  late final Animation<double> _fadeAnimation;
+  late final PageController _pageController;
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 260),
       vsync: this,
     );
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
-    );
-    _pageController = PageController();
+    _fadeAnimation = CurvedAnimation(parent: _animationController, curve: Curves.easeInOut);
+    _pageController = PageController(initialPage: selectedDay - 1);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final args = ModalRoute.of(context)?.settings.arguments;
       if (args != null && args is TripPlanData) {
-        setState(() {
-          tripData = args;
-          isLoading = false;
-        });
+        tripData = args;
       } else {
         tripData = TripPlanData();
-        setState(() {
-          isLoading = false;
-        });
       }
+      selectedDay = tripData.totalDays.clamp(1, tripData.totalDays);
+      isLoading = false;
+      setState(() {});
       _animationController.forward();
     });
   }
@@ -60,7 +54,7 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
     super.dispose();
   }
 
-  // ================== SAMPLE DATA BUILDER ==================
+  // ================== SAMPLE DATA ==================
   Map<int, List<TripActivity>> get tripPlan => {
         for (int i = 1; i <= tripData.totalDays; i++) i: _getActivitiesForDay(i),
       };
@@ -85,7 +79,7 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
             description: 'Nhận phòng và nghỉ ngơi sau chuyến đi',
             type: ActivityType.accommodation,
             duration: '30 phút',
-            cost: '${tripData.budget ~/ tripData.totalDays} VNĐ/ngày',
+            cost: '${tripData.budget ~/ (tripData.totalDays == 0 ? 1 : tripData.totalDays)} VNĐ/ngày',
             icon: FontAwesomeIcons.bed,
             color: ColorPalette.secondColor,
           ),
@@ -183,10 +177,10 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
+
+    final bottomSafe = MediaQuery.of(context).padding.bottom;
 
     return AppBarContainerWidget(
       title: Padding(
@@ -197,29 +191,22 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          'Kế Hoạch Chi Tiết',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyles.defaultStyle.copyWith(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
+                  Row(mainAxisSize: MainAxisSize.min, children: [
+                    Flexible(
+                      child: Text(
+                        'Kế Hoạch Chi Tiết',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyles.defaultStyle.copyWith(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
-                      const SizedBox(width: 6),
-                      Icon(
-                        FontAwesomeIcons.route,
-                        size: 16,
-                        color: Colors.white.withOpacity(0.9),
-                      ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 6),
+                    Icon(FontAwesomeIcons.route, size: 16, color: Colors.white.withOpacity(0.92)),
+                  ]),
                   const SizedBox(height: 4),
                   Text(
                     tripData.destination.isNotEmpty
@@ -229,7 +216,7 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
                     overflow: TextOverflow.ellipsis,
                     style: TextStyles.defaultStyle.copyWith(
                       fontSize: 13,
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withOpacity(0.92),
                     ),
                   ),
                 ],
@@ -240,55 +227,59 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
           ],
         ),
       ),
-      child: Column(
-        children: [
-          _buildTripSummaryCard(),
-          _buildSectionHeader('Lịch Trình Theo Ngày'),
-          _buildModernDaySelector(),
-          Expanded(child: _buildActivitiesPageView()),
-          _buildBottomActionBar(),
-        ],
+      child: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF7F8FA), // Softer background
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: ColorPalette.primaryColor.withOpacity(0.06),
+                    blurRadius: 18,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+                border: Border.all(color: ColorPalette.dividerColor.withOpacity(0.12), width: 1),
+              ),
+              padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Lịch trình theo ngày',
+                    style: TextStyles.defaultStyle.copyWith(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: ColorPalette.textColor,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  _buildModernDaySelector(),
+                ],
+              ),
+            ),
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                switchInCurve: Curves.easeOut,
+                switchOutCurve: Curves.easeIn,
+                child: _buildActivitiesPageView(bottomInset: bottomSafe + 84),
+              ),
+            ),
+            _buildBottomActionBar(),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildSectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: kDefaultPadding)
-          .copyWith(top: kTopPadding),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: TextStyles.defaultStyle.copyWith(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: ColorPalette.textColor,
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text('Tính năng đang phát triển'),
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            },
-            child: Text(
-              'Xem thêm',
-              style: TextStyles.defaultStyle.copyWith(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: ColorPalette.primaryColor,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildMiniSummaryBadge() {
     return Container(
@@ -303,264 +294,96 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
         children: [
           const Icon(FontAwesomeIcons.calendar, size: 14, color: Colors.white),
           const SizedBox(width: 6),
-          Text(
-            '${tripData.totalDays}N',
-            style: TextStyles.defaultStyle.copyWith(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          Text('${tripData.totalDays}N',
+              style: TextStyles.defaultStyle.copyWith(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
           const SizedBox(width: 10),
           const Icon(FontAwesomeIcons.users, size: 14, color: Colors.white),
           const SizedBox(width: 6),
-          Text(
-            '${tripData.travelers}',
-            style: TextStyles.defaultStyle.copyWith(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          Text('${tripData.travelers}',
+              style: TextStyles.defaultStyle.copyWith(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
         ],
       ),
     );
   }
 
-  Widget _buildTripSummaryCard() {
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: Container(
-        margin: const EdgeInsets.all(kMediumPadding),
-        child: Card(
-          elevation: 12,
-          shadowColor: ColorPalette.primaryColor.withOpacity(0.18),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(kTopPadding * 2),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(kTopPadding * 2),
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: Gradients.defaultGradientBackground,
-              ),
-              padding: const EdgeInsets.all(kMediumPadding * 1.5),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.18),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          FontAwesomeIcons.mapLocationDot,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              tripData.destination.isNotEmpty
-                                  ? tripData.destination
-                                  : 'Điểm đến chưa xác định',
-                              style: TextStyles.defaultStyle.copyWith(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              tripData.departure.isNotEmpty
-                                  ? 'Từ ${tripData.departure}'
-                                  : 'Nơi khởi hành chưa có',
-                              style: TextStyles.defaultStyle.copyWith(
-                                color: Colors.white70,
-                                fontSize: 13,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: kMediumPadding),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      _buildInfoChip(FontAwesomeIcons.calendar,
-                          '${tripData.totalDays} ngày'),
-                      _buildInfoChip(FontAwesomeIcons.users,
-                          '${tripData.travelers} người'),
-                      _buildInfoChip(FontAwesomeIcons.coins,
-                          _formatCurrency(tripData.budget)),
-                    ],
-                  ),
-                  const SizedBox(height: kDefaultPadding),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.18),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(FontAwesomeIcons.clock,
-                            color: Colors.white, size: 12),
-                        const SizedBox(width: 6),
-                        Text(
-                          tripData.dateRange.isNotEmpty
-                              ? tripData.dateRange
-                              : 'Chưa chọn ngày',
-                          style: TextStyles.defaultStyle.copyWith(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoChip(IconData icon, String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.18),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: Colors.white, size: 12),
-          const SizedBox(width: 6),
-          Text(
-            text,
-            style: TextStyles.defaultStyle.copyWith(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  
 
   Widget _buildModernDaySelector() {
-    return Container(
-      height: 86,
-      margin: const EdgeInsets.symmetric(horizontal: kMediumPadding),
+    return SizedBox(
+      height: 90,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 2),
         itemCount: tripData.totalDays,
         itemBuilder: (context, index) {
           final day = index + 1;
           final isSelected = day == selectedDay;
-          final hasActivities = tripPlan[day]?.isNotEmpty ?? false;
+          final hasActivities = (tripPlan[day]?.isNotEmpty ?? false);
 
-          return GestureDetector(
-            onTap: () {
-              setState(() => selectedDay = day);
-              _pageController.animateToPage(
-                index,
-                duration: const Duration(milliseconds: 280),
-                curve: Curves.easeInOut,
-              );
-            },
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              margin: const EdgeInsets.symmetric(horizontal: 6),
-              width: 64,
-              decoration: BoxDecoration(
-                gradient: isSelected
-                    ? const LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomLeft,
-                        colors: [
-                          ColorPalette.secondColor,
-                          ColorPalette.primaryColor
-                        ],
-                      )
-                    : null,
-                color: !isSelected ? Colors.white : null,
-                borderRadius: BorderRadius.circular(kTopPadding * 1.2),
-                border: Border.all(
-                  color: isSelected
-                      ? Colors.transparent
-                      : ColorPalette.dividerColor,
-                  width: 1,
+          return Container(
+            margin: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+            child: GestureDetector(
+              onTap: () {
+                setState(() => selectedDay = day);
+                _pageController.animateToPage(index, duration: const Duration(milliseconds: 300), curve: Curves.easeInOutCubic);
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: 64,
+                decoration: BoxDecoration(
+                  gradient: isSelected
+                      ? const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [ColorPalette.primaryColor, ColorPalette.secondColor],
+                        )
+                      : null,
+                  color: !isSelected ? Colors.white : null,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(
+                    color: isSelected ? ColorPalette.primaryColor : ColorPalette.dividerColor,
+                    width: isSelected ? 2 : 1,
+                  ),
+                  boxShadow: [
+                    if (isSelected)
+                      BoxShadow(
+                        color: ColorPalette.primaryColor.withOpacity(0.18),
+                        blurRadius: 14,
+                        offset: const Offset(0, 8),
+                      ),
+                  ],
                 ),
-                boxShadow: [
-                  if (isSelected)
-                    BoxShadow(
-                      color: ColorPalette.primaryColor.withOpacity(0.25),
-                      blurRadius: 10,
-                      offset: const Offset(0, 6),
-                    ),
-                ],
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Ngày',
-                    style: TextStyles.defaultStyle.copyWith(
-                      fontSize: 11,
-                      color: isSelected
-                          ? Colors.white
-                          : ColorPalette.subTitleColor,
-                      fontWeight: FontWeight.w500,
-                    ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 2),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Ngày',
+                          style: TextStyles.defaultStyle.copyWith(
+                            fontSize: 12,
+                            color: isSelected ? Colors.white : ColorPalette.subTitleColor,
+                            fontWeight: FontWeight.w500,
+                          )),
+                      const SizedBox(height: 3),
+                      Text('$day',
+                          style: TextStyles.defaultStyle.copyWith(
+                            fontSize: 22,
+                            color: isSelected ? Colors.white : ColorPalette.textColor,
+                            fontWeight: FontWeight.bold,
+                          )),
+                      const SizedBox(height: 4),
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: hasActivities ? (isSelected ? Colors.white : ColorPalette.primaryColor) : Colors.transparent,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '$day',
-                    style: TextStyles.defaultStyle.copyWith(
-                      fontSize: 20,
-                      color:
-                          isSelected ? Colors.white : ColorPalette.textColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Container(
-                    width: 6,
-                    height: 6,
-                    decoration: BoxDecoration(
-                      color: hasActivities
-                          ? (isSelected
-                              ? Colors.white
-                              : ColorPalette.primaryColor)
-                          : Colors.transparent,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           );
@@ -569,7 +392,7 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
     );
   }
 
-  Widget _buildActivitiesPageView() {
+  Widget _buildActivitiesPageView({required double bottomInset}) {
     return PageView.builder(
       controller: _pageController,
       onPageChanged: (index) => setState(() => selectedDay = index + 1),
@@ -577,112 +400,83 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
       itemBuilder: (context, index) {
         final day = index + 1;
         final activities = tripPlan[day] ?? [];
-        return AnimatedOpacity(
-          opacity: 1.0,
-          duration: const Duration(milliseconds: 250),
-          child: _buildDayActivities(day, activities),
-        );
+        return _buildDayActivities(day, activities, bottomInset: bottomInset);
       },
     );
   }
 
-  Widget _buildDayActivities(int day, List<TripActivity> activities) {
+  Widget _buildDayActivities(int day, List<TripActivity> activities, {required double bottomInset}) {
     if (activities.isEmpty) return _buildEmptyDayState(day);
 
     return ListView.builder(
-      padding: const EdgeInsets.all(kMediumPadding),
+      padding: EdgeInsets.fromLTRB(kMediumPadding, kMediumPadding, kMediumPadding, bottomInset),
       itemCount: activities.length,
-      itemBuilder: (context, index) => _buildModernActivityCard(
-        activities[index],
-        index,
-        activities.length,
-      ),
+      itemBuilder: (context, index) => _buildModernActivityCard(activities[index], index, activities.length),
     );
   }
 
   Widget _buildEmptyDayState(int day) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 84,
-            height: 84,
-            decoration: const BoxDecoration(
-              color: ColorPalette.backgroundScaffoldColor,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(FontAwesomeIcons.calendarPlus,
-                size: 28, color: ColorPalette.subTitleColor),
-          ),
-          const SizedBox(height: 18),
-          Text(
-            'Ngày $day chưa có kế hoạch',
-            style: TextStyles.defaultStyle.copyWith(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: ColorPalette.subTitleColor,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Thêm hoạt động để tạo kế hoạch chi tiết',
-            style: TextStyles.defaultStyle.copyWith(
-              fontSize: 13,
-              color: ColorPalette.subTitleColor,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 18),
-          ElevatedButton.icon(
-            onPressed: () => _showAddActivityDialog(day),
-            icon: const Icon(FontAwesomeIcons.plus, size: 14),
-            label: Text(
-              'Thêm hoạt động',
-              style: TextStyles.defaultStyle.copyWith(color: Colors.white),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: ColorPalette.primaryColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(kTopPadding),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: kMediumPadding),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 84,
+              height: 84,
+              decoration: const BoxDecoration(
+                color: ColorPalette.backgroundScaffoldColor,
+                shape: BoxShape.circle,
               ),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-              elevation: 0,
+              child: const Icon(FontAwesomeIcons.calendarPlus, size: 28, color: ColorPalette.subTitleColor),
             ),
-          ),
-        ],
+            const SizedBox(height: 18),
+            Text('Ngày $day chưa có kế hoạch',
+                style: TextStyles.defaultStyle.copyWith(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: ColorPalette.subTitleColor,
+                )),
+            const SizedBox(height: 6),
+            Text('Thêm hoạt động để tạo kế hoạch chi tiết',
+                textAlign: TextAlign.center,
+                style: TextStyles.defaultStyle.copyWith(fontSize: 13, color: ColorPalette.subTitleColor)),
+            const SizedBox(height: 18),
+            ElevatedButton.icon(
+              onPressed: () => _showAddActivityDialog(day),
+              icon: const Icon(FontAwesomeIcons.plus, size: 14),
+              label: Text('Thêm hoạt động', style: TextStyles.defaultStyle.copyWith(color: Colors.white)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: ColorPalette.primaryColor,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kTopPadding)),
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                elevation: 0,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildModernActivityCard(
-      TripActivity activity, int index, int total) {
+  Widget _buildModernActivityCard(TripActivity activity, int index, int total) {
     final isLast = index == total - 1;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: kMediumPadding),
-      child: Row(
+    return LayoutBuilder(builder: (context, constraints) {
+      return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Timeline avatar + connector
+          // Timeline avatar + connector (cao theo nội dung)
           Column(
             children: [
               Container(
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [activity.color, activity.color.withOpacity(0.7)],
-                  ),
+                  gradient: LinearGradient(colors: [activity.color, activity.color.withOpacity(0.7)]),
                   shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: activity.color.withOpacity(0.28),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+                  boxShadow: [BoxShadow(color: activity.color.withOpacity(0.28), blurRadius: 8, offset: const Offset(0, 2))],
                 ),
                 child: Icon(activity.icon, color: Colors.white, size: 20),
               ),
@@ -695,10 +489,7 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: [
-                        activity.color.withOpacity(0.35),
-                        ColorPalette.dividerColor
-                      ],
+                      colors: [activity.color.withOpacity(0.35), ColorPalette.dividerColor],
                     ),
                   ),
                 ),
@@ -710,132 +501,96 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
             child: Card(
               elevation: 2,
               shadowColor: ColorPalette.primaryColor.withOpacity(0.08),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(kTopPadding),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kTopPadding)),
               child: Container(
                 padding: const EdgeInsets.all(kMediumPadding),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(kTopPadding),
-                  gradient: LinearGradient(
-                    colors: [Colors.white, Colors.grey[50]!],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  gradient: LinearGradient(colors: [Colors.white, Colors.grey[50]!], begin: Alignment.topLeft, end: Alignment.bottomRight),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: activity.color.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            activity.time,
-                            style: TextStyles.defaultStyle.copyWith(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: activity.color,
-                            ),
-                          ),
-                        ),
-                        const Spacer(),
-                        _buildActivityTypeChip(activity.type),
-                      ],
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Row(children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(color: activity.color.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+                      child: Text(activity.time,
+                          style: TextStyles.defaultStyle.copyWith(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: activity.color,
+                          )),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      activity.title,
-                      style: TextStyles.defaultStyle.copyWith(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: ColorPalette.textColor,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      activity.description,
-                      style: TextStyles.defaultStyle.copyWith(
-                        fontSize: 13,
-                        color: ColorPalette.subTitleColor,
-                        height: 1.35,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        _buildActivityInfo(FontAwesomeIcons.clock,
-                            activity.duration, ColorPalette.secondColor),
-                        const SizedBox(width: 16),
-                        _buildActivityInfo(FontAwesomeIcons.coins,
-                            activity.cost, ColorPalette.yellowColor),
-                      ],
-                    ),
-                  ],
-                ),
+                    const Spacer(),
+                    _buildActivityTypeChip(activity.type),
+                  ]),
+                  const SizedBox(height: 8),
+                  Text(activity.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyles.defaultStyle.copyWith(fontSize: 16, fontWeight: FontWeight.bold, color: ColorPalette.textColor)),
+                  const SizedBox(height: 4),
+                  Text(activity.description,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyles.defaultStyle.copyWith(fontSize: 13, color: ColorPalette.subTitleColor, height: 1.35)),
+                  const SizedBox(height: 12),
+                  Row(children: [
+                    _buildActivityInfo(FontAwesomeIcons.clock, activity.duration, ColorPalette.secondColor),
+                    const SizedBox(width: 16),
+                    _buildActivityInfo(FontAwesomeIcons.coins, activity.cost, ColorPalette.yellowColor),
+                  ]),
+                ]),
               ),
             ),
           ),
         ],
-      ),
-    );
+      );
+    });
   }
 
   Widget _buildActivityTypeChip(ActivityType type) {
-    final typeInfo = _getActivityTypeInfo(type);
-    final Color c = typeInfo['color'] as Color;
+    final info = _getActivityTypeInfo(type);
+    final Color c = info['color'] as Color;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: c.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Text(
-        typeInfo['label'] as String,
-        style: TextStyles.defaultStyle.copyWith(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          color: c,
-        ),
-      ),
+      decoration: BoxDecoration(color: c.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+      child: Text(info['label'] as String,
+          style: TextStyles.defaultStyle.copyWith(fontSize: 11, fontWeight: FontWeight.w600, color: c)),
     );
   }
 
   Widget _buildActivityInfo(IconData icon, String text, Color color) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
+    return Flexible(
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, size: 12, color: color),
         const SizedBox(width: 6),
-        Text(
-          text,
-          style: TextStyles.defaultStyle.copyWith(
-            fontSize: 12,
-            color: color,
-            fontWeight: FontWeight.w600,
-          ),
+        Flexible(
+          child: Text(text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyles.defaultStyle.copyWith(fontSize: 12, color: color, fontWeight: FontWeight.w600)),
         ),
-      ],
+      ]),
     );
   }
 
   Widget _buildBottomActionBar() {
     return Container(
-      padding: const EdgeInsets.all(kMediumPadding),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      padding: const EdgeInsets.fromLTRB(kMediumPadding, kMediumPadding, kMediumPadding, kMediumPadding),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7F8FA), // Softer background
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(18),
+          topRight: Radius.circular(18),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Color(0x1A000000),
-            blurRadius: 10,
-            offset: Offset(0, -4),
+            color: ColorPalette.primaryColor.withOpacity(0.07),
+            blurRadius: 16,
+            offset: const Offset(0, -6),
           ),
         ],
+        border: Border.all(color: ColorPalette.dividerColor.withOpacity(0.13), width: 1),
       ),
       child: Row(
         children: [
@@ -843,18 +598,11 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
             child: OutlinedButton.icon(
               onPressed: () => _showAddActivityDialog(selectedDay),
               icon: const Icon(FontAwesomeIcons.plus, size: 16),
-              label: Text(
-                'Thêm hoạt động',
-                style: TextStyles.defaultStyle.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+              label: Text('Thêm hoạt động', style: TextStyles.defaultStyle.copyWith(fontWeight: FontWeight.w600)),
               style: OutlinedButton.styleFrom(
                 foregroundColor: ColorPalette.primaryColor,
                 side: const BorderSide(color: ColorPalette.primaryColor),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(kTopPadding),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kTopPadding)),
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
             ),
@@ -864,19 +612,12 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
             child: ElevatedButton.icon(
               onPressed: _saveTripPlan,
               icon: const Icon(FontAwesomeIcons.floppyDisk, size: 16),
-              label: Text(
-                'Lưu kế hoạch',
-                style: TextStyles.defaultStyle.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+              label: Text('Lưu kế hoạch',
+                  style: TextStyles.defaultStyle.copyWith(color: Colors.white, fontWeight: FontWeight.w600)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: ColorPalette.primaryColor,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(kTopPadding),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kTopPadding)),
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 elevation: 0,
               ),
@@ -906,15 +647,6 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
     }
   }
 
-  String _formatCurrency(double amount) {
-    if (amount >= 1000000) {
-      return '${(amount / 1000000).toStringAsFixed(1)}M VNĐ';
-    } else if (amount >= 1000) {
-      return '${(amount / 1000).toStringAsFixed(0)}K VNĐ';
-    }
-    return '${amount.toStringAsFixed(0)} VNĐ';
-  }
-
   void _showAddActivityDialog(int day) {
     showModalBottomSheet(
       context: context,
@@ -927,93 +659,55 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
   Widget _buildAddActivityBottomSheet(int day) {
     return Container(
       height: MediaQuery.of(context).size.height * 0.75,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       padding: const EdgeInsets.all(kMediumPadding),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Center(
+          child: Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
           ),
-          const SizedBox(height: 18),
-          Text(
-            'Thêm hoạt động - Ngày $day',
-            style: TextStyles.defaultStyle.copyWith(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: ColorPalette.textColor,
+        ),
+        const SizedBox(height: 18),
+        Text('Thêm hoạt động - Ngày $day',
+            style: TextStyles.defaultStyle.copyWith(fontSize: 18, fontWeight: FontWeight.bold, color: ColorPalette.textColor)),
+        const SizedBox(height: 14),
+        Text('Tính năng này đang phát triển...',
+            style: TextStyles.defaultStyle.copyWith(fontSize: 14, color: ColorPalette.subTitleColor)),
+        const Spacer(),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ColorPalette.primaryColor,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kTopPadding)),
             ),
+            child: Text('Đóng',
+                style: TextStyles.defaultStyle.copyWith(color: Colors.white, fontWeight: FontWeight.w600)),
           ),
-          const SizedBox(height: 14),
-          Text(
-            'Tính năng này đang phát triển...',
-            style: TextStyles.defaultStyle.copyWith(
-              fontSize: 14,
-              color: ColorPalette.subTitleColor,
-            ),
-          ),
-          const Spacer(),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: ColorPalette.primaryColor,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(kTopPadding),
-                ),
-              ),
-              child: Text(
-                'Đóng',
-                style: TextStyles.defaultStyle.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ]),
     );
   }
 
   void _saveTripPlan() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          'Kế hoạch đã được lưu thành công!',
-          style: TextStyles.defaultStyle.copyWith(color: Colors.white),
-        ),
+        content: Text('Kế hoạch đã được lưu thành công!', style: TextStyles.defaultStyle.copyWith(color: Colors.white)),
         backgroundColor: Colors.green,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        margin: const EdgeInsets.all(12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }
 }
 
 // ================== MODELS ==================
-
-enum ActivityType {
-  transport,
-  accommodation,
-  sightseeing,
-  dining,
-  shopping,
-  entertainment,
-  leisure,
-}
+enum ActivityType { transport, accommodation, sightseeing, dining, shopping, entertainment, leisure }
 
 class TripActivity {
   final String time;

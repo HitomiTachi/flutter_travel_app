@@ -4,6 +4,7 @@ import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/core/helpers/accommodation_selection_helper.dart';
 import 'package:flutter_travels_apps/representation/screen/home_screen.dart';
 import 'package:flutter_travels_apps/representation/screen/like_screen.dart';
+import 'package:flutter_travels_apps/representation/screen/map_screen.dart';
 import 'package:flutter_travels_apps/representation/screen/trip_creation_screen.dart';
 import 'package:flutter_travels_apps/representation/screen/profile_screen.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -73,8 +74,9 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
         index: _currentIndex,
         children: [
           HomeScreen(),
+          MapScreen(),
           LikeScreen(),
-          TripCreationScreen(key: ValueKey(_tripCreationRefreshKey)),
+          // TripCreationScreen(key: ValueKey(_tripCreationRefreshKey)),
           ProfileScreen(),
         ],
       ),
@@ -100,16 +102,16 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
             title: Text('Trang chủ'),
           ),
           SalomonBottomBarItem(
-            icon: Icon(FontAwesomeIcons.solidHeart,
-              size: kDefaultIconSize,
-            ),
-            title: Text('Yêu thích'),
-          ),
-          SalomonBottomBarItem(
             icon: Icon(FontAwesomeIcons.map,
               size: kDefaultIconSize,
             ),
-            title: Text('Kế hoạch'),
+            title: Text('Bản đồ'),
+          ),
+          SalomonBottomBarItem(
+            icon: Icon(FontAwesomeIcons.solidHeart,
+              size: kDefaultIconSize,
+            ),
+            title: Text('Khám phá'),
           ),
           SalomonBottomBarItem(
             icon: Icon(FontAwesomeIcons.solidUser,

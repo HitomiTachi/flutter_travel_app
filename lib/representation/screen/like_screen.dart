@@ -3,730 +3,820 @@ import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/core/constants/textstyle_constants.dart';
 import 'package:flutter_travels_apps/core/helpers/asset_helper.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_travels_apps/representation/widgets/app_bar_container.dart';
 
 class LikeScreen extends StatefulWidget {
   const LikeScreen({Key? key}) : super(key: key);
-
-  static const String routeName = '/like_screen';
+  static const routeName = '/like_screen';
 
   @override
   State<LikeScreen> createState() => _LikeScreenState();
 }
 
-class _LikeScreenState extends State<LikeScreen>
-    with TickerProviderStateMixin {
-  
-  late TabController _tabController;
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
+class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
+  final _searchCtl = TextEditingController();
+  bool _grid = true;
+  bool _editMode = false;
+  final Set<String> _selectedIds = {};
+  final _chips = const ['Tất cả', 'Việt Nam', 'Biển', 'Núi', 'Ẩm thực'];
+  int _chipIndex = 0;
 
-  // Sample data
-  final List<Map<String, dynamic>> _favoriteDestinations = [
-    {
-      'name': 'Hạ Long Bay',
-      'location': 'Quảng Ninh, Việt Nam',
-      'image': AssetHelper.image1,
-      'rating': 4.8,
-      'price': '1.200.000 VNĐ',
-      'type': 'destination'
-    },
-    {
-      'name': 'Phú Quốc',
-      'location': 'Kiên Giang, Việt Nam', 
-      'image': AssetHelper.image2,
-      'rating': 4.6,
-      'price': '2.500.000 VNĐ',
-      'type': 'destination'
-    },
-    {
-      'name': 'Đà Lạt',
-      'location': 'Lâm Đồng, Việt Nam',
-      'image': AssetHelper.image3,
-      'rating': 4.7,
-      'price': '800.000 VNĐ',
-      'type': 'destination'
-    },
+  final List<Map<String, dynamic>> _likedPlaces = [
+    {'id': 'p1', 'image': AssetHelper.image1, 'name': 'Bà Nà Hills', 'location': 'Đà Nẵng', 'rating': 4.8},
+    {'id': 'p2', 'image': AssetHelper.image2, 'name': 'Chợ Bến Thành', 'location': 'TP.HCM', 'rating': 4.7},
+    {'id': 'p3', 'image': AssetHelper.image3, 'name': 'Vinpearl Safari', 'location': 'Phú Quốc', 'rating': 4.9},
   ];
-
-  final List<Map<String, dynamic>> _favoriteArticles = [
-    {
-      'title': '10 Điều Cần Biết Khi Du Lịch Hạ Long',
-      'author': 'Travel Expert',
-      'image': AssetHelper.image1,
-      'readTime': '5 phút',
-      'publishDate': '2 ngày trước',
-      'likes': 124,
-      'type': 'article'
-    },
-    {
-      'title': 'Khám Phá Ẩm Thực Đường Phố Sài Gòn',
-      'author': 'Food Blogger',
-      'image': AssetHelper.image2,
-      'readTime': '8 phút',
-      'publishDate': '1 tuần trước',
-      'likes': 89,
-      'type': 'article'
-    },
-    {
-      'title': 'Bí Quyết Tiết Kiệm Chi Phí Du Lịch',
-      'author': 'Budget Traveler',
-      'image': AssetHelper.image3,
-      'readTime': '6 phút',
-      'publishDate': '3 ngày trước',
-      'likes': 156,
-      'type': 'article'
-    },
+  final List<Map<String, dynamic>> _likedArticles = [
+    {'id': 'a1', 'image': AssetHelper.image2, 'title': 'Ăn gì ở Sài Gòn?', 'desc': 'Map street food cho người mới.', 'reading': '6 phút'},
+    {'id': 'a2', 'image': AssetHelper.image1, 'title': 'Đà Lạt 3N2Đ', 'desc': 'Lịch trình chill, góc sống ảo.', 'reading': '8 phút'},
   ];
-
-  final List<Map<String, dynamic>> _favoriteVideos = [
-    {
-      'title': 'VLOG: 3 Ngày 2 Đêm Ở Đà Nẵng',
-      'creator': 'Travel Vlogger',
-      'image': AssetHelper.image1,
-      'duration': '12:45',
-      'views': '45K',
-      'uploadDate': '1 ngày trước',
-      'type': 'video'
-    },
-    {
-      'title': 'Review Resort 5 Sao Phú Quốc',
-      'creator': 'Luxury Travel',
-      'image': AssetHelper.image2,
-      'duration': '8:30',
-      'views': '78K',
-      'uploadDate': '4 ngày trước',
-      'type': 'video'
-    },
-    {
-      'title': 'Hướng Dẫn Lên Kế Hoạch Du Lịch',
-      'creator': 'Travel Tips',
-      'image': AssetHelper.image3,
-      'duration': '15:20',
-      'views': '32K',
-      'uploadDate': '1 tuần trước',
-      'type': 'video'
-    },
+  final List<Map<String, dynamic>> _likedTrips = [
+    {'id': 't1', 'image': AssetHelper.image3, 'title': 'Phú Quốc 4N3Đ', 'days': 4, 'stops': 9},
   ];
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 800),
-      vsync: this,
-    );
-    
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeOut,
-      ),
-    );
-
-    _animationController.forward();
-  }
 
   @override
   void dispose() {
-    _tabController.dispose();
-    _animationController.dispose();
+    _searchCtl.dispose();
     super.dispose();
+  }
+
+  void _toggleEditMode() {
+    setState(() {
+      _editMode = !_editMode;
+      if (!_editMode) _selectedIds.clear();
+    });
+  }
+
+  void _toggleSelect(String id) {
+    if (!_editMode) return;
+    setState(() {
+      if (_selectedIds.contains(id)) {
+        _selectedIds.remove(id);
+      } else {
+        _selectedIds.add(id);
+      }
+    });
+  }
+
+  void _bulkUnfavorite() {
+    setState(() {
+      _likedPlaces.removeWhere((e) => _selectedIds.contains(e['id']));
+      _likedArticles.removeWhere((e) => _selectedIds.contains(e['id']));
+      _likedTrips.removeWhere((e) => _selectedIds.contains(e['id']));
+      _selectedIds.clear();
+      _editMode = false;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Đã xoá khỏi danh sách yêu thích')),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: ColorPalette.backgroundScaffoldColor,
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          _buildSliverAppBar(),
-        ],
-        body: Column(
-          children: [
-            _buildTabBar(),
-            Expanded(
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildDestinationsTab(),
-                    _buildArticlesTab(),
-                    _buildVideosTab(),
-                  ],
+    return DefaultTabController(
+      length: 3,
+      child: AppBarContainerWidget(
+        // ====== HEADER tuỳ biến của bạn ======
+        title: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: kDefaultPadding),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Khám phá',
+                  style: TextStyles.defaultStyle.fontHeader.bold.whiteTextColor,
                 ),
               ),
+              IconButton(
+                tooltip: _grid ? 'Hiển thị danh sách' : 'Hiển thị lưới',
+                onPressed: () => setState(() => _grid = !_grid),
+                icon: Icon(_grid ? Icons.view_list : Icons.grid_view, color: Colors.white),
+              ),
+              IconButton(
+                tooltip: _editMode ? 'Thoát chọn' : 'Chọn nhiều',
+                onPressed: _toggleEditMode,
+                icon: Icon(_editMode ? Icons.close : Icons.checklist, color: Colors.white),
+              ),
+            ],
+          ),
+        ),
+        // ====== BODY bắt đầu tại content margin-top 156 của AppBarContainerWidget ======
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                // Search nổi (đồng bộ style)
+                Material(
+                  elevation: 6,
+                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.white,
+                  child: TextField(
+                    controller: _searchCtl,
+                    onSubmitted: (_) => setState(() {}),
+                    decoration: InputDecoration(
+                      hintText: 'Tìm kiếm…',
+                      hintStyle: TextStyles.defaultStyle.subTitleTextColor,
+                      prefixIcon: const Icon(Icons.search, size: kDefaultIconSize),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: kItemPadding,
+                        vertical: 12,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Chips lọc ngang
+                SizedBox(
+                  height: 40,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (_, i) => ChoiceChip(
+                      label: Text(
+                        _chips[i],
+                        style: TextStyles.defaultStyle.semiBold.copyWith(
+                          color: _chipIndex == i ? Colors.white : ColorPalette.primaryColor,
+                        ),
+                      ),
+                      selected: _chipIndex == i,
+                      onSelected: (_) => setState(() => _chipIndex = i),
+                      selectedColor: ColorPalette.primaryColor,
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                    ),
+                    separatorBuilder: (_, __) => const SizedBox(width: 8),
+                    itemCount: _chips.length,
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Tabs
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                  child: TabBar(
+                    isScrollable: true,
+                    indicator: BoxDecoration(
+                      color: ColorPalette.primaryColor,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    labelColor: Colors.white,
+                    unselectedLabelColor: ColorPalette.primaryColor,
+                    labelStyle: TextStyles.defaultStyle.semiBold,
+                    tabs: const [
+                      Tab(text: 'Địa điểm'),
+                      Tab(text: 'Bài viết'),
+                      Tab(text: 'Lịch trình'),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Nội dung tabs
+                Expanded(
+                  child: TabBarView(
+                    children: [
+                      _PlacesTab(
+                        grid: _grid,
+                        editMode: _editMode,
+                        selectedIds: _selectedIds,
+                        keyword: _searchCtl.text,
+                        filterIndex: _chipIndex,
+                        data: _likedPlaces,
+                        onToggleSelect: _toggleSelect,
+                      ),
+                      _ArticlesTab(
+                        grid: _grid,
+                        editMode: _editMode,
+                        selectedIds: _selectedIds,
+                        keyword: _searchCtl.text,
+                        filterIndex: _chipIndex,
+                        data: _likedArticles,
+                        onToggleSelect: _toggleSelect,
+                      ),
+                      _TripsTab(
+                        grid: _grid,
+                        editMode: _editMode,
+                        selectedIds: _selectedIds,
+                        keyword: _searchCtl.text,
+                        filterIndex: _chipIndex,
+                        data: _likedTrips,
+                        onToggleSelect: _toggleSelect,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: kDefaultPadding), // chừa đáy cho action bar
+              ],
             ),
+
+            // Thanh hành động khi chọn nhiều
+            if (_editMode && _selectedIds.isNotEmpty)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: SafeArea(
+                  minimum: const EdgeInsets.all(kDefaultPadding),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => setState(() => _selectedIds.clear()),
+                          icon: const Icon(Icons.clear_all),
+                          label: Text('Bỏ chọn', style: TextStyles.defaultStyle.semiBold),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            side: const BorderSide(color: ColorPalette.primaryColor),
+                            foregroundColor: ColorPalette.primaryColor,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: _bulkUnfavorite,
+                          icon: const Icon(Icons.favorite_border),
+                          label: Text('Bỏ yêu thích (${_selectedIds.length})',
+                              style: TextStyles.defaultStyle.semiBold.whiteTextColor),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: ColorPalette.primaryColor,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
           ],
         ),
       ),
     );
   }
+}
 
-  // Sliver App Bar
-  Widget _buildSliverAppBar() {
-    return SliverAppBar(
-      expandedHeight: 120,
-      floating: false,
-      pinned: true,
-      elevation: 0,
-      backgroundColor: ColorPalette.primaryColor,
-      automaticallyImplyLeading: false,
-      flexibleSpace: FlexibleSpaceBar(
-        background: Container(
-          decoration: const BoxDecoration(
-            gradient: Gradients.defaultGradientBackground,
-          ),
+/// ================== TABS ==================
+
+class _PlacesTab extends StatelessWidget {
+  final bool grid, editMode;
+  final Set<String> selectedIds;
+  final String keyword;
+  final int filterIndex;
+  final List<Map<String, dynamic>> data;
+  final ValueChanged<String> onToggleSelect;
+
+  const _PlacesTab({
+    Key? key,
+    required this.grid,
+    required this.editMode,
+    required this.selectedIds,
+    required this.keyword,
+    required this.filterIndex,
+    required this.data,
+    required this.onToggleSelect,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final filtered = data.where((e) {
+      final matchText = keyword.isEmpty ||
+          (e['name'] as String).toLowerCase().contains(keyword.toLowerCase()) ||
+          (e['location'] as String).toLowerCase().contains(keyword.toLowerCase());
+      final matchChip = filterIndex == 0 || (filterIndex == 1 && e['location'] == 'Đà Nẵng');
+      return matchText && matchChip;
+    }).toList();
+
+    if (filtered.isEmpty) return const _EmptyState(title: 'Chưa có địa điểm nào được lưu');
+
+    if (grid) {
+      return GridView.builder(
+        padding: const EdgeInsets.all(kDefaultPadding),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2, mainAxisSpacing: 12, crossAxisSpacing: 12, childAspectRatio: 0.9),
+        itemCount: filtered.length,
+        itemBuilder: (_, i) => _PlaceCard(
+          item: filtered[i],
+          selected: selectedIds.contains(filtered[i]['id']),
+          editMode: editMode,
+          onLongPress: () => onToggleSelect(filtered[i]['id'] as String),
+          onTap: () => editMode ? onToggleSelect(filtered[i]['id'] as String) : null,
         ),
-        centerTitle: true,
-        title: Text(
-          'Yêu Thích',
-          style: TextStyles.defaultStyle.fontHeader.bold.whiteTextColor,
+      );
+    }
+    return ListView.separated(
+      padding: const EdgeInsets.all(kDefaultPadding),
+      itemBuilder: (_, i) => _PlaceTile(
+        item: filtered[i],
+        selected: selectedIds.contains(filtered[i]['id']),
+        editMode: editMode,
+        onLongPress: () => onToggleSelect(filtered[i]['id'] as String),
+        onTap: () => editMode ? onToggleSelect(filtered[i]['id'] as String) : null,
+      ),
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemCount: filtered.length,
+    );
+  }
+}
+
+class _ArticlesTab extends StatelessWidget {
+  final bool grid, editMode;
+  final Set<String> selectedIds;
+  final String keyword;
+  final int filterIndex;
+  final List<Map<String, dynamic>> data;
+  final ValueChanged<String> onToggleSelect;
+
+  const _ArticlesTab({
+    Key? key,
+    required this.grid,
+    required this.editMode,
+    required this.selectedIds,
+    required this.keyword,
+    required this.filterIndex,
+    required this.data,
+    required this.onToggleSelect,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final filtered = data.where((e) {
+      final matchText = keyword.isEmpty ||
+          (e['title'] as String).toLowerCase().contains(keyword.toLowerCase()) ||
+          (e['desc'] as String).toLowerCase().contains(keyword.toLowerCase());
+      return matchText;
+    }).toList();
+
+    if (filtered.isEmpty) return const _EmptyState(title: 'Chưa có bài viết nào được lưu');
+
+    if (grid) {
+      return GridView.builder(
+        padding: const EdgeInsets.all(kDefaultPadding),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2, mainAxisSpacing: 12, crossAxisSpacing: 12, childAspectRatio: 0.78),
+        itemCount: filtered.length,
+        itemBuilder: (_, i) => _ArticleCard(
+          item: filtered[i],
+          selected: selectedIds.contains(filtered[i]['id']),
+          editMode: editMode,
+          onLongPress: () => onToggleSelect(filtered[i]['id'] as String),
+          onTap: () => editMode ? onToggleSelect(filtered[i]['id'] as String) : null,
         ),
+      );
+    }
+    return ListView.separated(
+      padding: const EdgeInsets.all(kDefaultPadding),
+      itemBuilder: (_, i) => _ArticleTile(
+        item: filtered[i],
+        selected: selectedIds.contains(filtered[i]['id']),
+        editMode: editMode,
+        onLongPress: () => onToggleSelect(filtered[i]['id'] as String),
+        onTap: () => editMode ? onToggleSelect(filtered[i]['id'] as String) : null,
+      ),
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemCount: filtered.length,
+    );
+  }
+}
+
+class _TripsTab extends StatelessWidget {
+  final bool grid, editMode;
+  final Set<String> selectedIds;
+  final String keyword;
+  final int filterIndex;
+  final List<Map<String, dynamic>> data;
+  final ValueChanged<String> onToggleSelect;
+
+  const _TripsTab({
+    Key? key,
+    required this.grid,
+    required this.editMode,
+    required this.selectedIds,
+    required this.keyword,
+    required this.filterIndex,
+    required this.data,
+    required this.onToggleSelect,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final filtered = data.where((e) {
+      final matchText = keyword.isEmpty ||
+          (e['title'] as String).toLowerCase().contains(keyword.toLowerCase());
+      return matchText;
+    }).toList();
+
+    if (filtered.isEmpty) return const _EmptyState(title: 'Chưa có lịch trình nào được lưu');
+
+    return ListView.separated(
+      padding: const EdgeInsets.all(kDefaultPadding),
+      itemBuilder: (_, i) => _TripCard(
+        item: filtered[i],
+        selected: selectedIds.contains(filtered[i]['id']),
+        editMode: editMode,
+        onLongPress: () => onToggleSelect(filtered[i]['id'] as String),
+        onTap: () => editMode ? onToggleSelect(filtered[i]['id'] as String) : null,
+      ),
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemCount: filtered.length,
+    );
+  }
+}
+
+/// ================== ITEM WIDGETS ==================
+
+class _SelectableMark extends StatelessWidget {
+  final bool visible;
+  final bool selected;
+  const _SelectableMark({required this.visible, required this.selected, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (!visible) return const SizedBox.shrink();
+    return Align(
+      alignment: Alignment.topRight,
+      child: Container(
+        margin: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: selected ? ColorPalette.primaryColor : Colors.white,
+          border: Border.all(color: ColorPalette.primaryColor, width: 1.2),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        width: 22, height: 22,
+        child: Icon(selected ? Icons.check : Icons.circle_outlined,
+            size: 14, color: selected ? Colors.white : ColorPalette.primaryColor),
       ),
     );
   }
+}
 
-  // Tab Bar
-  Widget _buildTabBar() {
-    return Container(
+class _PlaceCard extends StatelessWidget {
+  final Map<String, dynamic> item;
+  final bool editMode;
+  final bool selected;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
+
+  const _PlaceCard({
+    Key? key,
+    required this.item,
+    required this.editMode,
+    required this.selected,
+    this.onTap,
+    this.onLongPress,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      elevation: 2,
       color: Colors.white,
-      child: TabBar(
-        controller: _tabController,
-        labelColor: ColorPalette.primaryColor,
-        unselectedLabelColor: ColorPalette.subTitleColor,
-        indicatorColor: ColorPalette.primaryColor,
-        indicatorWeight: 3,
-        labelStyle: TextStyles.defaultStyle.medium,
-        unselectedLabelStyle: TextStyles.defaultStyle.regular,
-        tabs: const [
-          Tab(
-            icon: Icon(FontAwesomeIcons.mapLocationDot, size: 20),
-            text: 'Địa điểm',
-          ),
-          Tab(
-            icon: Icon(FontAwesomeIcons.newspaper, size: 20),
-            text: 'Bài viết',
-          ),
-          Tab(
-            icon: Icon(FontAwesomeIcons.play, size: 20),
-            text: 'Video',
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Destinations Tab
-  Widget _buildDestinationsTab() {
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: kMediumPadding),
-      itemCount: _favoriteDestinations.length,
-      itemBuilder: (context, index) {
-        final destination = _favoriteDestinations[index];
-        return _buildDestinationCard(destination);
-      },
-    );
-  }
-
-  Widget _buildDestinationCard(Map<String, dynamic> destination) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: kMediumPadding),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          height: 200,
-          child: Stack(
-            children: [
-              // Background Image
-              Positioned.fill(
-                child: Image.asset(
-                  destination['image'],
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.image, size: 50),
-                    );
-                  },
-                ),
-              ),
-              
-              // Gradient Overlay
-              Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withOpacity(0.7),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              
-              // Heart Icon
-              Positioned(
-                top: 12,
-                right: 12,
-                child: GestureDetector(
-                  onTap: () => _toggleFavorite(destination),
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.9),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      FontAwesomeIcons.solidHeart,
-                      color: Colors.red,
-                      size: 20,
-                    ),
-                  ),
-                ),
-              ),
-              
-              // Content
-              Positioned(
-                bottom: 16,
-                left: 16,
-                right: 16,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      destination['name'],
-                      style: TextStyles.defaultStyle.fontHeader.bold.whiteTextColor,
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(
-                          FontAwesomeIcons.locationDot,
-                          color: Colors.white70,
-                          size: 14,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          destination['location'],
-                          style: TextStyles.defaultStyle.regular.copyWith(color: Colors.white70),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
+      borderRadius: BorderRadius.circular(12),
+      clipBehavior: Clip.hardEdge,
+      child: InkWell(
+        onTap: onTap,
+        onLongPress: onLongPress,
+        child: Stack(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _Thumb(image: item['image'], height: 120, width: double.infinity, borderRadius: BorderRadius.zero),
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Icon(
-                              FontAwesomeIcons.star,
-                              color: Colors.amber,
-                              size: 16,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              destination['rating'].toString(),
-                              style: TextStyles.defaultStyle.semiBold.whiteTextColor,
+                            Text(item['name'], maxLines: 1, overflow: TextOverflow.ellipsis,
+                                style: TextStyles.defaultStyle.semiBold),
+                            const SizedBox(height: 2),
+                            Row(
+                              children: [
+                                const Icon(Icons.location_on, size: 14, color: ColorPalette.subTitleColor),
+                                const SizedBox(width: 4),
+                                Text(item['location'], style: TextStyles.defaultStyle.setTextSize(12).subTitleTextColor),
+                              ],
                             ),
                           ],
                         ),
-                        Text(
-                          destination['price'],
-                          style: TextStyles.defaultStyle.bold.whiteTextColor,
-                        ),
+                      ),
+                      const Icon(Icons.star, color: ColorPalette.yellowColor, size: kDefaultIconSize),
+                      const SizedBox(width: 4),
+                      Text('${item['rating']}', style: TextStyles.defaultStyle.semiBold),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            _SelectableMark(visible: editMode, selected: selected),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PlaceTile extends StatelessWidget {
+  final Map<String, dynamic> item;
+  final bool editMode;
+  final bool selected;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
+
+  const _PlaceTile({
+    Key? key,
+    required this.item,
+    required this.editMode,
+    required this.selected,
+    this.onTap,
+    this.onLongPress,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      elevation: 1.5,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
+        onLongPress: onLongPress,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Row(
+            children: [
+              _Thumb(image: item['image'], height: 70, width: 100, borderRadius: BorderRadius.circular(10)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(item['name'], maxLines: 1, overflow: TextOverflow.ellipsis,
+                        style: TextStyles.defaultStyle.semiBold),
+                    const SizedBox(height: 2),
+                    Text(item['location'], style: TextStyles.defaultStyle.setTextSize(12).subTitleTextColor),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        const Icon(Icons.star, color: ColorPalette.yellowColor, size: kDefaultIconSize),
+                        const SizedBox(width: 4),
+                        Text('${item['rating']}', style: TextStyles.defaultStyle.semiBold),
                       ],
                     ),
                   ],
                 ),
               ),
+              _SelectableMark(visible: editMode, selected: selected),
             ],
           ),
         ),
       ),
     );
   }
+}
 
-  // Articles Tab
-  Widget _buildArticlesTab() {
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: kMediumPadding),
-      itemCount: _favoriteArticles.length,
-      itemBuilder: (context, index) {
-        final article = _favoriteArticles[index];
-        return _buildArticleCard(article);
-      },
-    );
-  }
+class _ArticleCard extends StatelessWidget {
+  final Map<String, dynamic> item;
+  final bool editMode;
+  final bool selected;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
 
-  Widget _buildArticleCard(Map<String, dynamic> article) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: kMediumPadding),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+  const _ArticleCard({
+    Key? key,
+    required this.item,
+    required this.editMode,
+    required this.selected,
+    this.onTap,
+    this.onLongPress,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      elevation: 2,
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      clipBehavior: Clip.hardEdge,
+      child: InkWell(
+        onTap: onTap,
+        onLongPress: onLongPress,
+        child: Stack(
           children: [
-            // Article Image
-            Container(
-              height: 160,
-              width: double.infinity,
-              child: Stack(
-                children: [
-                  Image.asset(
-                    article['image'],
-                    width: double.infinity,
-                    height: 160,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: Colors.grey[300],
-                        child: const Icon(Icons.image, size: 50),
-                      );
-                    },
-                  ),
-                  Positioned(
-                    top: 12,
-                    right: 12,
-                    child: GestureDetector(
-                      onTap: () => _toggleFavorite(article),
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.9),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          FontAwesomeIcons.solidHeart,
-                          color: Colors.red,
-                          size: 18,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            
-            // Article Content
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    article['title'],
-                    style: TextStyles.defaultStyle.fontHeader.bold.text1Color,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _Thumb(image: item['image'], height: 120, width: double.infinity, borderRadius: BorderRadius.zero),
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CircleAvatar(
-                        radius: 12,
-                        backgroundColor: ColorPalette.primaryColor.withOpacity(0.2),
-                        child: Icon(
-                          FontAwesomeIcons.user,
-                          size: 12,
-                          color: ColorPalette.primaryColor,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        article['author'],
-                        style: TextStyles.defaultStyle.medium.subTitleTextColor,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
+                      Text(item['title'], maxLines: 2, overflow: TextOverflow.ellipsis,
+                          style: TextStyles.defaultStyle.semiBold),
+                      const SizedBox(height: 6),
+                      Text(item['desc'], maxLines: 2, overflow: TextOverflow.ellipsis,
+                          style: TextStyles.defaultStyle.setTextSize(13).subTitleTextColor),
+                      const SizedBox(height: 8),
                       Row(
                         children: [
-                          Icon(
-                            FontAwesomeIcons.clock,
-                            size: 14,
-                            color: Colors.grey[500],
-                          ),
+                          const Icon(Icons.menu_book, size: kDefaultIconSize, color: ColorPalette.subTitleColor),
                           const SizedBox(width: 4),
-                          Text(
-                            article['readTime'],
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[500],
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Icon(
-                            FontAwesomeIcons.heart,
-                            size: 14,
-                            color: Colors.grey[500],
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${article['likes']}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[500],
-                            ),
-                          ),
+                          Text(item['reading'], style: TextStyles.defaultStyle.setTextSize(12).subTitleTextColor),
                         ],
-                      ),
-                      Text(
-                        article['publishDate'],
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[500],
-                        ),
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
+            _SelectableMark(visible: editMode, selected: selected),
           ],
         ),
       ),
     );
   }
+}
 
-  // Videos Tab
-  Widget _buildVideosTab() {
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: kMediumPadding),
-      itemCount: _favoriteVideos.length,
-      itemBuilder: (context, index) {
-        final video = _favoriteVideos[index];
-        return _buildVideoCard(video);
-      },
-    );
-  }
+class _ArticleTile extends StatelessWidget {
+  final Map<String, dynamic> item;
+  final bool editMode;
+  final bool selected;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
 
-  Widget _buildVideoCard(Map<String, dynamic> video) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: kMediumPadding),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Video Thumbnail
-            Container(
-              height: 180,
-              width: double.infinity,
-              child: Stack(
-                children: [
-                  Image.asset(
-                    video['image'],
-                    width: double.infinity,
-                    height: 180,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: Colors.grey[300],
-                        child: const Icon(Icons.image, size: 50),
-                      );
-                    },
-                  ),
-                  
-                  // Play Button Overlay
-                  Positioned.fill(
-                    child: Container(
-                      color: Colors.black.withOpacity(0.3),
-                      child: Center(
-                        child: Container(
-                          width: 60,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.9),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            FontAwesomeIcons.play,
-                            color: ColorPalette.primaryColor,
-                            size: 24,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  
-                  // Duration Badge
-                  Positioned(
-                    bottom: 8,
-                    right: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.8),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        video['duration'],
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ),
-                  
-                  // Heart Icon
-                  Positioned(
-                    top: 12,
-                    right: 12,
-                    child: GestureDetector(
-                      onTap: () => _toggleFavorite(video),
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.9),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          FontAwesomeIcons.solidHeart,
-                          color: Colors.red,
-                          size: 18,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            
-            // Video Info
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    video['title'],
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
+  const _ArticleTile({
+    Key? key,
+    required this.item,
+    required this.editMode,
+    required this.selected,
+    this.onTap,
+    this.onLongPress,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      elevation: 1.5,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
+        onLongPress: onLongPress,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Row(
+            children: [
+              _Thumb(image: item['image'], height: 70, width: 100, borderRadius: BorderRadius.circular(10)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: SizedBox(
+                  height: 70,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CircleAvatar(
-                        radius: 12,
-                        backgroundColor: ColorPalette.primaryColor.withOpacity(0.2),
-                        child: Icon(
-                          FontAwesomeIcons.user,
-                          size: 12,
-                          color: ColorPalette.primaryColor,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        video['creator'],
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
+                      Text(item['title'], maxLines: 2, overflow: TextOverflow.ellipsis,
+                          style: TextStyles.defaultStyle.semiBold),
+                      const Spacer(),
                       Row(
                         children: [
-                          Icon(
-                            FontAwesomeIcons.eye,
-                            size: 14,
-                            color: Colors.grey[500],
-                          ),
+                          const Icon(Icons.menu_book, size: kDefaultIconSize, color: ColorPalette.subTitleColor),
                           const SizedBox(width: 4),
-                          Text(
-                            '${video['views']} lượt xem',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[500],
-                            ),
-                          ),
+                          Text(item['reading'], style: TextStyles.defaultStyle.setTextSize(12).subTitleTextColor),
                         ],
                       ),
-                      Text(
-                        video['uploadDate'],
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[500],
-                        ),
-                      ),
                     ],
+                  ),
+                ),
+              ),
+              _SelectableMark(visible: editMode, selected: selected),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TripCard extends StatelessWidget {
+  final Map<String, dynamic> item;
+  final bool editMode;
+  final bool selected;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
+
+  const _TripCard({
+    Key? key,
+    required this.item,
+    required this.editMode,
+    required this.selected,
+    this.onTap,
+    this.onLongPress,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      elevation: 2,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
+        onLongPress: onLongPress,
+        borderRadius: BorderRadius.circular(12),
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Row(
+                children: [
+                  _Thumb(image: item['image'], height: 70, width: 100, borderRadius: BorderRadius.circular(10)),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(item['title'], maxLines: 1, overflow: TextOverflow.ellipsis,
+                            style: TextStyles.defaultStyle.semiBold),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            const Icon(Icons.calendar_today, size: 14, color: ColorPalette.subTitleColor),
+                            const SizedBox(width: 4),
+                            Text('${item['days']} ngày', style: TextStyles.defaultStyle.setTextSize(12).subTitleTextColor),
+                            const SizedBox(width: 12),
+                            const Icon(Icons.place, size: 14, color: ColorPalette.subTitleColor),
+                            const SizedBox(width: 4),
+                            Text('${item['stops']} điểm dừng', style: TextStyles.defaultStyle.setTextSize(12).subTitleTextColor),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
+            _SelectableMark(visible: editMode, selected: selected),
           ],
         ),
       ),
     );
   }
+}
 
-  // Toggle Favorite
-  void _toggleFavorite(Map<String, dynamic> item) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Đã xóa khỏi danh sách yêu thích'),
-        backgroundColor: Colors.red,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        action: SnackBarAction(
-          label: 'Hoàn tác',
-          textColor: Colors.white,
-          onPressed: () {},
+/// ================== COMMON ==================
+
+class _Thumb extends StatelessWidget {
+  final String image;
+  final double height;
+  final double width;
+  final BorderRadiusGeometry borderRadius;
+
+  const _Thumb({
+    Key? key,
+    required this.image,
+    required this.height,
+    required this.width,
+    required this.borderRadius,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: borderRadius,
+      child: Image.asset(image, height: height, width: width, fit: BoxFit.cover),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  final String title;
+  const _EmptyState({Key? key, required this.title}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(kDefaultPadding * 2),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.favorite_border, size: 56, color: ColorPalette.subTitleColor),
+            const SizedBox(height: 12),
+            Text(title, textAlign: TextAlign.center,
+                style: TextStyles.defaultStyle.setTextSize(14).subTitleTextColor),
+          ],
         ),
       ),
     );

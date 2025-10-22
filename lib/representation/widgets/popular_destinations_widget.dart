@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/constants/textstyle_constants.dart';
-import 'package:flutter_travels_apps/data/models/destination_data.dart';
+import 'package:flutter_travels_apps/data/providers/destination_data_provider.dart';
 import 'package:flutter_travels_apps/representation/widgets/item_destination_widget.dart';
 
 class PopularDestinationsWidget extends StatelessWidget {
@@ -10,7 +10,7 @@ class PopularDestinationsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final popularDestinations = DestinationData.popularDestinations;
+    final popularDestinations = DestinationDataProvider.getPopularDestinations();
     
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

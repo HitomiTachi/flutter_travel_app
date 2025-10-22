@@ -24,7 +24,6 @@ class TripCreationScreen extends StatefulWidget {
 
 class _TripCreationScreenState extends State<TripCreationScreen> {
   late TripPlanData tripData;
-  bool showBackButton = false;
   AccommodationModel? selectedAccommodation;
 
   @override
@@ -50,29 +49,6 @@ class _TripCreationScreenState extends State<TripCreationScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Kiểm tra xem có arguments được truyền vào không
-    final args = ModalRoute.of(context)?.settings.arguments;
-    
-    if (args != null) {
-      if (args is Map<String, dynamic>) {
-        // Trường hợp có cả tripData và selectedAccommodation
-        showBackButton = true;
-        if (args['tripData'] is TripPlanData) {
-          tripData = args['tripData'];
-        }
-        if (args['selectedAccommodation'] is AccommodationModel) {
-          setState(() {
-            selectedAccommodation = args['selectedAccommodation'];
-          });
-        }
-      } else {
-        // Trường hợp chỉ có arguments thông thường
-        showBackButton = true;
-      }
-    } else {
-      // Không có arguments = vào từ navbar
-      showBackButton = false;
-    }
 
     // Refresh accommodation data từ helper mỗi lần screen active
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -88,7 +64,7 @@ class _TripCreationScreenState extends State<TripCreationScreen> {
   Widget build(BuildContext context) {
     return AppBarContainerWidget(
       titleString: 'Tạo Kế Hoạch Chuyến Đi',
-      implementLeading: showBackButton,
+      implementLeading: true,
       child: SingleChildScrollView(
         child: Column(
           children: [

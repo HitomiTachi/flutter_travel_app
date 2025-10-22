@@ -163,29 +163,43 @@ class HomeScreen extends StatefulWidget {
         child: Column(
           children: [
             // Search TextField - Là một phần của AppBarContainerWidget (cố định)
-            TextField(
-              decoration: InputDecoration(
-                hintText: 'Tìm kiếm điểm đến ...',
-                prefixIcon: Padding(
-                  padding: EdgeInsets.all(kTopPadding),
-                  child: Icon(FontAwesomeIcons.magnifyingGlass,
-                  color: Colors.black,
-                  size: kDefaultPadding,),
-                  ),
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(kItemPadding),
+            Container(
+              decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(kItemPadding),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1), // Màu bóng dịu
+                  blurRadius: 8, // Độ mờ
+                  spreadRadius: 1, // Độ lan
+                  offset: const Offset(0, 3), // Hướng bóng xuống dưới
+                ),
+              ],
+            ),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Tìm kiếm điểm đến ...',
+                  prefixIcon: Padding(
+                    padding: EdgeInsets.all(kTopPadding),
+                    child: Icon(FontAwesomeIcons.magnifyingGlass,
+                    color: Colors.black,
+                    size: kDefaultPadding,),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(kItemPadding),
+                      ),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: kItemPadding,
                     ),
                   ),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: kItemPadding,
-                  ),
                 ),
-              ),
-              
+            ),
+
               // Content có thể cuộn - Categories và widgets khác
               Expanded(
                 child: SingleChildScrollView(
@@ -197,7 +211,7 @@ class HomeScreen extends StatefulWidget {
                           Expanded(
                             child: _buildItemCategory(
                               ImageHelper.loadFromAsset(AssetHelper.iconlocation,
-                              width: kBottomBarIconSize,
+                              width: kBottomBarIconSize ,
                               height: kBottomBarIconSize,),
                               Colors.blue,
                               () {
@@ -209,10 +223,9 @@ class HomeScreen extends StatefulWidget {
                           SizedBox(width: kDefaultPadding,),
                           Expanded(
                             child: _buildItemCategory(
-                              Icon(
-                                FontAwesomeIcons.map,
-                                size: kBottomBarIconSize,
-                                color: Colors.green[700],
+                              ImageHelper.loadFromAsset(AssetHelper.icoMap,
+                              width: kBottomBarIconSize,
+                              height: kBottomBarIconSize,
                               ),
                               Colors.green,
                               () {

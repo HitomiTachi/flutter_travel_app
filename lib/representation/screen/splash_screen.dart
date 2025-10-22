@@ -41,13 +41,13 @@ class _SplashScreenState extends State<SplashScreen> {
       body: Stack(
         children: [
           // Nền splash (phủ full màn hình)
-          Positioned.fill(
-            child: ImageHelper.loadFromAsset(
-              AssetHelper.imageBackGroundSplash,
-              fit: BoxFit.fitWidth,
-              alignment: Alignment.topCenter,
-            ),
-          ),
+          // Positioned.fill(
+          //   child: ImageHelper.loadFromAsset(
+          //     AssetHelper.imageBackGroundSplash,
+          //     fit: BoxFit.fitWidth,
+          //     alignment: Alignment.topCenter,
+          //   ),
+          // ),
           // Hình tròn/logo ở giữa
           Positioned.fill(
             child: Center(
