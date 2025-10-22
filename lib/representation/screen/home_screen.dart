@@ -185,11 +185,11 @@ class HomeScreen extends StatefulWidget {
                   ),
                 ),
               ),
-              SizedBox(height: kDefaultPadding),
               
               // Content có thể cuộn - Categories và widgets khác
               Expanded(
                 child: SingleChildScrollView(
+                  padding: EdgeInsets.only(top: kDefaultPadding),
                   child: Column(
                     children: [
                       Row(
