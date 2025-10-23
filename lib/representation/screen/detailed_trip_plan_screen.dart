@@ -182,52 +182,59 @@ class _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>
 
     final bottomSafe = MediaQuery.of(context).padding.bottom;
 
-    return AppBarContainerWidget(
-      title: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: kDefaultPadding),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(mainAxisSize: MainAxisSize.min, children: [
-                    Flexible(
-                      child: Text(
-                        'Kế Hoạch Chi Tiết',
+        return AppBarContainerWidget(
+          implementLeading: true,
+          title: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: kDefaultPadding),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              'Kế Hoạch Chi Tiết',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyles.defaultStyle.copyWith(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Icon(FontAwesomeIcons.route, size: 16, color: Colors.white.withOpacity(0.92)),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        tripData.destination.isNotEmpty
+                            ? 'Điểm đến: ${tripData.destination}'
+                            : 'Điền thông tin chuyến đi của bạn',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyles.defaultStyle.copyWith(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          fontSize: 13,
+                          color: Colors.white.withOpacity(0.92),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 6),
-                    Icon(FontAwesomeIcons.route, size: 16, color: Colors.white.withOpacity(0.92)),
-                  ]),
-                  const SizedBox(height: 4),
-                  Text(
-                    tripData.destination.isNotEmpty
-                        ? 'Điểm đến: ${tripData.destination}'
-                        : 'Điền thông tin chuyến đi của bạn',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyles.defaultStyle.copyWith(
-                      fontSize: 13,
-                      color: Colors.white.withOpacity(0.92),
-                    ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 12),
+                Align(
+                  alignment: Alignment.topRight,
+                  child: _buildMiniSummaryBadge(),
+                ),
+              ],
             ),
-            const SizedBox(width: 12),
-            _buildMiniSummaryBadge(),
-          ],
-        ),
-      ),
-      child: SafeArea(
+          ),
+          child: SafeArea(
         top: false,
         child: Column(
           children: [

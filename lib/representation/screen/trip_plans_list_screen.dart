@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_travels_apps/core/constants/color_constants.dart';
-import 'package:flutter_travels_apps/data/models/trip_plan.dart';
-import 'package:flutter_travels_apps/data/providers/trip_plans_provider.dart';
+import 'package:flutter_travels_apps/data/models/trip_plan_list_model.dart';
+import 'package:flutter_travels_apps/data/mock/trip_plans_list_data_provider.dart';
 import 'package:flutter_travels_apps/representation/widgets/trip_cards.dart';
 import 'package:flutter_travels_apps/representation/widgets/trip_components.dart';
-import 'package:flutter_travels_apps/representation/widgets/trip_actions.dart';
+import 'package:flutter_travels_apps/providers/trip_helpers.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:flutter_travels_apps/representation/widgets/app_bar_container.dart';
@@ -32,7 +32,7 @@ class _TripPlansListScreenState extends State<TripPlansListScreen>
   @override
   void initState() {
     super.initState();
-    tripPlans = TripPlansDataProvider.getSampleTripPlans();
+  tripPlans = TripPlansListDataProvider.getSampleTripPlans();
     
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1000),
@@ -57,9 +57,9 @@ class _TripPlansListScreenState extends State<TripPlansListScreen>
 
   List<TripPlan> get filteredTrips {
     if (selectedStatus == null) {
-      return tripPlans;
+  return tripPlans;
     }
-    return tripPlans.where((trip) => trip.status == selectedStatus).toList();
+  return tripPlans.where((trip) => trip.status == selectedStatus).toList();
   }
 
   @override
@@ -151,7 +151,7 @@ class _TripPlansListScreenState extends State<TripPlansListScreen>
   }
 
   void _navigateToTripDetail(TripPlan trip) {
-    final tripData = trip.toTripPlanData();
+  final tripData = trip.toTripPlanData();
     Navigator.pushNamed(
       context,
       '/detailed_trip_plan_screen',
@@ -186,7 +186,7 @@ class _TripPlansListScreenState extends State<TripPlansListScreen>
   }
 
   void _showRepeatTripDialog(TripPlan trip) {
-    TripActionsHelper.showRepeatTripDialog(context, trip, () {
+  TripActionsHelper.showRepeatTripDialog(context, trip, () {
       _navigateToCreateTrip();
     });
   }
@@ -203,7 +203,7 @@ class _TripPlansListScreenState extends State<TripPlansListScreen>
   }
 
   void _showDeleteConfirmDialog(TripPlan trip) {
-    TripActionsHelper.showDeleteConfirmDialog(context, trip, () {
+  TripActionsHelper.showDeleteConfirmDialog(context, trip, () {
       TripActionsHelper.showNotImplementedSnackBar(context, 'xóa');
     });
   }

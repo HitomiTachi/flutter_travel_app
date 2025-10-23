@@ -1,4 +1,4 @@
-import 'featured_article.dart';
+import '../models/featured_article.dart';
 
 class ArticleData {
   static List<FeaturedArticle> get featuredArticles => [

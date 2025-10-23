@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_travels_apps/data/models/trip_plan.dart';
+import 'package:flutter_travels_apps/data/models/trip_plan_list_model.dart';
+import 'package:flutter_travels_apps/providers/trip_helpers.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 // ============================================================================

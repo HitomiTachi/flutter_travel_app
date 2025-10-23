@@ -1,4 +1,4 @@
-import 'popular_destination.dart';
+import '../models/popular_destination.dart';
 
 class DestinationData {
   static List<PopularDestination> get popularDestinations => [

@@ -3,7 +3,7 @@ import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/constants/textstyle_constants.dart';
 import 'package:flutter_travels_apps/data/models/featured_article.dart';
-import 'package:flutter_travels_apps/data/providers/article_data_provider.dart';
+import 'package:flutter_travels_apps/data/mock/article_data_provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 // ============================================================================
