@@ -3,7 +3,20 @@ import 'package:flutter_travels_apps/data/models/trip_plan_list_model.dart';
 class TripPlansListDataProvider {
   static List<TripPlan> getSampleTripPlans() {
     return [
-      // ...existing sample data from trip_plans_provider.dart...
+      TripPlan(
+      id: '1',
+      title: 'Khám phá Hà Nội',
+      destination: 'Hà Nội, Việt Nam',
+      startDate: '15 Nov 2024',
+      endDate: '18 Nov 2024',
+      duration: '4 ngày 3 đêm',
+      budget: 3500000,
+      travelers: 2,
+      status: TripStatus.completed,
+      imageUrl: 'assets/images/img1.jpg',
+      activities: 12,
+      progress: 1.0,
+    ),
     ];
   }
 

@@ -102,12 +102,8 @@ class _TripPlansListScreenState extends State<TripPlansListScreen>
         ),
         const SizedBox(height: 16),
         if (trips.isEmpty)
-          Container(
-            alignment: Alignment.center,
-            height: 200,
-            child: TripEmptyState(
-              onButtonPressed: _navigateToCreateTrip,
-            ),
+          Center(
+            child: TripEmptyState(),
           )
         else ...trips.asMap().entries.map((entry) {
           final index = entry.key;

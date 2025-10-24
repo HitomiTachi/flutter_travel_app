@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_travels_apps/data/models/trip_plan_list_model.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
+import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 // ============================================================================
 // QUICK STATS WIDGET
 // ============================================================================
@@ -245,37 +245,33 @@ class TripFilterChips extends StatelessWidget {
 class TripEmptyState extends StatelessWidget {
   final String title;
   final String subtitle;
-  final String buttonText;
-  final VoidCallback onButtonPressed;
 
   const TripEmptyState({
     Key? key,
     this.title = 'Chưa có chuyến đi nào',
     this.subtitle = 'Hãy tạo chuyến đi đầu tiên của bạn để bắt đầu khám phá thế giới!',
-    this.buttonText = 'Tạo chuyến đi mới',
-    required this.onButtonPressed,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(40),
+    return Padding(
+      padding: EdgeInsets.all(kMediumPadding),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(kDefaultPadding),
             decoration: BoxDecoration(
               color: Colors.blue.withOpacity(0.1),
-              shape: BoxShape.circle,
+              borderRadius: kDefaultBorderRadius,
             ),
-            child: const Icon(
+            child: Icon(
               FontAwesomeIcons.mapLocationDot,
-              size: 48,
+              size: kDefaultIconSize * 2.5,
               color: Colors.blue,
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: kDefaultPadding * 1.5),
           Text(
             title,
             style: const TextStyle(
@@ -285,7 +281,7 @@ class TripEmptyState extends StatelessWidget {
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: kItemPadding),
           Text(
             subtitle,
             style: const TextStyle(
@@ -294,23 +290,6 @@ class TripEmptyState extends StatelessWidget {
               height: 1.5,
             ),
             textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 32),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: onButtonPressed,
-              icon: const Icon(FontAwesomeIcons.plus, size: 16),
-              label: Text(buttonText),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
           ),
         ],
       ),

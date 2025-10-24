@@ -268,7 +268,7 @@ class TripPlanCard extends StatelessWidget {
         Expanded(
           child: _buildInfoItem(
             FontAwesomeIcons.calendar,
-            '${trip.duration} ngày',
+            '${trip.duration}',
             Colors.blue,
           ),
         ),
@@ -282,7 +282,7 @@ class TripPlanCard extends StatelessWidget {
         Expanded(
           child: _buildInfoItem(
             FontAwesomeIcons.dollarSign,
-            _formatCurrency(trip.budget),
+            TripFormatHelpers.formatCurrency(trip.budget),
             Colors.orange,
           ),
         ),
@@ -383,14 +383,7 @@ class TripPlanCard extends StatelessWidget {
     }
   }
 
-  String _formatCurrency(double amount) {
-    if (amount >= 1000000) {
-      return '${(amount / 1000000).toStringAsFixed(1)}M';
-    } else if (amount >= 1000) {
-      return '${(amount / 1000).toStringAsFixed(0)}K';
-    }
-    return amount.toStringAsFixed(0);
-  }
+  // Đã dùng TripFormatHelpers cho formatCurrency, không cần hàm này nữa
 }
 
 // ============================================================================
