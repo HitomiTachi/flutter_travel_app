@@ -31,8 +31,45 @@
 
   <title>flutter_travels_apps</title>
   <link rel="manifest" href="manifest.json">
+<<<<<<< HEAD
 </head>
 <body>
+=======
+  
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+</head>
+<body>
+  <script>
+    // Polyfill cho platformViewRegistry trước khi Flutter load
+    // Package vietmap_flutter_gl yêu cầu platformViewRegistry khi được import
+    (function() {
+      // Tạo namespace ui nếu chưa tồn tại
+      if (typeof window.ui === 'undefined') {
+        window.ui = {};
+      }
+      
+      // Tạo platformViewRegistry với implementation cơ bản
+      if (typeof window.ui.platformViewRegistry === 'undefined') {
+        window.ui.platformViewRegistry = {
+          registerViewFactory: function(viewType, viewFactory, options) {
+            // Store factory để có thể sử dụng sau này nếu cần
+            if (!window._registeredViewFactories) {
+              window._registeredViewFactories = {};
+            }
+            window._registeredViewFactories[viewType] = {
+              factory: viewFactory,
+              options: options || {}
+            };
+            console.log('Platform view factory registered:', viewType);
+          }
+        };
+      }
+    })();
+  </script>
+>>>>>>> 72ffec4 (Initial commit)
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

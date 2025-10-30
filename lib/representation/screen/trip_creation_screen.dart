@@ -17,7 +17,11 @@ class TripCreationScreen extends StatefulWidget {
   const TripCreationScreen({Key? key}) : super(key: key);
 
   static const String routeName = '/trip_creation_screen';
+<<<<<<< HEAD
   
+=======
+
+>>>>>>> 72ffec4 (Initial commit)
   @override
   State<TripCreationScreen> createState() => _TripCreationScreenState();
 }
@@ -69,27 +73,51 @@ class _TripCreationScreenState extends State<TripCreationScreen> {
         child: Column(
           children: [
             const SizedBox(height: kMediumPadding * 2),
+<<<<<<< HEAD
             
             // Chọn điểm đến
             ItemBookingWidget(
               icons: AssetHelper.iconlocation, 
               title: "Điểm Đến", 
+=======
+
+            // Chọn điểm đến
+            ItemBookingWidget(
+              icons: AssetHelper.iconlocation,
+              title: "Điểm Đến",
+>>>>>>> 72ffec4 (Initial commit)
               description: tripData.destination,
               onTap: () {
                 _showDestinationPicker();
               },
             ),
+<<<<<<< HEAD
             
             const SizedBox(height: kMediumPadding),
             
+=======
+
+            const SizedBox(height: kMediumPadding),
+
+>>>>>>> 72ffec4 (Initial commit)
             // Chọn thời gian
             ItemBookingWidget(
               icons: AssetHelper.iconcalendar,
               title: "Thời Gian Du Lịch",
               description: tripData.dateRange,
               onTap: () async {
+<<<<<<< HEAD
                 final result = await Navigator.of(context).pushNamed(SelectDateScreen.routeName);
                 if (result != null && (result as List<DateTime?>).any((element) => element != null)) {
+=======
+                final result = await Navigator.of(
+                  context,
+                ).pushNamed(SelectDateScreen.routeName);
+                if (result != null &&
+                    (result as List<DateTime?>).any(
+                      (element) => element != null,
+                    )) {
+>>>>>>> 72ffec4 (Initial commit)
                   setState(() {
                     tripData = tripData.copyWith(
                       startDate: result[0]?.getStartDate ?? tripData.startDate,
@@ -99,6 +127,7 @@ class _TripCreationScreenState extends State<TripCreationScreen> {
                 }
               },
             ),
+<<<<<<< HEAD
             
             const SizedBox(height: kMediumPadding),
             
@@ -112,6 +141,20 @@ class _TripCreationScreenState extends State<TripCreationScreen> {
                   TripPlanningScreen.routeName,
                   arguments: tripData,
                 );
+=======
+
+            const SizedBox(height: kMediumPadding),
+
+            // Chi tiết kế hoạch
+            ItemBookingWidget(
+              icons: AssetHelper.iconbed,
+              title: "Chi Tiết Kế Hoạch",
+              description: tripData.planSummary,
+              onTap: () async {
+                final result = await Navigator.of(
+                  context,
+                ).pushNamed(TripPlanningScreen.routeName, arguments: tripData);
+>>>>>>> 72ffec4 (Initial commit)
                 if (result != null && result is TripPlanData) {
                   setState(() {
                     tripData = result;
@@ -119,6 +162,7 @@ class _TripCreationScreenState extends State<TripCreationScreen> {
                 }
               },
             ),
+<<<<<<< HEAD
             
             const SizedBox(height: kMediumPadding),
             
@@ -126,6 +170,15 @@ class _TripCreationScreenState extends State<TripCreationScreen> {
             ItemBookingWidget(
               icons: AssetHelper.iconbed,
               title: "Gợi Ý Nơi Lưu Trú", 
+=======
+
+            const SizedBox(height: kMediumPadding),
+
+            // Gợi ý nơi lưu trú
+            ItemBookingWidget(
+              icons: AssetHelper.iconbed,
+              title: "Gợi Ý Nơi Lưu Trú",
+>>>>>>> 72ffec4 (Initial commit)
               description: _getAccommodationDescription(),
               onTap: () async {
                 final result = await Navigator.of(context).pushNamed(
@@ -141,6 +194,7 @@ class _TripCreationScreenState extends State<TripCreationScreen> {
                 });
               },
             ),
+<<<<<<< HEAD
             
             const SizedBox(height: kMediumPadding),
             
@@ -152,16 +206,54 @@ class _TripCreationScreenState extends State<TripCreationScreen> {
             // Tạo kế hoạch chi tiết
             ButtonWidget(
               title: "Tạo Kế Hoạch Chi Tiết", 
+=======
+
+            const SizedBox(height: kMediumPadding),
+
+            // Hiển thị thông tin tổng hợp
+            // _buildTripSummaryCard(),
+            const SizedBox(height: kMediumPadding),
+
+            // Checklist trước khi đi
+            ItemBookingWidget(
+              icons: AssetHelper.iconlocation,
+              title: 'Checklist Trước Khi Đi',
+              description: 'Chuẩn bị đồ dùng cần thiết',
+              onTap: () {
+                Navigator.of(context).pushNamed(
+                  '/travel_checklist_screen',
+                  arguments: {
+                    'tripId': tripData.destination + tripData.startDate,
+                    'tripName': tripData.destination,
+                  },
+                );
+              },
+            ),
+
+            const SizedBox(height: kMediumPadding),
+
+            // Tạo kế hoạch chi tiết
+            ButtonWidget(
+              title: "Tạo Kế Hoạch Chi Tiết",
+>>>>>>> 72ffec4 (Initial commit)
               onTap: () {
                 Navigator.of(context).pushNamed(
                   DetailedTripPlanScreen.routeName,
                   arguments: tripData,
                 );
+<<<<<<< HEAD
               }
             ),
             
             const SizedBox(height: kDefaultPadding),
             
+=======
+              },
+            ),
+
+            const SizedBox(height: kDefaultPadding),
+
+>>>>>>> 72ffec4 (Initial commit)
             // Các tùy chọn bổ sung - Tạm thời ẩn
             // _buildAdditionalOptions(),
           ],
@@ -201,7 +293,11 @@ class _TripCreationScreenState extends State<TripCreationScreen> {
   //           ],
   //         ),
   //         const SizedBox(height: 12),
+<<<<<<< HEAD
           
+=======
+
+>>>>>>> 72ffec4 (Initial commit)
   //         Row(
   //           children: [
   //             Expanded(
@@ -223,9 +319,15 @@ class _TripCreationScreenState extends State<TripCreationScreen> {
   //             ),
   //           ],
   //         ),
+<<<<<<< HEAD
           
   //         const SizedBox(height: 8),
           
+=======
+
+  //         const SizedBox(height: 8),
+
+>>>>>>> 72ffec4 (Initial commit)
   //         Row(
   //           children: [
   //             Expanded(
@@ -302,7 +404,11 @@ class _TripCreationScreenState extends State<TripCreationScreen> {
   //           ),
   //         ),
   //         const SizedBox(height: kDefaultPadding),
+<<<<<<< HEAD
           
+=======
+
+>>>>>>> 72ffec4 (Initial commit)
   //         CheckboxListTile(
   //           title: const Text('Bao gồm phương tiện di chuyển'),
   //           value: tripData.includeTransport,
@@ -313,7 +419,11 @@ class _TripCreationScreenState extends State<TripCreationScreen> {
   //           },
   //           controlAffinity: ListTileControlAffinity.leading,
   //         ),
+<<<<<<< HEAD
           
+=======
+
+>>>>>>> 72ffec4 (Initial commit)
   //         CheckboxListTile(
   //           title: const Text('Gợi ý nhà hàng địa phương'),
   //           value: tripData.includeRestaurants,
@@ -324,7 +434,11 @@ class _TripCreationScreenState extends State<TripCreationScreen> {
   //           },
   //           controlAffinity: ListTileControlAffinity.leading,
   //         ),
+<<<<<<< HEAD
           
+=======
+
+>>>>>>> 72ffec4 (Initial commit)
   //         CheckboxListTile(
   //           title: const Text('Bao gồm hoạt động giải trí'),
   //           value: tripData.includeEntertainment,
@@ -375,6 +489,7 @@ class _TripCreationScreenState extends State<TripCreationScreen> {
                   ),
                 ),
               ),
+<<<<<<< HEAD
               
               // Title
               Row(
@@ -384,6 +499,13 @@ class _TripCreationScreenState extends State<TripCreationScreen> {
                     color: Colors.blue[600],
                     size: 24,
                   ),
+=======
+
+              // Title
+              Row(
+                children: [
+                  Icon(Icons.location_on, color: Colors.blue[600], size: 24),
+>>>>>>> 72ffec4 (Initial commit)
                   const SizedBox(width: 12),
                   Text(
                     'Chọn điểm đến',
@@ -395,14 +517,21 @@ class _TripCreationScreenState extends State<TripCreationScreen> {
                   ),
                 ],
               ),
+<<<<<<< HEAD
               
               const SizedBox(height: kMediumPadding),
               
+=======
+
+              const SizedBox(height: kMediumPadding),
+
+>>>>>>> 72ffec4 (Initial commit)
               // Destination list
               Container(
                 constraints: const BoxConstraints(maxHeight: 400),
                 child: SingleChildScrollView(
                   child: Column(
+<<<<<<< HEAD
                     children: [
                       'Hà Nội, Việt Nam',
                       'TP. Hồ Chí Minh, Việt Nam',
@@ -464,6 +593,76 @@ class _TripCreationScreenState extends State<TripCreationScreen> {
               
               const SizedBox(height: kMediumPadding),
               
+=======
+                    children:
+                        [
+                              'Hà Nội, Việt Nam',
+                              'TP. Hồ Chí Minh, Việt Nam',
+                              'Đà Nẵng, Việt Nam',
+                              'Hội An, Việt Nam',
+                              'Sapa, Việt Nam',
+                              'Phú Quốc, Việt Nam',
+                            ]
+                            .map(
+                              (dest) => Container(
+                                margin: const EdgeInsets.only(bottom: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[50],
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: Colors.grey[200]!,
+                                    width: 1,
+                                  ),
+                                ),
+                                child: ListTile(
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 8,
+                                  ),
+                                  leading: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue[100],
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Icon(
+                                      Icons.place,
+                                      color: Colors.blue[600],
+                                      size: 20,
+                                    ),
+                                  ),
+                                  title: Text(
+                                    dest,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                  trailing: Icon(
+                                    Icons.arrow_forward_ios,
+                                    size: 16,
+                                    color: Colors.grey[400],
+                                  ),
+                                  onTap: () {
+                                    setState(() {
+                                      tripData = tripData.copyWith(
+                                        destination: dest,
+                                      );
+                                    });
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              ),
+                            )
+                            .toList(),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: kMediumPadding),
+
+>>>>>>> 72ffec4 (Initial commit)
               // Cancel button
               SizedBox(
                 width: double.infinity,
@@ -491,4 +690,8 @@ class _TripCreationScreenState extends State<TripCreationScreen> {
       },
     );
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 72ffec4 (Initial commit)

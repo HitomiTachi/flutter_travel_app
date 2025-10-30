@@ -4,6 +4,10 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   cloud_firestore
+<<<<<<< HEAD
+=======
+  file_selector_windows
+>>>>>>> 72ffec4 (Initial commit)
   firebase_core
 )
 

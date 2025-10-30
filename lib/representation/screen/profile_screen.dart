@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+<<<<<<< HEAD
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/helpers/asset_helper.dart';
+=======
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
+import 'package:flutter_travels_apps/core/constants/color_constants.dart';
+import 'package:flutter_travels_apps/core/helpers/asset_helper.dart';
+import 'package:flutter_travels_apps/core/helpers/local_storage_helper.dart';
+>>>>>>> 72ffec4 (Initial commit)
 import 'package:flutter_travels_apps/representation/screen/personal_info_screen.dart';
 import 'package:flutter_travels_apps/representation/widgets/app_bar_container.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -29,9 +38,18 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   late AnimationController _headerAnimationController;
   late AnimationController _listAnimationController;
+<<<<<<< HEAD
   late Animation<double> _headerAnimation;
   late Animation<double> _listAnimation;
 
+=======
+  late Animation<double> _listAnimation;
+
+  // Avatar image
+  File? _avatarImage;
+  final ImagePicker _imagePicker = ImagePicker();
+
+>>>>>>> 72ffec4 (Initial commit)
   @override
   void initState() {
     super.initState();
@@ -44,6 +62,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       vsync: this,
     );
 
+<<<<<<< HEAD
     _headerAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _headerAnimationController,
@@ -61,6 +80,28 @@ class _ProfileScreenState extends State<ProfileScreen>
     _startAnimations();
   }
 
+=======
+    _listAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _listAnimationController, curve: Curves.easeOut),
+    );
+
+    _loadAvatarFromStorage();
+    _startAnimations();
+  }
+
+  void _loadAvatarFromStorage() {
+    final avatarPath = LocalStorageHelper.getValue('user_avatar_path');
+    if (avatarPath != null && avatarPath.toString().isNotEmpty) {
+      final file = File(avatarPath.toString());
+      if (file.existsSync()) {
+        setState(() {
+          _avatarImage = file;
+        });
+      }
+    }
+  }
+
+>>>>>>> 72ffec4 (Initial commit)
   void _startAnimations() {
     _headerAnimationController.forward();
     Future.delayed(const Duration(milliseconds: 200), () {
@@ -91,6 +132,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 child: Column(
                   children: [
                     const SizedBox(height: kMediumPadding),
+<<<<<<< HEAD
                     
                     // Profile Header
                     _buildProfileHeader(),
@@ -115,6 +157,32 @@ class _ProfileScreenState extends State<ProfileScreen>
                     // Logout Button
                     _buildLogoutSection(),
                     
+=======
+
+                    // Profile Header
+                    _buildProfileHeader(),
+
+                    const SizedBox(height: kMediumPadding),
+
+                    // Quick Stats
+                    _buildQuickStatsSection(),
+
+                    const SizedBox(height: kMediumPadding),
+
+                    // Main Menu
+                    _buildMainMenuSection(),
+
+                    const SizedBox(height: kMediumPadding),
+
+                    // Settings Menu
+                    _buildSettingsMenuSection(),
+
+                    const SizedBox(height: kMediumPadding),
+
+                    // Logout Button
+                    _buildLogoutSection(),
+
+>>>>>>> 72ffec4 (Initial commit)
                     const SizedBox(height: kMediumPadding * 3),
                   ],
                 ),
@@ -174,6 +242,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               ],
             ),
             child: ClipOval(
+<<<<<<< HEAD
               child: Image.asset(
                 AssetHelper.person,
                 fit: BoxFit.cover,
@@ -188,6 +257,23 @@ class _ProfileScreenState extends State<ProfileScreen>
                   );
                 },
               ),
+=======
+              child: _avatarImage != null
+                  ? Image.file(
+                      _avatarImage!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return _buildDefaultAvatar();
+                      },
+                    )
+                  : Image.asset(
+                      AssetHelper.person,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return _buildDefaultAvatar();
+                      },
+                    ),
+>>>>>>> 72ffec4 (Initial commit)
             ),
           ),
           Positioned(
@@ -234,10 +320,14 @@ class _ProfileScreenState extends State<ProfileScreen>
         const SizedBox(height: 6),
         Text(
           userEmail,
+<<<<<<< HEAD
           style: TextStyle(
             color: Colors.grey[600],
             fontSize: 16,
           ),
+=======
+          style: TextStyle(color: Colors.grey[600], fontSize: 16),
+>>>>>>> 72ffec4 (Initial commit)
         ),
         const SizedBox(height: 8),
         Row(
@@ -251,10 +341,14 @@ class _ProfileScreenState extends State<ProfileScreen>
             const SizedBox(width: 6),
             Text(
               userLocation,
+<<<<<<< HEAD
               style: TextStyle(
                 color: Colors.grey[600],
                 fontSize: 14,
               ),
+=======
+              style: TextStyle(color: Colors.grey[600], fontSize: 14),
+>>>>>>> 72ffec4 (Initial commit)
             ),
           ],
         ),
@@ -278,11 +372,15 @@ class _ProfileScreenState extends State<ProfileScreen>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+<<<<<<< HEAD
           Icon(
             FontAwesomeIcons.crown,
             color: Colors.amber[600],
             size: 14,
           ),
+=======
+          Icon(FontAwesomeIcons.crown, color: Colors.amber[600], size: 14),
+>>>>>>> 72ffec4 (Initial commit)
           const SizedBox(width: 8),
           Text(
             'Thành viên từ $memberSince',
@@ -302,6 +400,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       margin: const EdgeInsets.symmetric(horizontal: kMediumPadding),
       child: Row(
         children: [
+<<<<<<< HEAD
           Expanded(child: _buildStatCard(
             FontAwesomeIcons.mapLocationDot,
             '$completedTrips',
@@ -322,12 +421,49 @@ class _ProfileScreenState extends State<ProfileScreen>
             'Đánh giá',
             Colors.amber,
           )),
+=======
+          Expanded(
+            child: _buildStatCard(
+              FontAwesomeIcons.mapLocationDot,
+              '$completedTrips',
+              'Chuyến đi',
+              Colors.green,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _buildStatCard(
+              FontAwesomeIcons.heart,
+              '$savedPlaces',
+              'Yêu thích',
+              Colors.red,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _buildStatCard(
+              FontAwesomeIcons.star,
+              '4.8',
+              'Đánh giá',
+              Colors.amber,
+            ),
+          ),
+>>>>>>> 72ffec4 (Initial commit)
         ],
       ),
     );
   }
 
+<<<<<<< HEAD
   Widget _buildStatCard(IconData icon, String value, String label, Color color) {
+=======
+  Widget _buildStatCard(
+    IconData icon,
+    String value,
+    String label,
+    Color color,
+  ) {
+>>>>>>> 72ffec4 (Initial commit)
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
       decoration: BoxDecoration(
@@ -361,6 +497,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               color: Colors.black87,
             ),
           ),
+<<<<<<< HEAD
           Text(
             label,
             style: TextStyle(
@@ -368,6 +505,9 @@ class _ProfileScreenState extends State<ProfileScreen>
               color: Colors.grey[600],
             ),
           ),
+=======
+          Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+>>>>>>> 72ffec4 (Initial commit)
         ],
       ),
     );
@@ -396,6 +536,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   //   );
   // }
 
+<<<<<<< HEAD
   Widget _buildQuickActionButton(IconData icon, String label, Color color, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
@@ -434,6 +575,8 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
+=======
+>>>>>>> 72ffec4 (Initial commit)
   Widget _buildMainMenuSection() {
     return _buildMenuCard([
       _buildModernMenuItem(
@@ -451,6 +594,30 @@ class _ProfileScreenState extends State<ProfileScreen>
         () => _navigateToMyTrips(),
       ),
       _buildModernMenuItem(
+<<<<<<< HEAD
+=======
+        FontAwesomeIcons.wallet,
+        'Quản lý ngân sách',
+        'Theo dõi chi tiêu chuyến đi',
+        Colors.teal,
+        () => _navigateToBudget(),
+      ),
+      _buildModernMenuItem(
+        FontAwesomeIcons.listCheck,
+        'Checklist Trước Khi Đi',
+        'Danh sách đồ dùng cần chuẩn bị',
+        Colors.orange,
+        () => _navigateToChecklist(),
+      ),
+      _buildModernMenuItem(
+        FontAwesomeIcons.moneyBill1,
+        'Đổi tiền & Máy tính',
+        'Chuyển đổi tiền tệ và tính tiền tip',
+        Colors.green,
+        () => _navigateToCurrencyConverter(),
+      ),
+      _buildModernMenuItem(
+>>>>>>> 72ffec4 (Initial commit)
         FontAwesomeIcons.heart,
         'Danh sách yêu thích',
         'Địa điểm và chuyến đi đã lưu',
@@ -501,8 +668,11 @@ class _ProfileScreenState extends State<ProfileScreen>
     ]);
   }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 72ffec4 (Initial commit)
   Widget _buildMenuCard(List<Widget> children) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: kMediumPadding),
@@ -555,10 +725,14 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
           subtitle: Text(
             subtitle,
+<<<<<<< HEAD
             style: TextStyle(
               fontSize: 13,
               color: Colors.grey[600],
             ),
+=======
+            style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+>>>>>>> 72ffec4 (Initial commit)
           ),
           trailing: Icon(
             FontAwesomeIcons.chevronRight,
@@ -655,7 +829,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                 ),
               ),
               const SizedBox(height: 20),
+<<<<<<< HEAD
               
+=======
+
+>>>>>>> 72ffec4 (Initial commit)
               const Text(
                 'Thay đổi ảnh đại diện',
                 style: TextStyle(
@@ -665,7 +843,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                 ),
               ),
               const SizedBox(height: 24),
+<<<<<<< HEAD
               
+=======
+
+>>>>>>> 72ffec4 (Initial commit)
               _buildImagePickerOption(
                 FontAwesomeIcons.camera,
                 'Chụp ảnh',
@@ -673,6 +855,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 Colors.blue,
                 () {
                   Navigator.pop(context);
+<<<<<<< HEAD
                   _showComingSoonDialog('Chụp ảnh');
                 },
               ),
@@ -692,12 +875,34 @@ class _ProfileScreenState extends State<ProfileScreen>
               
               const SizedBox(height: 12),
               
+=======
+                  _pickImageFromCamera();
+                },
+              ),
+
+              const SizedBox(height: 12),
+
+              _buildImagePickerOption(
+                FontAwesomeIcons.images,
+                'Chọn từ thư viện',
+                'Chọn ảnh có sẵn trong thư viện',
+                Colors.green,
+                () {
+                  Navigator.pop(context);
+                  _pickImageFromGallery();
+                },
+              ),
+
+              const SizedBox(height: 12),
+
+>>>>>>> 72ffec4 (Initial commit)
               _buildImagePickerOption(
                 FontAwesomeIcons.trash,
                 'Xóa ảnh hiện tại',
                 'Sử dụng ảnh mặc định',
                 Colors.red,
                 () {
+<<<<<<< HEAD
                   Navigator.pop(context);  
                   _showComingSoonDialog('Xóa ảnh');
                 },
@@ -705,6 +910,15 @@ class _ProfileScreenState extends State<ProfileScreen>
               
               const SizedBox(height: 20),
               
+=======
+                  Navigator.pop(context);
+                  _deleteAvatar();
+                },
+              ),
+
+              const SizedBox(height: 20),
+
+>>>>>>> 72ffec4 (Initial commit)
               SizedBox(
                 width: double.infinity,
                 child: TextButton(
@@ -717,6 +931,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                   ),
                   child: const Text(
                     'Hủy',
+<<<<<<< HEAD
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600, 
@@ -725,6 +940,13 @@ class _ProfileScreenState extends State<ProfileScreen>
                 ),
               ),
               
+=======
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+
+>>>>>>> 72ffec4 (Initial commit)
               SizedBox(height: MediaQuery.of(context).padding.bottom),
             ],
           ),
@@ -779,10 +1001,14 @@ class _ProfileScreenState extends State<ProfileScreen>
                     const SizedBox(height: 2),
                     Text(
                       subtitle,
+<<<<<<< HEAD
                       style: TextStyle(
                         fontSize: 13,
                         color: Colors.grey[600],
                       ),
+=======
+                      style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+>>>>>>> 72ffec4 (Initial commit)
                     ),
                   ],
                 ),
@@ -799,6 +1025,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
+<<<<<<< HEAD
   void _navigateToCreateTrip() {
     Navigator.pushNamed(context, '/trip_creation_screen');
   }
@@ -807,6 +1034,8 @@ class _ProfileScreenState extends State<ProfileScreen>
     _showComingSoonDialog('Khám phá');
   }
 
+=======
+>>>>>>> 72ffec4 (Initial commit)
   void _navigateToPersonalInfo() {
     Navigator.pushNamed(context, PersonalInfoScreen.routeName);
   }
@@ -828,7 +1057,11 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   void _navigateToSettings() {
+<<<<<<< HEAD
     _showComingSoonDialog('Cài đặt');
+=======
+    Navigator.pushNamed(context, '/settings_screen');
+>>>>>>> 72ffec4 (Initial commit)
   }
 
   void _navigateToHelp() {
@@ -848,7 +1081,13 @@ class _ProfileScreenState extends State<ProfileScreen>
               Text('Travel Planning App'),
               Text('Phiên bản: 1.0.0'),
               SizedBox(height: 12),
+<<<<<<< HEAD
               Text('Ứng dụng giúp bạn tạo kế hoạch chuyến đi hoàn hảo với các tính năng:'),
+=======
+              Text(
+                'Ứng dụng giúp bạn tạo kế hoạch chuyến đi hoàn hảo với các tính năng:',
+              ),
+>>>>>>> 72ffec4 (Initial commit)
               SizedBox(height: 8),
               Text('• Lập kế hoạch chi tiết theo ngày'),
               Text('• Tìm kiếm nơi lưu trú phù hợp'),
@@ -867,6 +1106,21 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
+<<<<<<< HEAD
+=======
+  void _navigateToBudget() {
+    Navigator.pushNamed(context, '/budget_screen');
+  }
+
+  void _navigateToChecklist() {
+    Navigator.pushNamed(context, '/travel_checklist_screen');
+  }
+
+  void _navigateToCurrencyConverter() {
+    Navigator.pushNamed(context, '/currency_converter_screen');
+  }
+
+>>>>>>> 72ffec4 (Initial commit)
   void _showLogoutDialog() {
     showDialog(
       context: context,
@@ -894,10 +1148,14 @@ class _ProfileScreenState extends State<ProfileScreen>
               const SizedBox(width: 12),
               const Text(
                 'Đăng xuất',
+<<<<<<< HEAD
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
+=======
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+>>>>>>> 72ffec4 (Initial commit)
               ),
             ],
           ),
@@ -909,17 +1167,28 @@ class _ProfileScreenState extends State<ProfileScreen>
             TextButton(
               onPressed: () => Navigator.pop(context),
               style: TextButton.styleFrom(
+<<<<<<< HEAD
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+=======
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+>>>>>>> 72ffec4 (Initial commit)
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
               child: const Text(
                 'Hủy',
+<<<<<<< HEAD
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
+=======
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+>>>>>>> 72ffec4 (Initial commit)
               ),
             ),
             ElevatedButton(
@@ -930,17 +1199,28 @@ class _ProfileScreenState extends State<ProfileScreen>
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
+<<<<<<< HEAD
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+=======
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+>>>>>>> 72ffec4 (Initial commit)
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
               child: const Text(
                 'Đăng xuất',
+<<<<<<< HEAD
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
+=======
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+>>>>>>> 72ffec4 (Initial commit)
               ),
             ),
           ],
@@ -971,9 +1251,13 @@ class _ProfileScreenState extends State<ProfileScreen>
           content: const Text('Đã đăng xuất thành công!'),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
+<<<<<<< HEAD
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
+=======
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+>>>>>>> 72ffec4 (Initial commit)
         ),
       );
     });
@@ -985,7 +1269,13 @@ class _ProfileScreenState extends State<ProfileScreen>
       builder: (context) {
         return AlertDialog(
           title: const Text('Đang phát triển'),
+<<<<<<< HEAD
           content: Text('Tính năng "$feature" sẽ được phát triển trong phiên bản tiếp theo.'),
+=======
+          content: Text(
+            'Tính năng "$feature" sẽ được phát triển trong phiên bản tiếp theo.',
+          ),
+>>>>>>> 72ffec4 (Initial commit)
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -996,4 +1286,124 @@ class _ProfileScreenState extends State<ProfileScreen>
       },
     );
   }
+<<<<<<< HEAD
 }
+=======
+
+  Widget _buildDefaultAvatar() {
+    return Container(
+      color: Colors.grey[300],
+      child: const Icon(FontAwesomeIcons.user, size: 45, color: Colors.grey),
+    );
+  }
+
+  Future<void> _pickImageFromCamera() async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 80,
+      );
+
+      if (image != null) {
+        _saveAvatarImage(File(image.path));
+      }
+    } catch (e) {
+      _showErrorSnackBar('Không thể mở camera. Vui lòng thử lại.');
+    }
+  }
+
+  Future<void> _pickImageFromGallery() async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 80,
+      );
+
+      if (image != null) {
+        _saveAvatarImage(File(image.path));
+      }
+    } catch (e) {
+      _showErrorSnackBar('Không thể mở thư viện ảnh. Vui lòng thử lại.');
+    }
+  }
+
+  void _saveAvatarImage(File imageFile) {
+    setState(() {
+      _avatarImage = imageFile;
+    });
+
+    // Lưu path vào storage (trên web sẽ cần cách khác)
+    LocalStorageHelper.setValue('user_avatar_path', imageFile.path);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Đã cập nhật ảnh đại diện thành công!'),
+        backgroundColor: Colors.green,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
+  }
+
+  void _deleteAvatar() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.delete_outline, color: Colors.red),
+              SizedBox(width: 8),
+              Text('Xóa ảnh đại diện'),
+            ],
+          ),
+          content: const Text(
+            'Bạn có chắc chắn muốn xóa ảnh đại diện hiện tại không?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Hủy'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _avatarImage = null;
+                });
+                LocalStorageHelper.setValue('user_avatar_path', '');
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text('Đã xóa ảnh đại diện'),
+                    backgroundColor: Colors.orange,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                );
+              },
+              child: const Text('Xóa', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
+  }
+}
+>>>>>>> 72ffec4 (Initial commit)

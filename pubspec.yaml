@@ -48,7 +48,14 @@ dependencies:
   firebase_core: ^4.2.0
   cloud_firestore: ^6.0.3
   firebase_database: ^12.0.3
+<<<<<<< HEAD
   vietmap_flutter_gl: ^4.0.1
+=======
+  flutter_map: ^6.1.0
+  latlong2: ^0.9.0
+  http: ^1.2.2
+  image_picker: ^1.0.7 # Added for avatar selection
+>>>>>>> 72ffec4 (Initial commit)
 
 dev_dependencies:
   flutter_test:

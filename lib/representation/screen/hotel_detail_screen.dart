@@ -3,7 +3,10 @@ import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/core/helpers/asset_helper.dart';
 import 'package:flutter_travels_apps/core/helpers/images_helpers.dart';
+<<<<<<< HEAD
 import 'package:flutter_travels_apps/data/models/hotel_model.dart';
+=======
+>>>>>>> 72ffec4 (Initial commit)
 import 'package:flutter_travels_apps/representation/widgets/button_widget.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -29,7 +32,11 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
               fit: BoxFit.cover,
             ),
           ),
+<<<<<<< HEAD
           
+=======
+
+>>>>>>> 72ffec4 (Initial commit)
           // Back Button
           Positioned(
             top: MediaQuery.of(context).padding.top + kDefaultPadding,
@@ -77,6 +84,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                   ),
                 ],
               ),
+<<<<<<< HEAD
               child: Icon(
                 FontAwesomeIcons.heart,
                 size: 20,
@@ -85,6 +93,12 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
             ),
           ),
           
+=======
+              child: Icon(FontAwesomeIcons.heart, size: 20, color: Colors.red),
+            ),
+          ),
+
+>>>>>>> 72ffec4 (Initial commit)
           // Draggable Content
           DraggableScrollableSheet(
             initialChildSize: 0.5,
@@ -121,7 +135,11 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                         ),
                       ),
                     ),
+<<<<<<< HEAD
                     
+=======
+
+>>>>>>> 72ffec4 (Initial commit)
                     // Content
                     Expanded(
                       child: ListView(
@@ -131,6 +149,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                           // Hotel Name & Rating
                           _buildHotelHeader(),
                           SizedBox(height: kDefaultPadding),
+<<<<<<< HEAD
                           
                           // Location
                           _buildLocationSection(),
@@ -152,6 +171,29 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                           _buildReviewsSection(),
                           SizedBox(height: kDefaultPadding * 2),
                           
+=======
+
+                          // Location
+                          _buildLocationSection(),
+                          SizedBox(height: kDefaultPadding * 1.5),
+
+                          // Description
+                          _buildDescriptionSection(),
+                          SizedBox(height: kDefaultPadding * 1.5),
+
+                          // Amenities
+                          _buildAmenitiesSection(),
+                          SizedBox(height: kDefaultPadding * 1.5),
+
+                          // Gallery
+                          _buildGallerySection(),
+                          SizedBox(height: kDefaultPadding * 1.5),
+
+                          // Reviews
+                          _buildReviewsSection(),
+                          SizedBox(height: kDefaultPadding * 2),
+
+>>>>>>> 72ffec4 (Initial commit)
                           // Price & Book Button
                           _buildBookingSection(),
                           SizedBox(height: kDefaultPadding),
@@ -201,10 +243,14 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
             SizedBox(width: kMinPadding),
             Text(
               '(3,241 reviews)',
+<<<<<<< HEAD
               style: TextStyle(
                 color: ColorPalette.subTitleColor,
                 fontSize: 12,
               ),
+=======
+              style: TextStyle(color: ColorPalette.subTitleColor, fontSize: 12),
+>>>>>>> 72ffec4 (Initial commit)
             ),
           ],
         ),
@@ -232,10 +278,14 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
         ),
         Text(
           '364 km away',
+<<<<<<< HEAD
           style: TextStyle(
             color: ColorPalette.subTitleColor,
             fontSize: 12,
           ),
+=======
+          style: TextStyle(color: ColorPalette.subTitleColor, fontSize: 12),
+>>>>>>> 72ffec4 (Initial commit)
         ),
       ],
     );
@@ -256,11 +306,15 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
         SizedBox(height: kDefaultPadding),
         Text(
           'Royal Pain Heritage is a luxurious heritage hotel located in the heart of Purwokerto. The hotel combines traditional Javanese architecture with modern amenities, offering guests a unique and comfortable stay experience.',
+<<<<<<< HEAD
           style: TextStyle(
             color: Colors.black54,
             height: 1.6,
             fontSize: 14,
           ),
+=======
+          style: TextStyle(color: Colors.black54, height: 1.6, fontSize: 14),
+>>>>>>> 72ffec4 (Initial commit)
         ),
       ],
     );
@@ -477,11 +531,15 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
           SizedBox(height: kDefaultPadding),
           Text(
             'Amazing hotel with great service! The staff was very friendly and the room was clean and comfortable.',
+<<<<<<< HEAD
             style: TextStyle(
               color: Colors.black54,
               fontSize: 14,
               height: 1.4,
             ),
+=======
+            style: TextStyle(color: Colors.black54, fontSize: 14, height: 1.4),
+>>>>>>> 72ffec4 (Initial commit)
           ),
         ],
       ),
