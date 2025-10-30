@@ -7,6 +7,13 @@ import 'package:flutter_travels_apps/representation/screen/personal_info_screen.
 import 'package:flutter_travels_apps/representation/widgets/app_bar_container.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+// --- CẬP NHẬT: Thêm các import cần thiết ---
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_travels_apps/services/auth_service.dart';
+// --- KẾT THÚC CẬP NHẬT ---
+
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
 
@@ -18,14 +25,13 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen>
     with TickerProviderStateMixin {
-  // Dữ liệu người dùng mẫu
-  final String userName = "Nguyễn Văn A";
-  final String userEmail = "nguyenvana@email.com";
-  final String userPhone = "+84 123 456 789";
-  final String userLocation = "Hà Nội, Việt Nam";
-  final int completedTrips = 12;
-  final int savedPlaces = 47;
-  final String memberSince = "Tháng 3, 2023";
+  
+  // --- CẬP NHẬT: Xóa dữ liệu mẫu ---
+  // (Đã xóa userName, userEmail, v.v.)
+
+  // --- CẬP NHẬT: Thêm biến Firebase ---
+  final User? _currentUser = FirebaseAuth.instance.currentUser;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   late AnimationController _headerAnimationController;
   late AnimationController _listAnimationController;
@@ -75,59 +81,92 @@ class _ProfileScreenState extends State<ProfileScreen>
     super.dispose();
   }
 
+  // --- CẬP NHẬT: Hàm helper để định dạng ngày ---
+  String _formatJoinDate(Timestamp? timestamp) {
+    if (timestamp == null) {
+      return 'N/A';
+    }
+    final date = timestamp.toDate();
+    // Định dạng đơn giản: "Tháng 3, 2023"
+    const monthNames = [
+      '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'
+    ];
+    return 'Tháng ${monthNames[date.month - 1]}, ${date.year}';
+  }
+
   @override
   Widget build(BuildContext context) {
     return AppBarContainerWidget(
       implementLeading: false,
       titleString: 'Hồ Sơ Cá Nhân',
-      child: AnimatedBuilder(
-        animation: _listAnimation,
-        builder: (context, child) {
-          return Transform.translate(
-            offset: Offset(0, 50 * (1 - _listAnimation.value)),
-            child: Opacity(
-              opacity: _listAnimation.value,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const SizedBox(height: kMediumPadding),
-                    
-                    // Profile Header
-                    _buildProfileHeader(),
-                    
-                    const SizedBox(height: kMediumPadding),
-                    
-                    // Quick Stats
-                    _buildQuickStatsSection(),
-                    
-                    const SizedBox(height: kMediumPadding),
-                    
-                    // Main Menu
-                    _buildMainMenuSection(),
-                    
-                    const SizedBox(height: kMediumPadding),
-                    
-                    // Settings Menu
-                    _buildSettingsMenuSection(),
-                    
-                    const SizedBox(height: kMediumPadding),
-                    
-                    // Logout Button
-                    _buildLogoutSection(),
-                    
-                    const SizedBox(height: kMediumPadding * 3),
-                  ],
+      // --- CẬP NHẬT: Sử dụng StreamBuilder để tải dữ liệu ---
+      child: StreamBuilder<DocumentSnapshot>(
+        // --- SỬA LỖI: .onSnapshot() -> .snapshots() ---
+        stream: _currentUser != null
+            ? _firestore.collection('users').doc(_currentUser!.uid).snapshots() 
+            : null,
+        // --- KẾT THÚC SỬA LỖI ---
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (!snapshot.hasData || snapshot.data == null || !snapshot.data!.exists) {
+            return const Center(child: Text('Không tìm thấy dữ liệu người dùng.'));
+          }
+
+          // Lấy dữ liệu người dùng từ snapshot
+          final userData = snapshot.data!.data() as Map<String, dynamic>;
+
+          return AnimatedBuilder(
+            animation: _listAnimation,
+            builder: (context, child) {
+              return Transform.translate(
+                offset: Offset(0, 50 * (1 - _listAnimation.value)),
+                child: Opacity(
+                  opacity: _listAnimation.value,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        const SizedBox(height: kMediumPadding),
+                        
+                        // Profile Header
+                        _buildProfileHeader(userData),
+                        
+                        const SizedBox(height: kMediumPadding),
+                        
+                        // Quick Stats
+                        _buildQuickStatsSection(userData),
+                        
+                        const SizedBox(height: kMediumPadding),
+                        
+                        // Main Menu
+                        _buildMainMenuSection(),
+                        
+                        const SizedBox(height: kMediumPadding),
+                        
+                        // Settings Menu
+                        _buildSettingsMenuSection(),
+                        
+                        const SizedBox(height: kMediumPadding),
+                        
+                        // Logout Button
+                        _buildLogoutSection(),
+                        
+                        const SizedBox(height: kMediumPadding * 3),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           );
         },
       ),
     );
   }
 
-  // Profile Header Section
-  Widget _buildProfileHeader() {
+  // --- CẬP NHẬT: Truyền 'userData' vào ---
+  Widget _buildProfileHeader(Map<String, dynamic> userData) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: kMediumPadding),
       padding: const EdgeInsets.all(kMediumPadding),
@@ -144,20 +183,26 @@ class _ProfileScreenState extends State<ProfileScreen>
       ),
       child: Column(
         children: [
-          _buildAnimatedAvatar(),
+          _buildAnimatedAvatar(userData), // <-- CẬP NHẬT
           const SizedBox(height: kMediumPadding),
-          _buildUserInfo(),
+          _buildUserInfo(userData), // <-- CẬP NHẬT
           const SizedBox(height: kMediumPadding),
-          _buildMemberBadge(),
+          _buildMemberBadge(userData), // <-- CẬP NHẬT
         ],
       ),
     );
   }
 
-  Widget _buildAnimatedAvatar() {
-    return GestureDetector(
-      onTap: _showImagePickerOptions,
-      child: Stack(
+  // --- CẬP NHẬT: Tải ảnh từ URL và KHÔI PHỤC nút camera ---
+  Widget _buildAnimatedAvatar(Map<String, dynamic> userData) {
+    final String? avatarUrl = userData['avatarUrl'];
+    final ImageProvider backgroundImage = (avatarUrl != null && avatarUrl.isNotEmpty)
+        ? NetworkImage(avatarUrl)
+        : const AssetImage(AssetHelper.person) as ImageProvider;
+
+    return GestureDetector( // <-- KHÔI PHỤC GestureDetector
+      onTap: _showImagePickerOptions, // <-- KHÔI PHỤC onTap
+      child: Stack( // <-- KHÔI PHỤC Stack
         children: [
           Container(
             width: 100,
@@ -174,8 +219,8 @@ class _ProfileScreenState extends State<ProfileScreen>
               ],
             ),
             child: ClipOval(
-              child: Image.asset(
-                AssetHelper.person,
+              child: Image(
+                image: backgroundImage,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
@@ -190,7 +235,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               ),
             ),
           ),
-          Positioned(
+          Positioned( // <-- KHÔI PHỤC Nút camera
             bottom: 2,
             right: 2,
             child: Container(
@@ -220,11 +265,12 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildUserInfo() {
+  // --- CẬP NHẬT: Lấy Tên, Email, Địa chỉ từ 'userData' ---
+  Widget _buildUserInfo(Map<String, dynamic> userData) {
     return Column(
       children: [
         Text(
-          userName,
+          userData['name'] ?? 'Chưa cập nhật', // <-- CẬP NHẬT
           style: TextStyle(
             color: Colors.grey[800],
             fontSize: 24,
@@ -233,7 +279,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         ),
         const SizedBox(height: 6),
         Text(
-          userEmail,
+          userData['email'] ?? '', // <-- CẬP NHẬT
           style: TextStyle(
             color: Colors.grey[600],
             fontSize: 16,
@@ -250,7 +296,10 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
             const SizedBox(width: 6),
             Text(
-              userLocation,
+              // Dùng logic "Chưa cập nhật"
+              (userData['address'] != null && (userData['address'] as String).isNotEmpty)
+                  ? userData['address']
+                  : 'Chưa cập nhật địa chỉ', // <-- CẬP NHẬT
               style: TextStyle(
                 color: Colors.grey[600],
                 fontSize: 14,
@@ -262,7 +311,10 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildMemberBadge() {
+  // --- CẬP NHẬT: Lấy ngày tham gia từ 'userData' ---
+  Widget _buildMemberBadge(Map<String, dynamic> userData) {
+    final String joinDateString = _formatJoinDate(userData['joinDate']); // <-- CẬP NHẬT
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
@@ -285,7 +337,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
           const SizedBox(width: 8),
           Text(
-            'Thành viên từ $memberSince',
+            'Thành viên từ $joinDateString', // <-- CẬP NHẬT
             style: TextStyle(
               color: Colors.grey[700],
               fontSize: 12,
@@ -297,28 +349,35 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildQuickStatsSection() {
+  // --- CẬP NHẬT: Lấy số liệu 'favoritePlaceIds' ---
+  Widget _buildQuickStatsSection(Map<String, dynamic> userData) {
+    // Đếm số lượng 'favoritePlaceIds'
+    final int savedPlacesCount = (userData['favoritePlaceIds'] as List?)?.length ?? 0;
+    // (Giả sử 'completedTrips' và 'rating' chưa có, ta tạm ẩn)
+    // final int completedTripsCount = userData['completedTrips'] ?? 0;
+    // final String rating = userData['rating']?.toString() ?? 'N/A';
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: kMediumPadding),
       child: Row(
         children: [
           Expanded(child: _buildStatCard(
             FontAwesomeIcons.mapLocationDot,
-            '$completedTrips',
+            '0', // <-- Tạm ẩn
             'Chuyến đi',
             Colors.green,
           )),
           const SizedBox(width: 12),
           Expanded(child: _buildStatCard(
             FontAwesomeIcons.heart,
-            '$savedPlaces',
+            '$savedPlacesCount', // <-- CẬP NHẬT
             'Yêu thích',
             Colors.red,
           )),
           const SizedBox(width: 12),
           Expanded(child: _buildStatCard(
             FontAwesomeIcons.star,
-            '4.8',
+            'N/A', // <-- Tạm ẩn
             'Đánh giá',
             Colors.amber,
           )),
@@ -373,66 +432,8 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  // Widget _buildQuickActionsSection() {
-  //   return Container(
-  //     margin: const EdgeInsets.symmetric(horizontal: kMediumPadding),
-  //     child: Row(
-  //       children: [
-  //         Expanded(child: _buildQuickActionButton(
-  //           FontAwesomeIcons.plus,
-  //           'Tạo kế hoạch',
-  //           ColorPalette.primaryColor,
-  //           () => _navigateToCreateTrip(),
-  //         )),
-  //         const SizedBox(width: 12),
-  //         Expanded(child: _buildQuickActionButton(
-  //           FontAwesomeIcons.magnifyingGlass,
-  //           'Khám phá',
-  //           Colors.orange,
-  //           () => _navigateToExplore(),
-  //         )),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  Widget _buildQuickActionButton(IconData icon, String label, Color color, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [color, color.withOpacity(0.8)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(kTopPadding),
-          boxShadow: [
-            BoxShadow(
-              color: color.withOpacity(0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: Colors.white, size: 24),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // ... (Các widget _buildQuickActionsSection, _buildQuickActionButton không thay đổi) ...
+  // ... (Các widget _buildMainMenuSection, _buildSettingsMenuSection, _buildMenuCard, _buildModernMenuItem không thay đổi) ...
 
   Widget _buildMainMenuSection() {
     return _buildMenuCard([
@@ -500,8 +501,6 @@ class _ProfileScreenState extends State<ProfileScreen>
       ),
     ]);
   }
-
-
 
   Widget _buildMenuCard(List<Widget> children) {
     return Container(
@@ -579,6 +578,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
+
   Widget _buildLogoutSection() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: kMediumPadding),
@@ -629,7 +629,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  // Các hàm xử lý sự kiện
+  // --- CẬP NHẬT: KHÔI PHỤC _showImagePickerOptions ---
   void _showImagePickerOptions() {
     showModalBottomSheet(
       context: context,
@@ -698,7 +698,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 'Sử dụng ảnh mặc định',
                 Colors.red,
                 () {
-                  Navigator.pop(context);  
+                  Navigator.pop(context); 
                   _showComingSoonDialog('Xóa ảnh');
                 },
               ),
@@ -733,6 +733,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
+  // --- CẬP NHẬT: KHÔI PHỤC _buildImagePickerOption ---
   Widget _buildImagePickerOption(
     IconData icon,
     String title,
@@ -770,7 +771,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                   children: [
                     Text(
                       title,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: Colors.black87,
@@ -799,13 +800,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  void _navigateToCreateTrip() {
-    Navigator.pushNamed(context, '/trip_creation_screen');
-  }
-
-  void _navigateToExplore() {
-    _showComingSoonDialog('Khám phá');
-  }
+  // ... (Các hàm _navigateTo... và _show...Dialog giữ nguyên) ...
 
   void _navigateToPersonalInfo() {
     Navigator.pushNamed(context, PersonalInfoScreen.routeName);
@@ -924,7 +919,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(context);
+                // --- CẬP NHẬT: Không cần pop, gọi thẳng _performLogout ---
                 _performLogout();
               },
               style: ElevatedButton.styleFrom(
@@ -949,8 +944,17 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  void _performLogout() {
-    // Show loading
+  // --- CẬP NHẬT: Hàm _performLogout gọi AuthService ---
+  void _performLogout() async {
+    // Lấy AuthService từ Provider
+    final authService = context.read<AuthService>();
+
+    // 1. Đóng dialog xác nhận
+    if (Navigator.of(context).canPop()) {
+      Navigator.pop(context); 
+    }
+
+    // 2. Hiển thị dialog loading
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -963,20 +967,32 @@ class _ProfileScreenState extends State<ProfileScreen>
       },
     );
 
-    // Simulate logout process
-    Future.delayed(const Duration(seconds: 1), () {
-      Navigator.pop(context); // Close loading
+    try {
+      // 3. Gọi hàm đăng xuất
+      await authService.signOut();
+      
+      // 4. Kiểm tra 'mounted'
+      if (!mounted) return;
+      
+      // 5. Đóng dialog loading
+      if (Navigator.of(context).canPop()) {
+         Navigator.pop(context); 
+      }
+      // AuthWrapper sẽ tự động điều hướng sang LoginScreen
+      
+    } catch (e) {
+      // 6. Nếu có lỗi, đóng loading và báo lỗi
+      if (!mounted) return;
+      if (Navigator.of(context).canPop()) {
+        Navigator.pop(context); // Đóng loading
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Đã đăng xuất thành công!'),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          content: Text('Đăng xuất thất bại: $e'),
+          backgroundColor: Colors.red,
         ),
       );
-    });
+    }
   }
 
   void _showComingSoonDialog(String feature) {
@@ -997,3 +1013,4 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 }
+

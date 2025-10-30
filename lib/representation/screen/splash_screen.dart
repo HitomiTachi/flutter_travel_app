@@ -1,5 +1,3 @@
-// lib/representation/splash_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_travels_apps/core/helpers/asset_helper.dart';
 import 'package:flutter_travels_apps/core/helpers/images_helpers.dart';
@@ -19,19 +17,28 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     representation();
   }
 
-  void representation() async{
+  void representation() async {
     final ignoreIntroScreen = LocalStorageHelper.getValue('ignoreIntroScreen') as bool?;
-    await Future.delayed(const Duration(microseconds: 2000));
-    if(ignoreIntroScreen != null && ignoreIntroScreen){
-      Navigator.of(context).pushNamed(MainApp.routeName);
-    }else{
+    
+    // --- LỖI 1: Sửa microseconds thành milliseconds ---
+    await Future.delayed(const Duration(milliseconds: 2000));
+    // --- KẾT THÚC SỬA 1 ---
+
+    // --- LỖI 2: Thêm kiểm tra 'mounted' sau 'await' ---
+    if (!mounted) return;
+    // --- KẾT THÚC SỬA 2 ---
+
+    if (ignoreIntroScreen != null && ignoreIntroScreen) {
+      // --- CẢI TIẾN 3: Dùng pushReplacementNamed ---
+      Navigator.of(context).pushReplacementNamed(MainApp.routeName);
+    } else {
       LocalStorageHelper.setValue('ignoreIntroScreen', true);
-      Navigator.of(context).pushNamed(IntroScreen.routeName);
+      // --- CẢI TIẾN 3: Dùng pushReplacementNamed ---
+      Navigator.of(context).pushReplacementNamed(IntroScreen.routeName);
     }
   }
 

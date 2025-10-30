@@ -15,21 +15,23 @@ class AppBarContainerWidget extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          SizedBox(
-            height: 186,
-            child: AppBar(
-              centerTitle: true,
-              automaticallyImplyLeading: false,
-              elevation: 0,
-              toolbarHeight: 90,
-              backgroundColor: ColorPalette.backgroundScaffoldColor,
-              title: title ??
-              Row(
-                children: [
-                  if(implementLeading)
+    // --- SỬA LỖI: Xóa 'Scaffold' và 'body:' ---
+    // return Scaffold(
+    //       body: Stack(
+    return Stack(
+      children: [
+        SizedBox(
+          height: 186,
+          child: AppBar(
+            centerTitle: true,
+            automaticallyImplyLeading: false,
+            elevation: 0,
+            toolbarHeight: 90,
+            backgroundColor: ColorPalette.backgroundScaffoldColor,
+            title: title ??
+            Row(
+              children: [
+                if(implementLeading)
                   GestureDetector(
                     onTap: () {
                       Navigator.of(context).pop();
@@ -39,7 +41,7 @@ class AppBarContainerWidget extends StatelessWidget{
                         color: Colors.white,
                         borderRadius: BorderRadius.all(
                           Radius.circular(kDefaultPadding),
-                          ),
+                        ),
                       ),
                       padding: EdgeInsets.all(kItemPadding),
                       child: Icon(
@@ -48,57 +50,65 @@ class AppBarContainerWidget extends StatelessWidget{
                         size: kDefaultIconSize,),
                     ),
                   ),
-                  Expanded(
-                    child: Center(
-                      child: Column(
-                        children: [
-                          Text(
-                            titleString ?? '',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20,
-                            color: Colors.white )
-                            ),
-                            ],
-                      ),
+                Expanded(
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Text(
+                          titleString ?? '',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20,
+                          color: Colors.white ),
+                          maxLines: 1, // Thêm để tránh tràn
+                          overflow: TextOverflow.ellipsis, // Thêm để tránh tràn
+                        ),
+                      ],
                     ),
                   ),
-                  if(implementTraling)
+                ),
+                if(implementTraling)
                   Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(
                         kDefaultPadding,
-                        ),
-                        color: Colors.white,
+                      ),
+                      color: Colors.white,
                     ),
                     padding: EdgeInsets.all(kItemPadding),
                     child: Icon(
                       FontAwesomeIcons.bars,
                       size: kDefaultIconSize,
                       color: Colors.black,),
-                  ),
-                ],
-                ),
-              flexibleSpace: Stack(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: Gradients.defaultGradientBackground,
-                      borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(35),
-                        // bottomRight: Radius.circular(24),
-                      ),
-                    ),
                   )
-                ],
-              ),
+                // --- THÊM: Spacer để giữ title ở giữa nếu chỉ có nút back ---
+                else if (implementLeading && !implementTraling)
+                  Container(
+                    width: kDefaultPadding + (kItemPadding * 2) - 12, // Căn chỉnh cho bằng nút back
+                  ),
+              ],
+            ),
+            flexibleSpace: Stack(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: Gradients.defaultGradientBackground,
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(35),
+                      // bottomRight: Radius.circular(24),
+                    ),
+                  ),
+                )
+              ],
             ),
           ),
-          Container(
-            margin: EdgeInsets.only(top: 156),
-            padding: EdgeInsets.symmetric(horizontal: kMediumPadding),
-            child: child,
-          )
-        ],
-      ),
+        ),
+        Container(
+          margin: EdgeInsets.only(top: 156),
+          padding: EdgeInsets.symmetric(horizontal: kMediumPadding),
+          child: child,
+        )
+      ],
     );
+    // );
+    // --- KẾT THÚC SỬA LỖI ---
   }
 }

@@ -6,6 +6,11 @@ import 'package:flutter_travels_apps/core/helpers/asset_helper.dart';
 import 'package:flutter_travels_apps/representation/widgets/app_bar_container.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+// --- THÊM CÁC IMPORT CẦN THIẾT ---
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+// --- KẾT THÚC IMPORT (Đã xóa các thư viện ảnh) ---
+
 class PersonalInfoScreen extends StatefulWidget {
   const PersonalInfoScreen({Key? key}) : super(key: key);
 
@@ -18,6 +23,19 @@ class PersonalInfoScreen extends StatefulWidget {
 class _PersonalInfoScreenState extends State<PersonalInfoScreen>
     with TickerProviderStateMixin {
   
+  // --- THÊM BIẾN CHO FIREBASE ---
+  final User? _currentUser = FirebaseAuth.instance.currentUser;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  // (Đã xóa Storage)
+
+  // Dữ liệu người dùng từ Firestore
+  Map<String, dynamic>? _userData;
+  Map<String, dynamic>? _originalUserData; // Để dùng cho hàm "Hủy"
+
+  // --- CẬP NHẬT: Biến cho ảnh Storage ---
+  bool _isLoading = true; // Bắt đầu với trạng thái loading
+  // (Đã xóa _isUploading)
+
   // Controllers cho form
   late TextEditingController _nameController;
   late TextEditingController _emailController;
@@ -43,18 +61,20 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen>
   void initState() {
     super.initState();
     
-    // Khởi tạo controllers
-    _nameController = TextEditingController(text: "Nguyễn Văn A");
-    _emailController = TextEditingController(text: "nguyenvana@email.com");
-    _phoneController = TextEditingController(text: "+84 123 456 789");
-    _addressController = TextEditingController(text: "123 Nguyễn Trãi, Quận 1, TP.HCM");
-    _bioController = TextEditingController(text: "Yêu thích du lịch và khám phá những điều mới mẻ");
-    _birthdayController = TextEditingController(text: "15/03/1990");
-    _jobController = TextEditingController(text: "Kỹ sư phần mềm");
-    _nationalityController = TextEditingController(text: "Việt Nam");
-    selectedBirthday = DateTime(1990, 3, 15);
+    // 1. Khởi tạo controllers (rỗng)
+    _nameController = TextEditingController();
+    _emailController = TextEditingController();
+    _phoneController = TextEditingController();
+    _addressController = TextEditingController();
+    _bioController = TextEditingController();
+    _birthdayController = TextEditingController();
+    _jobController = TextEditingController();
+    _nationalityController = TextEditingController();
     
-    // Animation setup
+    // 2. Tải dữ liệu người dùng
+    _fetchUserData();
+
+    // 3. Animation setup (giữ nguyên)
     _fadeAnimationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -79,8 +99,72 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen>
       parent: _slideAnimationController,
       curve: Curves.easeOutCubic,
     ));
+    // _startAnimations() sẽ được gọi trong _fetchUserData
+  }
 
-    _startAnimations();
+  // --- HÀM MỚI: Tải dữ liệu từ Firestore ---
+  Future<void> _fetchUserData() async {
+    if (_currentUser == null) {
+      if (mounted) {
+        setState(() { _isLoading = false; });
+        _showSnackBar('Không tìm thấy người dùng. Vui lòng đăng nhập lại.', isError: true);
+      }
+      return;
+    }
+
+    try {
+      final doc = await _firestore.collection('users').doc(_currentUser!.uid).get();
+      
+      if (doc.exists && doc.data() != null) {
+        _userData = doc.data()!;
+        _originalUserData = Map.from(_userData!); // Sao chép để dùng cho "Hủy"
+        
+        // --- CẬP NHẬT: Gọi hàm helper mới ---
+        _applyDataToControllers(_userData);
+      } else {
+        _showSnackBar('Không tìm thấy dữ liệu người dùng.', isError: true);
+      }
+    } catch (e) {
+      _showSnackBar('Lỗi tải dữ liệu: $e', isError: true);
+    } finally {
+      if (mounted) {
+        setState(() { _isLoading = false; }); // Tải xong, tắt loading
+        _startAnimations(); // Bắt đầu animation sau khi có dữ liệu
+      }
+    }
+  }
+
+  // --- HÀM MỚI: Gán dữ liệu vào controllers (với "Chưa cập nhật") ---
+  void _applyDataToControllers(Map<String, dynamic>? data) {
+    if (data == null) return;
+
+    // Tên và Email là bắt buộc, không cần "Chưa cập nhật"
+    _nameController.text = data['name'] ?? '';
+    _emailController.text = data['email'] ?? '';
+
+    // Hàm nội tuyến (inline helper) để kiểm tra null hoặc rỗng
+    String getText(String? value) {
+      return (value == null || value.isEmpty) ? 'Chưa cập nhật' : value;
+    }
+
+    _phoneController.text = getText(data['phone']);
+    _addressController.text = getText(data['address']);
+    _bioController.text = getText(data['bio']);
+    _jobController.text = getText(data['job']);
+    _nationalityController.text = getText(data['nationality']);
+
+    // Xử lý Ngày sinh (Timestamp)
+    if (data['birthday'] != null) {
+      selectedBirthday = (data['birthday'] as Timestamp).toDate();
+      _birthdayController.text = "${selectedBirthday!.day.toString().padLeft(2, '0')}/${selectedBirthday!.month.toString().padLeft(2, '0')}/${selectedBirthday!.year}";
+    } else {
+      selectedBirthday = null;
+      _birthdayController.text = 'Chưa cập nhật'; // <-- CẬP NHẬT
+    }
+
+    // Xử lý Giới tính
+    selectedGender = data['gender'] ?? 'Nam';
+    // ( avatarUrl sẽ được dùng trong _buildProfileImageSection )
   }
 
   void _startAnimations() {
@@ -111,80 +195,46 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen>
       implementLeading: true,
       titleString: 'Thông Tin Cá Nhân',
       implementTraling: true,
-      child: AnimatedBuilder(
-        animation: _fadeAnimation,
-        builder: (context, child) {
-          return SlideTransition(
-            position: _slideAnimation,
-            child: FadeTransition(
-              opacity: _fadeAnimation,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const SizedBox(height: kMediumPadding),
-                    _buildEditButton(),
-                    const SizedBox(height: kMediumPadding),
-                    _buildProfileImageSection(),
-                    const SizedBox(height: kMediumPadding),
-                    _buildPersonalInfoForm(),
-                    const SizedBox(height: kMediumPadding),
-                    if (isEditing) _buildActionButtons(),
-                    const SizedBox(height: kMediumPadding * 2),
-                  ],
-                ),
-              ),
+      child: _isLoading
+          ? Center(child: CircularProgressIndicator(color: ColorPalette.primaryColor))
+          : AnimatedBuilder(
+              animation: _fadeAnimation,
+              builder: (context, child) {
+                return SlideTransition(
+                  position: _slideAnimation,
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          const SizedBox(height: kMediumPadding),
+                          _buildEditButton(),
+                          const SizedBox(height: kMediumPadding),
+                          _buildProfileImageSection(), // <-- Đã xóa nút
+                          const SizedBox(height: kMediumPadding),
+                          _buildPersonalInfoForm(),
+                          const SizedBox(height: kMediumPadding),
+                          if (isEditing) _buildActionButtons(),
+                          const SizedBox(height: kMediumPadding * 2),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
-          );
-        },
-      ),
     );
   }
 
-  // Edit Button
-  Widget _buildEditButton() {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: GestureDetector(
-        onTap: _toggleEditMode,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: isEditing ? Colors.green : ColorPalette.primaryColor,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                isEditing ? Icons.save : Icons.edit,
-                color: Colors.white,
-                size: 16,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                isEditing ? 'Lưu' : 'Chỉnh sửa',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Profile Image Section
+  // --- CẬP NHẬT: Profile Image Section (Đã xóa nút chỉnh sửa) ---
   Widget _buildProfileImageSection() {
+    
+    // Lấy avatarUrl từ _userData, nếu null hoặc rỗng thì dùng ảnh mặc định
+    String? avatarUrl = _userData?['avatarUrl'];
+    ImageProvider backgroundImage = (avatarUrl != null && avatarUrl.isNotEmpty)
+        ? NetworkImage(avatarUrl) // <-- DÙNG NETWORKIMAGE
+        : const AssetImage(AssetHelper.person) as ImageProvider;
+
     return Container(
       padding: const EdgeInsets.all(kMediumPadding),
       decoration: BoxDecoration(
@@ -199,60 +249,46 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen>
         ],
       ),
       child: Center(
-        child: Stack(
-          children: [
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: ColorPalette.primaryColor, width: 3),
-                boxShadow: [
-                  BoxShadow(
-                    color: ColorPalette.primaryColor.withOpacity(0.3),
-                    blurRadius: 15,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
+        // --- Đã xóa Stack và Positioned ---
+        child: Container(
+          width: 120,
+          height: 120,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: ColorPalette.primaryColor, width: 3),
+            boxShadow: [
+              BoxShadow(
+                color: ColorPalette.primaryColor.withOpacity(0.3),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
               ),
-              child: CircleAvatar(
-                radius: 57,
-                backgroundColor: Colors.grey[300],
-                backgroundImage: AssetImage(AssetHelper.person),
-              ),
-            ),
-            if (isEditing)
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: ColorPalette.primaryColor,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.camera_alt, color: Colors.white, size: 18),
-                    onPressed: _changeProfileImage,
-                  ),
-                ),
-              ),
-          ],
+            ],
+          ),
+          child: CircleAvatar(
+            radius: 57,
+            backgroundColor: Colors.grey[300],
+            backgroundImage: backgroundImage, 
+            onBackgroundImageError: (exception, stackTrace) {
+              // Xử lý nếu URL ảnh bị lỗi
+              print("Lỗi tải ảnh: $exception");
+              setState(() {
+                _userData?['avatarUrl'] = null; // Xóa URL hỏng
+              });
+            },
+          ),
         ),
       ),
     );
   }
 
-  // Personal Info Form
+
+  // --- ĐÃ XÓA: Toàn bộ các hàm xử lý ảnh ---
+  // (Đã xóa _changeProfileImage)
+  // (Đã xóa _pickAndUploadImage)
+  // (Đã xóa _buildImageSourceOption)
+
+
+  // Personal Info Form (Giữ nguyên, email đã disable)
   Widget _buildPersonalInfoForm() {
     return Card(
       elevation: 8,
@@ -280,7 +316,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen>
               'Email',
               _emailController,
               FontAwesomeIcons.envelope,
-              enabled: isEditing,
+              enabled: false, // Tắt chỉnh sửa Email
               keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(height: kMediumPadding),
@@ -333,6 +369,52 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen>
               maxLines: 3,
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+
+  // ... (Tất cả các hàm build widget còn lại: _buildSectionHeader, _buildFormField, _buildDateField, _buildGenderField, _buildActionButtons)
+  // ... (Giữ nguyên, không thay đổi)
+  // Edit Button
+  Widget _buildEditButton() {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: GestureDetector(
+        onTap: _toggleEditMode,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: isEditing ? Colors.green : ColorPalette.primaryColor,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isEditing ? Icons.save : Icons.edit,
+                color: Colors.white,
+                size: 16,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                isEditing ? 'Lưu' : 'Chỉnh sửa',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -619,13 +701,16 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen>
     );
   }
 
-  // Methods
+
+  // --- METHODS (CÁC HÀM XỬ LÝ) ---
+
   void _toggleEditMode() {
     setState(() {
       isEditing = !isEditing;
     });
   }
 
+  // _selectDate (Giữ nguyên)
   void _selectDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -655,150 +740,105 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen>
     }
   }
 
-  void _changeProfileImage() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return Container(
-          padding: const EdgeInsets.all(kMediumPadding),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Thay Đổi Ảnh Đại Diện',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: kMediumPadding),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _buildImageSourceOption(
-                    FontAwesomeIcons.camera,
-                    'Chụp Ảnh',
-                    () {
-                      Navigator.pop(context);
-                      // Implement camera functionality
-                    },
-                  ),
-                  _buildImageSourceOption(
-                    FontAwesomeIcons.image,
-                    'Chọn Từ Thư Viện',
-                    () {
-                      Navigator.pop(context);
-                      // Implement gallery functionality
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
+
+  // --- HÀM MỚI: Helper để lưu null nếu là "Chưa cập nhật" ---
+  dynamic _saveNullIfPlaceholder(String text) {
+    if (text.trim() == 'Chưa cập nhật') {
+      return null;
+    }
+    return text.trim();
   }
 
-  Widget _buildImageSourceOption(IconData icon, String label, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              color: ColorPalette.primaryColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: Icon(
-              icon,
-              color: ColorPalette.primaryColor,
-              size: 24,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _saveChanges() {
+  // --- CẬP NHẬT: _saveChanges (Lưu vào Firestore) ---
+  void _saveChanges() async {
     if (!_validateForm()) {
       return;
     }
-
-    // Save changes
-    setState(() {
-      isEditing = false;
-    });
     
-    _showSnackBar('Cập nhật thông tin thành công!');
+    if (_currentUser == null) {
+      _showSnackBar('Không thể lưu, vui lòng đăng nhập lại.', isError: true);
+      return;
+    }
+
+    // Hiển thị loading (tái sử dụng _isLoading)
+    setState(() { _isLoading = true; });
+
+    try {
+      // 1. Tạo Map dữ liệu để cập nhật
+      final dataToSave = {
+        'name': _nameController.text.trim(),
+        'phone': _saveNullIfPlaceholder(_phoneController.text),
+        'address': _saveNullIfPlaceholder(_addressController.text),
+        'bio': _saveNullIfPlaceholder(_bioController.text),
+        'job': _saveNullIfPlaceholder(_jobController.text),
+        'nationality': _saveNullIfPlaceholder(_nationalityController.text),
+        'birthday': selectedBirthday != null ? Timestamp.fromDate(selectedBirthday!) : null,
+        'gender': selectedGender,
+        // (Không có avatarUrl vì chúng ta không sửa nó)
+      };
+
+      // 2. Gửi lệnh update lên Firestore
+      await _firestore.collection('users').doc(_currentUser!.uid).update(dataToSave);
+
+      // 3. Cập nhật dữ liệu local
+      _userData!.addAll(dataToSave);
+      _originalUserData = Map.from(_userData!); // Cập nhật bản gốc
+
+      // 4. Tắt chế độ edit
+      setState(() {
+        isEditing = false;
+      });
+      _showSnackBar('Cập nhật thông tin thành công!');
+
+    } catch (e) {
+      _showSnackBar('Lỗi khi lưu: $e', isError: true);
+    } finally {
+      // Tắt loading
+      setState(() { _isLoading = false; });
+    }
   }
 
-  // Form validation
+  // --- CẬP NHẬT: _validateForm (chỉ validate SĐT nếu được nhập) ---
   bool _validateForm() {
     if (_nameController.text.trim().isEmpty) {
       _showSnackBar('Vui lòng nhập họ tên', isError: true);
       return false;
     }
     
-    if (_emailController.text.trim().isEmpty) {
-      _showSnackBar('Vui lòng nhập email', isError: true);
-      return false;
-    }
+    // Bỏ validate Email vì đã tắt
     
-    // Email validation regex
-    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    if (!emailRegex.hasMatch(_emailController.text.trim())) {
-      _showSnackBar('Email không hợp lệ', isError: true);
-      return false;
-    }
-    
-    if (_phoneController.text.trim().isEmpty) {
-      _showSnackBar('Vui lòng nhập số điện thoại', isError: true);
-      return false;
-    }
-    
-    // Phone validation (Vietnamese phone format)
-    final phoneRegex = RegExp(r'^(\+84|0)[3|5|7|8|9][0-9]{8}$');
-    if (!phoneRegex.hasMatch(_phoneController.text.trim().replaceAll(' ', ''))) {
-      _showSnackBar('Số điện thoại không hợp lệ', isError: true);
-      return false;
+    // Kiểm tra xem SĐT có phải là "Chưa cập nhật" hoặc rỗng không
+    String phone = _phoneController.text.trim();
+    if (phone == 'Chưa cập nhật') phone = ''; // Coi như rỗng
+
+    if (phone.isNotEmpty) { // Chỉ validate nếu người dùng đã nhập SĐT
+      final phoneRegex = RegExp(r'^(\+84|0)[3|5|7|8|9][0-9]{8}$');
+      if (!phoneRegex.hasMatch(phone.replaceAll(' ', ''))) {
+        _showSnackBar('Số điện thoại không hợp lệ', isError: true);
+        return false;
+      }
     }
     
     return true;
   }
 
+  // --- CẬP NHẬT: _cancelEdit (Reset về dữ liệu gốc từ Firestore) ---
   void _cancelEdit() {
     setState(() {
       isEditing = false;
-      // Reset form to original values
-      _nameController.text = "Nguyễn Văn A";
-      _emailController.text = "nguyenvana@email.com";
-      _phoneController.text = "+84 123 456 789";
-      _addressController.text = "123 Nguyễn Trãi, Quận 1, TP.HCM";
-      _bioController.text = "Yêu thích du lịch và khám phá những điều mới mẻ";
-      _birthdayController.text = "15/03/1990";
-      _jobController.text = "Kỹ sư phần mềm";
-      _nationalityController.text = "Việt Nam";
-      selectedBirthday = DateTime(1990, 3, 15);
-      selectedGender = 'Nam';
+      
+      // Reset form về _originalUserData (dữ liệu tải từ Firestore)
+      // _applyDataToControllers sẽ xử lý logic "Chưa cập nhật"
+      _applyDataToControllers(_originalUserData);
+      
+      // Quan trọng: reset lại _userData
+      _userData = Map.from(_originalUserData!); 
     });
   }
 
+  // _showSnackBar (Giữ nguyên)
   void _showSnackBar(String message, {bool isError = false}) {
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
