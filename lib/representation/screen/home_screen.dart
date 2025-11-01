@@ -127,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 width: 45,
                 height: 45,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
+                  shape: BoxShape.circle,
                   color: Colors.white,
                   boxShadow: [
                     BoxShadow(
@@ -137,8 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                 ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
+                child: ClipOval(
                   child: Padding(
                     padding: EdgeInsets.all(4),
                     child: ImageHelper.loadFromAsset(
