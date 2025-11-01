@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_travels_apps/services/auth_service.dart'; 
+import 'package:flutter_travels_apps/services/auth_service.dart';
 // Thêm các import cho giao diện
 import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
@@ -15,39 +16,107 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   // THÊM MỚI: Controller cho Tên
-  final _nameController = TextEditingController(); 
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
 
   Future<void> _register() async {
     if (!mounted) return;
-    setState(() { _isLoading = true; });
+
+    // Validate input
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (name.isEmpty || email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Vui lòng nhập đầy đủ thông tin"),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    if (password.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Mật khẩu phải có ít nhất 6 ký tự"),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
 
     final authService = context.read<AuthService>();
 
     try {
-      // THAY ĐỔI: Truyền thêm _nameController.text
-      await authService.registerWithEmail(
-        _emailController.text.trim(),
-        _passwordController.text.trim(),
-        _nameController.text.trim(), // *** Thêm tham số name ***
-      );
+      await authService.registerWithEmail(email, password, name);
 
       if (mounted) {
         Navigator.of(context).pop();
       }
     } on FirebaseAuthException catch (e) {
-      if (!mounted) return; // <-- SỬA LỖI MOUNTED
+      if (!mounted) return;
+      String errorMessage = "Đăng ký thất bại";
+
+      switch (e.code) {
+        case 'email-already-in-use':
+          errorMessage = "Email đã được sử dụng bởi tài khoản khác";
+          break;
+        case 'weak-password':
+          errorMessage = "Mật khẩu quá yếu. Vui lòng sử dụng mật khẩu mạnh hơn";
+          break;
+        case 'invalid-email':
+          errorMessage = "Email không hợp lệ";
+          break;
+        case 'operation-not-allowed':
+          errorMessage = "Phương thức đăng ký không được phép";
+          break;
+        case 'too-many-requests':
+          errorMessage = "Quá nhiều lần thử. Vui lòng thử lại sau";
+          break;
+        default:
+          errorMessage = e.message ?? "Đăng ký thất bại";
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(e.message ?? "Đăng ký thất bại"),
-          backgroundColor: Colors.red, // Thêm màu cho dễ thấy
+          content: Text(errorMessage),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } on PlatformException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Lỗi kết nối: ${e.message ?? "Không thể kết nối đến Firebase"}",
+          ),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Lỗi không xác định: ${e.toString()}"),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
         ),
       );
     } finally {
-      if (!mounted) return; // <-- SỬA LỖI MOUNTED
-      setState(() { _isLoading = false; });
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -70,7 +139,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               // 1. Logo
               Center(
                 child: ImageHelper.loadFromAsset(
-                  'assets/images/Splash_Logo.png', 
+                  'assets/images/Splash_Logo.png',
                   height: 150, // Nhỏ hơn một chút so với login
                   width: 150,
                 ),
@@ -91,10 +160,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               Text(
                 'Bắt đầu hành trình của bạn', // <-- Đổi phụ đề
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
               ),
               const SizedBox(height: kMediumPadding * 1.5),
 
@@ -124,7 +190,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 isPassword: true,
               ),
               const SizedBox(height: kMediumPadding * 1.5),
-              
+
               // 6. Nút Đăng ký
               ElevatedButton(
                 onPressed: _isLoading ? null : _register,
@@ -149,7 +215,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
-                          fontWeight: FontWeight.bold
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
               ),
@@ -157,9 +223,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
               // 7. Nút Quay lại Đăng nhập
               TextButton(
-                onPressed: _isLoading ? null : () {
-                  Navigator.of(context).pop(); // Quay lại màn hình trước
-                },
+                onPressed: _isLoading
+                    ? null
+                    : () {
+                        Navigator.of(context).pop(); // Quay lại màn hình trước
+                      },
                 child: const Text(
                   "Đã có tài khoản? Đăng nhập",
                   style: TextStyle(
@@ -167,7 +235,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     fontSize: 15,
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -189,11 +257,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       keyboardType: keyboardType,
       decoration: InputDecoration(
         hintText: hintText,
-        prefixIcon: Icon(
-          icon,
-          color: ColorPalette.primaryColor,
-          size: 20,
-        ),
+        prefixIcon: Icon(icon, color: ColorPalette.primaryColor, size: 20),
         filled: true,
         fillColor: Colors.white,
         border: OutlineInputBorder(
@@ -206,7 +270,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(kDefaultPadding),
-          borderSide: const BorderSide(color: ColorPalette.primaryColor, width: 2),
+          borderSide: const BorderSide(
+            color: ColorPalette.primaryColor,
+            width: 2,
+          ),
         ),
       ),
     );

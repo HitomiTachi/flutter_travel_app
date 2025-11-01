@@ -1,14 +1,48 @@
 pluginManagement {
-    val flutterSdkPath =
-        run {
-            val properties = java.util.Properties()
-            file("local.properties").inputStream().use { properties.load(it) }
-            val flutterSdkPath = properties.getProperty("flutter.sdk")
-            require(flutterSdkPath != null) { "flutter.sdk not set in local.properties" }
-            flutterSdkPath
+    // Resolve Flutter SDK path robustly to avoid stale/invalid paths
+    var flutterSdkPath = run {
+        val properties = java.util.Properties()
+        val localProps = file("local.properties")
+        if (localProps.exists()) {
+            localProps.inputStream().use { properties.load(it) }
         }
+        properties.getProperty("flutter.sdk")
+    }
 
-    includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
+    // Fallback to environment variables if needed
+    val envFlutter = System.getenv("FLUTTER_HOME")
+        ?: System.getenv("FLUTTER_ROOT")
+
+    if ((flutterSdkPath == null || flutterSdkPath.isBlank()) && envFlutter != null) {
+        flutterSdkPath = envFlutter
+    }
+
+    // Final fallback to common Windows install location
+    val defaultFlutter = "C:/src/flutter"
+    val gradleDirFromLocal = if (flutterSdkPath != null) file("$flutterSdkPath/packages/flutter_tools/gradle") else null
+    val gradleDirFromEnv = if (envFlutter != null) file("$envFlutter/packages/flutter_tools/gradle") else null
+    val gradleDirFromDefault = file("$defaultFlutter/packages/flutter_tools/gradle")
+
+    val finalFlutterGradleDir = when {
+        gradleDirFromLocal != null && gradleDirFromLocal.exists() -> gradleDirFromLocal
+        gradleDirFromEnv != null && gradleDirFromEnv.exists() -> gradleDirFromEnv
+        gradleDirFromDefault.exists() -> gradleDirFromDefault
+        else -> null
+    }
+
+    if (finalFlutterGradleDir == null) {
+        throw GradleException(
+            "Unable to locate Flutter SDK gradle directory. Checked: " +
+                listOfNotNull(
+                    gradleDirFromLocal?.path,
+                    gradleDirFromEnv?.path,
+                    gradleDirFromDefault.path
+                ).joinToString(", ") +
+                ". Please update android/local.properties (flutter.sdk) or set FLUTTER_HOME/FLUTTER_ROOT."
+        )
+    }
+
+    includeBuild(finalFlutterGradleDir.path)
 
     repositories {
         google()

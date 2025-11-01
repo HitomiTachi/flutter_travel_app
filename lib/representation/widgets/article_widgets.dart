@@ -15,7 +15,7 @@ class FeaturedArticlesWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final articles = ArticleDataProvider.getFeaturedArticles();
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -44,31 +44,27 @@ class FeaturedArticlesWidget extends StatelessWidget {
           ),
         ),
         SizedBox(height: kMediumPadding),
-        
+
         // Large Featured Article
         Padding(
           padding: EdgeInsets.symmetric(horizontal: kMediumPadding),
           child: ItemLargeArticleWidget(article: articles[0]),
         ),
         SizedBox(height: kMediumPadding),
-        
+
         // Compact Articles Grid
         Padding(
           padding: EdgeInsets.symmetric(horizontal: kMediumPadding),
           child: Row(
             children: [
-              Expanded(
-                child: ItemCompactArticleWidget(article: articles[1]),
-              ),
+              Expanded(child: ItemCompactArticleWidget(article: articles[1])),
               SizedBox(width: kMediumPadding),
-              Expanded(
-                child: ItemCompactArticleWidget(article: articles[2]),
-              ),
+              Expanded(child: ItemCompactArticleWidget(article: articles[2])),
             ],
           ),
         ),
         SizedBox(height: kMediumPadding),
-        
+
         // Horizontal Articles List
         Column(
           children: [
@@ -99,10 +95,8 @@ class FeaturedArticlesWidget extends StatelessWidget {
 class ItemLargeArticleWidget extends StatelessWidget {
   final FeaturedArticle article;
 
-  const ItemLargeArticleWidget({
-    Key? key,
-    required this.article,
-  }) : super(key: key);
+  const ItemLargeArticleWidget({Key? key, required this.article})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -243,10 +237,8 @@ class ItemLargeArticleWidget extends StatelessWidget {
 class ItemCompactArticleWidget extends StatelessWidget {
   final FeaturedArticle article;
 
-  const ItemCompactArticleWidget({
-    Key? key,
-    required this.article,
-  }) : super(key: key);
+  const ItemCompactArticleWidget({Key? key, required this.article})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -376,10 +368,8 @@ class ItemCompactArticleWidget extends StatelessWidget {
 class ItemHorizontalArticleWidget extends StatelessWidget {
   final FeaturedArticle article;
 
-  const ItemHorizontalArticleWidget({
-    Key? key,
-    required this.article,
-  }) : super(key: key);
+  const ItemHorizontalArticleWidget({Key? key, required this.article})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -390,8 +380,9 @@ class ItemHorizontalArticleWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(kMediumPadding),
       ),
       child: Container(
-        height: 110,
+        constraints: BoxConstraints(minHeight: 110, maxHeight: 130),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Image Section
             Container(
@@ -404,10 +395,7 @@ class ItemHorizontalArticleWidget extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    Image.asset(
-                      article.imageUrl,
-                      fit: BoxFit.cover,
-                    ),
+                    Image.asset(article.imageUrl, fit: BoxFit.cover),
                     // Gradient overlay
                     Container(
                       decoration: BoxDecoration(
@@ -454,11 +442,12 @@ class ItemHorizontalArticleWidget extends StatelessWidget {
                 padding: EdgeInsets.all(kMediumPadding),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Expanded(
+                    Flexible(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
                             article.title,
@@ -470,20 +459,23 @@ class ItemHorizontalArticleWidget extends StatelessWidget {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          SizedBox(height: kTopPadding),
-                          Text(
-                            article.subtitle,
-                            style: TextStyles.defaultStyle.copyWith(
-                              color: Colors.grey[600],
-                              fontSize: 12,
-                              height: 1.2,
+                          SizedBox(height: 4),
+                          Flexible(
+                            child: Text(
+                              article.subtitle,
+                              style: TextStyles.defaultStyle.copyWith(
+                                color: Colors.grey[600],
+                                fontSize: 12,
+                                height: 1.2,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
                     ),
+                    SizedBox(height: 8),
                     // Stats Row
                     Row(
                       children: [

@@ -4,6 +4,7 @@ import 'package:flutter_travels_apps/core/helpers/local_storage_helper.dart';
 import 'package:flutter_travels_apps/routes.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_travels_apps/core/theme/theme_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -18,28 +19,32 @@ void main() async {
   // Khởi tạo Hive và LocalStorage
   await Hive.initFlutter();
   await LocalStorageHelper.initLocalStorageHelper();
-  
+
   // Khởi tạo Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    debugPrint("Lỗi khởi tạo Firebase: $e");
+    // Vẫn tiếp tục chạy app, nhưng Firebase sẽ không hoạt động
+  }
 
   // Bọc ứng dụng trong MultiProvider
+  final themeProvider = ThemeProvider();
+  await themeProvider.load();
+
   runApp(
     MultiProvider(
       providers: [
-        // Cung cấp AuthService
-        Provider<AuthService>(
-          create: (_) => AuthService(),
-        ),
-        // Cung cấp Stream<User?> để các widget con (như HomeScreen)
-        // có thể lắng nghe nếu cần
+        Provider<AuthService>(create: (_) => AuthService()),
         StreamProvider<User?>(
           create: (context) => context.read<AuthService>().authStateChanges,
           initialData: null,
         ),
+        ChangeNotifierProvider<ThemeProvider>(create: (_) => themeProvider),
       ],
-      child: const MyApp(), // Chạy ứng dụng của bạn
+      child: const MyApp(),
     ),
   );
 }
@@ -49,6 +54,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
     return MaterialApp(
       title: 'Travel App',
       theme: ThemeData(
@@ -56,9 +62,11 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: ColorPalette.backgroundScaffoldColor,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
+      darkTheme: ThemeData.dark(useMaterial3: false),
+      themeMode: themeProvider.themeMode,
       routes: routes, // Giữ nguyên bảng routes của bạn
       debugShowCheckedModeBanner: false,
-      
+
       // THAY ĐỔI QUAN TRỌNG:
       // 'home' không còn là SplashScreen
       // 'home' bây giờ là AuthWrapper, nó sẽ quyết định

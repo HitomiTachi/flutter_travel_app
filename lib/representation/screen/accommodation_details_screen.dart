@@ -9,6 +9,8 @@ import 'package:flutter_travels_apps/representation/widgets/item_add_trip_compon
 import 'package:flutter_travels_apps/data/models/trip_plan_data.dart';
 import 'package:flutter_travels_apps/data/models/accommodation_model.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_travels_apps/representation/screen/review_screen.dart';
+import 'package:flutter_travels_apps/services/share_service.dart';
 
 class AccommodationDetailsScreen extends StatefulWidget {
   const AccommodationDetailsScreen({Key? key}) : super(key: key);
@@ -16,10 +18,12 @@ class AccommodationDetailsScreen extends StatefulWidget {
   static const String routeName = '/accommodation_details_screen';
 
   @override
-  State<AccommodationDetailsScreen> createState() => _AccommodationDetailsScreenState();
+  State<AccommodationDetailsScreen> createState() =>
+      _AccommodationDetailsScreenState();
 }
 
-class _AccommodationDetailsScreenState extends State<AccommodationDetailsScreen> {
+class _AccommodationDetailsScreenState
+    extends State<AccommodationDetailsScreen> {
   late TripPlanData tripData;
   AccommodationModel? accommodationModel;
   int guests = 2;
@@ -44,7 +48,8 @@ class _AccommodationDetailsScreenState extends State<AccommodationDetailsScreen>
         } else if (args is Map<String, dynamic>) {
           // Trường hợp mới: có cả AccommodationModel và TripPlanData
           setState(() {
-            accommodationModel = args['accommodationModel'] as AccommodationModel?;
+            accommodationModel =
+                args['accommodationModel'] as AccommodationModel?;
             tripData = args['tripData'] as TripPlanData? ?? TripPlanData();
             guests = tripData.travelers;
             rooms = (tripData.travelers / 2).ceil();
@@ -122,7 +127,9 @@ class _AccommodationDetailsScreenState extends State<AccommodationDetailsScreen>
                   ],
                 ),
                 child: Icon(
-                  isFavorite ? FontAwesomeIcons.solidHeart : FontAwesomeIcons.heart,
+                  isFavorite
+                      ? FontAwesomeIcons.solidHeart
+                      : FontAwesomeIcons.heart,
                   size: 20,
                   color: isFavorite ? Colors.red : Colors.grey[600],
                 ),
@@ -168,8 +175,13 @@ class _AccommodationDetailsScreenState extends State<AccommodationDetailsScreen>
                     ),
                     const SizedBox(height: kDefaultPadding),
 
-                    // HEADER: Tên + rating (giống “Hotel Name & Rating”)
+                    // HEADER: Tên + rating (giống "Hotel Name & Rating")
                     _buildHeaderSection(),
+
+                    const SizedBox(height: kDefaultPadding),
+
+                    // Nút Đánh giá và Chia sẻ
+                    _buildActionButtons(),
 
                     const SizedBox(height: kDefaultPadding),
 
@@ -238,7 +250,7 @@ class _AccommodationDetailsScreenState extends State<AccommodationDetailsScreen>
               final rating = accommodationModel?.rating ?? 4.5;
               final fullStars = rating.floor();
               final hasHalfStar = rating - fullStars >= 0.5;
-              
+
               if (index < fullStars) {
                 return Icon(Icons.star, color: Colors.amber, size: 20);
               } else if (index == fullStars && hasHalfStar) {
@@ -257,17 +269,82 @@ class _AccommodationDetailsScreenState extends State<AccommodationDetailsScreen>
             ),
             const SizedBox(width: kMinPadding),
             Text(
-              accommodationModel != null 
+              accommodationModel != null
                   ? '(${accommodationModel!.reviewCount} đánh giá)'
                   : '(gợi ý theo sở thích)',
-              style: TextStyle(
-                color: ColorPalette.subTitleColor,
-                fontSize: 12,
-              ),
+              style: TextStyle(color: ColorPalette.subTitleColor, fontSize: 12),
             ),
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildActionButtons() {
+    final shareService = ShareService();
+    final accommodationName = accommodationModel?.name ?? 'Thông tin lưu trú';
+    final accommodationDescription = accommodationModel?.description ?? '';
+    final accommodationRating = accommodationModel?.rating ?? 0.0;
+
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: kDefaultPadding),
+      child: Row(
+        children: [
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ReviewScreen(
+                      targetId: accommodationModel?.id ?? 'temp_id',
+                      targetType: 'hotel',
+                      targetName: accommodationName,
+                    ),
+                  ),
+                );
+              },
+              icon: Icon(Icons.star, size: 20, color: Colors.white),
+              label: Text(
+                'Đánh giá',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: ColorPalette.primaryColor,
+                padding: EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: kDefaultPadding),
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: () async {
+                await shareService.shareLocation(
+                  name: accommodationName,
+                  description: accommodationDescription,
+                  rating: accommodationRating > 0 ? accommodationRating : null,
+                );
+              },
+              icon: Icon(Icons.share, size: 18),
+              label: Text('Chia sẻ'),
+              style: OutlinedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 14),
+                side: BorderSide(color: ColorPalette.primaryColor),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -282,10 +359,10 @@ class _AccommodationDetailsScreenState extends State<AccommodationDetailsScreen>
         const SizedBox(width: kMinPadding),
         Expanded(
           child: Text(
-            accommodationModel?.location ?? 
-            (tripData.destination.isNotEmpty
-                ? tripData.destination
-                : 'Chưa chọn điểm đến'),
+            accommodationModel?.location ??
+                (tripData.destination.isNotEmpty
+                    ? tripData.destination
+                    : 'Chưa chọn điểm đến'),
             style: const TextStyle(
               color: Colors.black87,
               fontWeight: FontWeight.w500,
@@ -294,10 +371,7 @@ class _AccommodationDetailsScreenState extends State<AccommodationDetailsScreen>
         ),
         Text(
           '${tripData.totalDays} đêm',
-          style: TextStyle(
-            color: ColorPalette.subTitleColor,
-            fontSize: 12,
-          ),
+          style: TextStyle(color: ColorPalette.subTitleColor, fontSize: 12),
         ),
       ],
     );
@@ -305,7 +379,7 @@ class _AccommodationDetailsScreenState extends State<AccommodationDetailsScreen>
 
   Widget _buildDescriptionSection() {
     if (accommodationModel == null) return SizedBox.shrink();
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -325,9 +399,9 @@ class _AccommodationDetailsScreenState extends State<AccommodationDetailsScreen>
             ),
           ),
         ),
-        
+
         const SizedBox(height: kDefaultPadding),
-        
+
         // Mô tả
         Text(
           'Về nơi lưu trú này',
@@ -337,20 +411,16 @@ class _AccommodationDetailsScreenState extends State<AccommodationDetailsScreen>
             color: Colors.black87,
           ),
         ),
-        
+
         const SizedBox(height: kMinPadding),
-        
+
         Text(
           accommodationModel!.description,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.black87,
-            height: 1.5,
-          ),
+          style: TextStyle(fontSize: 14, color: Colors.black87, height: 1.5),
         ),
-        
+
         const SizedBox(height: kDefaultPadding),
-        
+
         // Tiện nghi nổi bật
         if (accommodationModel!.amenities.isNotEmpty) ...[
           Text(
@@ -361,9 +431,9 @@ class _AccommodationDetailsScreenState extends State<AccommodationDetailsScreen>
               color: Colors.black87,
             ),
           ),
-          
+
           const SizedBox(height: kMinPadding),
-          
+
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -456,7 +526,13 @@ class _AccommodationDetailsScreenState extends State<AccommodationDetailsScreen>
   }
 
   Widget _buildRoomTypeSection() {
-    final roomTypes = ['Phòng đơn', 'Phòng đôi', 'Phòng gia đình', 'Suite', 'Phòng deluxe'];
+    final roomTypes = [
+      'Phòng đơn',
+      'Phòng đôi',
+      'Phòng gia đình',
+      'Suite',
+      'Phòng deluxe',
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -482,7 +558,9 @@ class _AccommodationDetailsScreenState extends State<AccommodationDetailsScreen>
             child: DropdownButton<String>(
               value: roomType,
               items: roomTypes
-                  .map((e) => DropdownMenuItem<String>(value: e, child: Text(e)))
+                  .map(
+                    (e) => DropdownMenuItem<String>(value: e, child: Text(e)),
+                  )
                   .toList(),
               onChanged: (val) => setState(() => roomType = val ?? roomType),
             ),
@@ -540,8 +618,8 @@ class _AccommodationDetailsScreenState extends State<AccommodationDetailsScreen>
                 ),
                 decoration: BoxDecoration(
                   color: (isSelected
-                          ? ColorPalette.primaryColor
-                          : ColorPalette.primaryColor.withOpacity(0.08)),
+                      ? ColorPalette.primaryColor
+                      : ColorPalette.primaryColor.withOpacity(0.08)),
                   borderRadius: BorderRadius.circular(kDefaultPadding),
                 ),
                 child: Row(
@@ -550,14 +628,18 @@ class _AccommodationDetailsScreenState extends State<AccommodationDetailsScreen>
                     Icon(
                       FontAwesomeIcons.circleCheck,
                       size: 12,
-                      color: isSelected ? Colors.white : ColorPalette.primaryColor,
+                      color: isSelected
+                          ? Colors.white
+                          : ColorPalette.primaryColor,
                     ),
                     const SizedBox(width: kMinPadding),
                     Text(
                       amenity,
                       style: TextStyle(
                         fontSize: 12,
-                        color: isSelected ? Colors.white : ColorPalette.primaryColor,
+                        color: isSelected
+                            ? Colors.white
+                            : ColorPalette.primaryColor,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -600,7 +682,10 @@ class _AccommodationDetailsScreenState extends State<AccommodationDetailsScreen>
               _summaryRow(FontAwesomeIcons.calendarDays, tripData.dateRange),
               if (amenities.isNotEmpty) ...[
                 const SizedBox(height: 8),
-                _summaryRow(FontAwesomeIcons.star, 'Tiện nghi: ${amenities.join(', ')}'),
+                _summaryRow(
+                  FontAwesomeIcons.star,
+                  'Tiện nghi: ${amenities.join(', ')}',
+                ),
               ],
             ],
           ),
@@ -617,10 +702,7 @@ class _AccommodationDetailsScreenState extends State<AccommodationDetailsScreen>
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.black87,
-            ),
+            style: const TextStyle(fontSize: 14, color: Colors.black87),
           ),
         ),
       ],
@@ -629,9 +711,11 @@ class _AccommodationDetailsScreenState extends State<AccommodationDetailsScreen>
 
   Widget _buildBookingSection() {
     // Sử dụng giá từ accommodationModel nếu có, nếu không thì tính từ budget
-    final pricePerNight = accommodationModel?.pricePerNight.toDouble() ?? 
+    final pricePerNight =
+        accommodationModel?.pricePerNight.toDouble() ??
         ((tripData.budget > 0)
-            ? (tripData.budget / (tripData.totalDays == 0 ? 1 : tripData.totalDays))
+            ? (tripData.budget /
+                  (tripData.totalDays == 0 ? 1 : tripData.totalDays))
             : 1200000.0);
 
     return Container(
@@ -712,9 +796,7 @@ class _AccommodationDetailsScreenState extends State<AccommodationDetailsScreen>
         backgroundColor: isFavorite ? Colors.red[400] : Colors.grey[600],
         duration: Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }
@@ -730,7 +812,7 @@ class _AccommodationDetailsScreenState extends State<AccommodationDetailsScreen>
     Navigator.of(context).popUntil((route) {
       return route.settings.name == 'main_app' || route.isFirst;
     });
-    
+
     // Nếu đã ở MainApp, chỉ cần trigger refresh cho tab kế hoạch
     // Điều này sẽ được xử lý bởi MainApp's arguments hoặc callback
   }

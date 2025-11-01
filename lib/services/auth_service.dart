@@ -14,10 +14,31 @@ class AuthService {
   // Đăng nhập với Email & Password
   Future<UserCredential?> signInWithEmail(String email, String password) async {
     try {
-      return await _auth.signInWithEmailAndPassword(
+      final userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
+      
+      // Đảm bảo document trong Firestore tồn tại
+      if (userCredential.user != null) {
+        final user = userCredential.user!;
+        final userDoc = await _firestore.collection('users').doc(user.uid).get();
+        
+        // Nếu document chưa tồn tại, tạo mới
+        if (!userDoc.exists) {
+          await _firestore.collection('users').doc(user.uid).set({
+            'uid': user.uid,
+            'email': user.email,
+            'name': user.displayName ?? 'User', // Sử dụng displayName nếu có, nếu không dùng 'User'
+            'avatarUrl': user.photoURL ?? 'https://i.pravatar.cc/200?img=5',
+            'joinDate': Timestamp.now(),
+            'favoritePlaceIds': [],
+            'isAnonymous': false,
+          }, SetOptions(merge: true)); // Dùng merge để không ghi đè nếu có dữ liệu cũ
+        }
+      }
+      
+      return userCredential;
     } on FirebaseAuthException catch (e) {
       throw e;
     }

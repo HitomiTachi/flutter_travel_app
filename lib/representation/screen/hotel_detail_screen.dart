@@ -3,9 +3,10 @@ import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/core/helpers/asset_helper.dart';
 import 'package:flutter_travels_apps/core/helpers/images_helpers.dart';
-import 'package:flutter_travels_apps/data/models/hotel_model.dart';
 import 'package:flutter_travels_apps/representation/widgets/button_widget.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_travels_apps/representation/screen/review_screen.dart';
+import 'package:flutter_travels_apps/services/share_service.dart';
 
 class HotelDetailScreen extends StatefulWidget {
   const HotelDetailScreen({Key? key}) : super(key: key);
@@ -29,7 +30,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
               fit: BoxFit.cover,
             ),
           ),
-          
+
           // Back Button
           Positioned(
             top: MediaQuery.of(context).padding.top + kDefaultPadding,
@@ -77,14 +78,10 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                   ),
                 ],
               ),
-              child: Icon(
-                FontAwesomeIcons.heart,
-                size: 20,
-                color: Colors.red,
-              ),
+              child: Icon(FontAwesomeIcons.heart, size: 20, color: Colors.red),
             ),
           ),
-          
+
           // Draggable Content
           DraggableScrollableSheet(
             initialChildSize: 0.5,
@@ -121,7 +118,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                         ),
                       ),
                     ),
-                    
+
                     // Content
                     Expanded(
                       child: ListView(
@@ -131,27 +128,31 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                           // Hotel Name & Rating
                           _buildHotelHeader(),
                           SizedBox(height: kDefaultPadding),
-                          
+
+                          // Nút Đánh giá và Chia sẻ
+                          _buildActionButtons(),
+                          SizedBox(height: kDefaultPadding),
+
                           // Location
                           _buildLocationSection(),
                           SizedBox(height: kDefaultPadding * 1.5),
-                          
+
                           // Description
                           _buildDescriptionSection(),
                           SizedBox(height: kDefaultPadding * 1.5),
-                          
+
                           // Amenities
                           _buildAmenitiesSection(),
                           SizedBox(height: kDefaultPadding * 1.5),
-                          
+
                           // Gallery
                           _buildGallerySection(),
                           SizedBox(height: kDefaultPadding * 1.5),
-                          
+
                           // Reviews
                           _buildReviewsSection(),
                           SizedBox(height: kDefaultPadding * 2),
-                          
+
                           // Price & Book Button
                           _buildBookingSection(),
                           SizedBox(height: kDefaultPadding),
@@ -201,14 +202,78 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
             SizedBox(width: kMinPadding),
             Text(
               '(3,241 reviews)',
-              style: TextStyle(
-                color: ColorPalette.subTitleColor,
-                fontSize: 12,
-              ),
+              style: TextStyle(color: ColorPalette.subTitleColor, fontSize: 12),
             ),
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildActionButtons() {
+    final shareService = ShareService();
+    const hotelName = 'Royal Pain Heritage';
+    const hotelDescription = 'Khách sạn 5 sao sang trọng';
+
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: kDefaultPadding),
+      child: Row(
+        children: [
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ReviewScreen(
+                      targetId: 'hotel_1',
+                      targetType: 'hotel',
+                      targetName: hotelName,
+                    ),
+                  ),
+                );
+              },
+              icon: Icon(Icons.star, size: 20, color: Colors.white),
+              label: Text(
+                'Đánh giá',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: ColorPalette.primaryColor,
+                padding: EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: kDefaultPadding),
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: () async {
+                await shareService.shareLocation(
+                  name: hotelName,
+                  description: hotelDescription,
+                  rating: 4.5,
+                );
+              },
+              icon: Icon(Icons.share, size: 18),
+              label: Text('Chia sẻ'),
+              style: OutlinedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 14),
+                side: BorderSide(color: ColorPalette.primaryColor),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -232,10 +297,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
         ),
         Text(
           '364 km away',
-          style: TextStyle(
-            color: ColorPalette.subTitleColor,
-            fontSize: 12,
-          ),
+          style: TextStyle(color: ColorPalette.subTitleColor, fontSize: 12),
         ),
       ],
     );
@@ -256,11 +318,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
         SizedBox(height: kDefaultPadding),
         Text(
           'Royal Pain Heritage is a luxurious heritage hotel located in the heart of Purwokerto. The hotel combines traditional Javanese architecture with modern amenities, offering guests a unique and comfortable stay experience.',
-          style: TextStyle(
-            color: Colors.black54,
-            height: 1.6,
-            fontSize: 14,
-          ),
+          style: TextStyle(color: Colors.black54, height: 1.6, fontSize: 14),
         ),
       ],
     );
@@ -477,11 +535,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
           SizedBox(height: kDefaultPadding),
           Text(
             'Amazing hotel with great service! The staff was very friendly and the room was clean and comfortable.',
-            style: TextStyle(
-              color: Colors.black54,
-              fontSize: 14,
-              height: 1.4,
-            ),
+            style: TextStyle(color: Colors.black54, fontSize: 14, height: 1.4),
           ),
         ],
       ),

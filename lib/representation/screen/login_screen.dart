@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 // import 'package:flutter_travels_apps/core/helpers/asset_helper.dart'; // <-- Không cần thiết nữa
@@ -7,7 +8,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 // Đảm bảo đường dẫn này đúng với cấu trúc dự án của bạn
-import 'package:flutter_travels_apps/services/auth_service.dart'; 
+import 'package:flutter_travels_apps/services/auth_service.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -23,35 +24,98 @@ class _LoginScreenState extends State<LoginScreen> {
   // --- HÀM ĐĂNG NHẬP EMAIL ---
   Future<void> _signIn() async {
     if (!mounted) return;
-    setState(() { _isLoading = true; });
+
+    // Validate input
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Vui lòng nhập đầy đủ email và mật khẩu"),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
 
     final authService = context.read<AuthService>();
 
     try {
-      await authService.signInWithEmail(
-        _emailController.text.trim(),
-        _passwordController.text.trim(),
-      );
+      await authService.signInWithEmail(email, password);
       // AuthWrapper sẽ tự động điều hướng
-      // (Không cần 'if (!mounted) return;' ở đây vì không có code nào chạy sau await)
     } on FirebaseAuthException catch (e) {
-      if (!mounted) return; // <-- SỬA LỖI MOUNTED
+      if (!mounted) return;
+      String errorMessage = "Đăng nhập thất bại";
+
+      switch (e.code) {
+        case 'user-not-found':
+          errorMessage = "Không tìm thấy tài khoản với email này";
+          break;
+        case 'wrong-password':
+          errorMessage = "Mật khẩu không chính xác";
+          break;
+        case 'invalid-email':
+          errorMessage = "Email không hợp lệ";
+          break;
+        case 'user-disabled':
+          errorMessage = "Tài khoản đã bị vô hiệu hóa";
+          break;
+        case 'too-many-requests':
+          errorMessage = "Quá nhiều lần thử. Vui lòng thử lại sau";
+          break;
+        case 'operation-not-allowed':
+          errorMessage = "Phương thức đăng nhập không được phép";
+          break;
+        default:
+          errorMessage = e.message ?? "Đăng nhập thất bại";
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(e.message ?? "Đăng nhập thất bại"),
+          content: Text(errorMessage),
           backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } on PlatformException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Lỗi kết nối: ${e.message ?? "Không thể kết nối đến Firebase"}",
+          ),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Lỗi không xác định: ${e.toString()}"),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
         ),
       );
     } finally {
-      if (!mounted) return; // <-- SỬA LỖI MOUNTED
-      setState(() { _isLoading = false; });
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
   // --- HÀM ĐĂNG NHẬP KHÁCH (Thêm lại) ---
   Future<void> _signInAsGuest() async {
     if (!mounted) return;
-    setState(() { _isLoading = true; });
+    setState(() {
+      _isLoading = true;
+    });
 
     final authService = context.read<AuthService>();
 
@@ -59,16 +123,39 @@ class _LoginScreenState extends State<LoginScreen> {
       await authService.signInAnonymously();
       // AuthWrapper sẽ tự động điều hướng
     } on FirebaseAuthException catch (e) {
-      if (!mounted) return; // <-- SỬA LỖI MOUNTED
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(e.message ?? "Đăng nhập khách thất bại"),
           backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } on PlatformException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Lỗi kết nối: ${e.message ?? "Không thể kết nối đến Firebase"}",
+          ),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Lỗi không xác định: ${e.toString()}"),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
         ),
       );
     } finally {
-      if (!mounted) return; // <-- SỬA LỖI MOUNTED
-      setState(() { _isLoading = false; });
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -111,10 +198,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Text(
                 'Đăng nhập để tiếp tục',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
               ),
               const SizedBox(height: kMediumPadding * 1.5),
 
@@ -161,7 +245,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
-                          fontWeight: FontWeight.bold
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
               ),
@@ -182,7 +266,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: TextStyle(
                     color: ColorPalette.primaryColor,
                     fontSize: 16,
-                    fontWeight: FontWeight.bold
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
@@ -190,11 +274,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
               // 7. Nút Đăng ký
               TextButton(
-                onPressed: _isLoading ? null : () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => RegisterScreen(),
-                  ));
-                },
+                onPressed: _isLoading
+                    ? null
+                    : () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => RegisterScreen(),
+                          ),
+                        );
+                      },
                 child: const Text(
                   "Chưa có tài khoản? Đăng ký",
                   style: TextStyle(
@@ -202,7 +290,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     fontSize: 15,
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -224,11 +312,7 @@ class _LoginScreenState extends State<LoginScreen> {
       keyboardType: keyboardType,
       decoration: InputDecoration(
         hintText: hintText,
-        prefixIcon: Icon(
-          icon,
-          color: ColorPalette.primaryColor,
-          size: 20,
-        ),
+        prefixIcon: Icon(icon, color: ColorPalette.primaryColor, size: 20),
         filled: true,
         fillColor: Colors.white,
         border: OutlineInputBorder(
@@ -241,11 +325,12 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(kDefaultPadding),
-          borderSide: const BorderSide(color: ColorPalette.primaryColor, width: 2),
+          borderSide: const BorderSide(
+            color: ColorPalette.primaryColor,
+            width: 2,
+          ),
         ),
       ),
     );
   }
 }
-
-
