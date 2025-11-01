@@ -476,61 +476,67 @@ class _MapScreenState extends State<MapScreen> {
 
   Widget _buildSearchBar() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: kMediumPadding, vertical: kTopPadding),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(kItemPadding),
         boxShadow: [
-          BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 2)),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            spreadRadius: 1,
+            offset: const Offset(0, 3),
+          ),
         ],
       ),
-      child: Material(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-        child: TextField(
-          controller: _searchController,
-          textInputAction: TextInputAction.search,
-          onSubmitted: (v) => _onSearchChanged(v),
-          decoration: InputDecoration(
-            hintText: 'Tìm kiếm địa điểm...',
-            border: InputBorder.none,
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(30),
-              borderSide: BorderSide.none,
+      child: TextField(
+        controller: _searchController,
+        textInputAction: TextInputAction.search,
+        onSubmitted: (v) => _onSearchChanged(v),
+        decoration: InputDecoration(
+          hintText: 'Tìm kiếm địa điểm...',
+          prefixIcon: Padding(
+            padding: EdgeInsets.all(kTopPadding),
+            child: Icon(
+              Icons.search,
+              color: Colors.black,
+              size: kDefaultPadding,
             ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(30),
-              borderSide: BorderSide(
-                color: ColorPalette.primaryColor,
-                width: 2,
-              ),
-            ),
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: kDefaultPadding,
-              vertical: kItemPadding + 2,
-            ),
-            prefixIcon: Icon(Icons.search, color: ColorPalette.primaryColor),
-            suffixIcon: _searchController.text.isNotEmpty
-                ? IconButton(
-                    icon: Icon(Icons.clear, color: ColorPalette.subTitleColor),
-                    onPressed: () {
-                      _searchController.clear();
-                      FocusScope.of(context).unfocus();
-                    },
-                  )
-                : null,
           ),
+          suffixIcon: _searchController.text.isNotEmpty
+              ? IconButton(
+                  icon: Icon(Icons.clear, color: ColorPalette.subTitleColor),
+                  onPressed: () {
+                    _searchController.clear();
+                    FocusScope.of(context).unfocus();
+                  },
+                )
+              : null,
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.all(Radius.circular(kItemPadding)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.all(Radius.circular(kItemPadding)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+              color: ColorPalette.primaryColor,
+              width: 2,
+            ),
+            borderRadius: BorderRadius.all(Radius.circular(kItemPadding)),
+          ),
+          contentPadding: EdgeInsets.symmetric(horizontal: kItemPadding),
         ),
       ),
     );
   }
 
   Widget _buildSearchResults() {
-    if (_searchQuery.isEmpty || _filteredLocations.isEmpty) {
-      return SizedBox.shrink();
-    }
-
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: kMediumPadding, vertical: kTopPadding),
+      margin: EdgeInsets.symmetric(horizontal: kMediumPadding),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(kItemPadding + 2),
@@ -587,7 +593,7 @@ class _MapScreenState extends State<MapScreen> {
   Widget _buildQuickFilters() {
     return Container(
       height: 50,
-      margin: EdgeInsets.symmetric(horizontal: kMediumPadding, vertical: kTopPadding),
+      margin: EdgeInsets.only(top: kDefaultPadding),
       child: ListView(
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: 0),
@@ -678,62 +684,71 @@ class _MapScreenState extends State<MapScreen> {
   Widget build(BuildContext context) {
     return AppBarContainerWidget(
       titleString: 'Bản Đồ',
-      child: Stack(
+      child: Column(
         children: [
-          if (_isLoading)
-            Center(child: CircularProgressIndicator())
-          else
-            _buildMap(),
-          // Floating buttons
-          Positioned(
-            right: kDefaultPadding,
-            bottom: 120,
-            child: Column(
+          // Search Bar - Cố định ở trên (giống TextField trong home_screen)
+          _buildSearchBar(),
+          
+          // Quick Filters - Cố định ngay dưới search
+          _buildQuickFilters(),
+          
+          // Map và nội dung có thể tương tác - Phần mở rộng
+          Expanded(
+            child: Stack(
               children: [
-                FloatingActionButton(
-                  heroTag: 'my_loc',
-                  mini: true,
-                  onPressed: _focusMyLocation,
-                  child: Icon(Icons.my_location),
+                // Map nền
+                if (_isLoading)
+                  Center(child: CircularProgressIndicator())
+                else
+                  _buildMap(),
+                
+                // Search Results - Hiển thị khi có kết quả tìm kiếm
+                if (_searchQuery.isNotEmpty && _filteredLocations.isNotEmpty)
+                  Positioned(
+                    top: kTopPadding,
+                    left: 0,
+                    right: 0,
+                    child: _buildSearchResults(),
+                  ),
+                
+                // Floating buttons
+                Positioned(
+                  right: kDefaultPadding,
+                  bottom: 120,
+                  child: Column(
+                    children: [
+                      FloatingActionButton(
+                        heroTag: 'my_loc',
+                        mini: true,
+                        onPressed: _focusMyLocation,
+                        child: Icon(Icons.my_location),
+                      ),
+                      SizedBox(height: kItemPadding + 2),
+                      if (_selectedLocation != null)
+                        FloatingActionButton(
+                          heroTag: 'ext_nav',
+                          mini: true,
+                          onPressed: () =>
+                              _openExternalNavigation(_selectedLocation!),
+                          child: Icon(Icons.navigation),
+                        ),
+                    ],
+                  ),
                 ),
-                SizedBox(height: kItemPadding + 2),
+                
+                // Info Card - Hiển thị khi chọn địa điểm
                 if (_selectedLocation != null)
-                  FloatingActionButton(
-                    heroTag: 'ext_nav',
-                    mini: true,
-                    onPressed: () =>
-                        _openExternalNavigation(_selectedLocation!),
-                    child: Icon(Icons.navigation),
+                  Positioned(
+                    bottom: kBottomBarIconSize,
+                    left: kMediumPadding,
+                    right: kMediumPadding,
+                    child: SafeArea(
+                      child: _buildLocationInfoCard(_selectedLocation!),
+                    ),
                   ),
               ],
             ),
           ),
-          // Search và Filters
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: SafeArea(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildSearchBar(),
-                  _buildQuickFilters(),
-                  _buildSearchResults(),
-                ],
-              ),
-            ),
-          ),
-          // Info Card
-          if (_selectedLocation != null)
-            Positioned(
-              bottom: kBottomBarIconSize,
-              left: kMediumPadding,
-              right: kMediumPadding,
-              child: SafeArea(
-                child: _buildLocationInfoCard(_selectedLocation!),
-              ),
-            ),
         ],
       ),
     );
