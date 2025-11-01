@@ -86,51 +86,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 4),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(
-                        context,
-                        GlobalSearchScreen.routeName,
-                      );
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.3),
-                          width: 1,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            FontAwesomeIcons.magnifyingGlass,
-                            size: 16,
-                            color: Colors.white.withOpacity(0.9),
-                          ),
-                          SizedBox(width: 8),
-                          Flexible(
-                            child: Text(
-                              'Tìm kiếm điểm đến, khách sạn...',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.white.withOpacity(0.9),
-                                fontWeight: FontWeight.w400,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -200,37 +155,50 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         children: [
           // Search TextField - Là một phần của AppBarContainerWidget (cố định)
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(kItemPadding),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1), // Màu bóng dịu
-                  blurRadius: 8, // Độ mờ
-                  spreadRadius: 1, // Độ lan
-                  offset: const Offset(0, 3), // Hướng bóng xuống dưới
-                ),
-              ],
-            ),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Tìm kiếm điểm đến ...',
-                prefixIcon: Padding(
-                  padding: EdgeInsets.all(kTopPadding),
-                  child: Icon(
-                    FontAwesomeIcons.magnifyingGlass,
-                    color: Colors.black,
-                    size: kDefaultPadding,
+          GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(
+                context,
+                GlobalSearchScreen.routeName,
+              );
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(kItemPadding),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1), // Màu bóng dịu
+                    blurRadius: 8, // Độ mờ
+                    spreadRadius: 1, // Độ lan
+                    offset: const Offset(0, 3), // Hướng bóng xuống dưới
                   ),
+                ],
+              ),
+              child: TextField(
+                enabled: false,
+                decoration: InputDecoration(
+                  hintText: 'Tìm kiếm điểm đến ...',
+                  prefixIcon: Padding(
+                    padding: EdgeInsets.all(kTopPadding),
+                    child: Icon(
+                      FontAwesomeIcons.magnifyingGlass,
+                      color: Colors.black,
+                      size: kDefaultPadding,
+                    ),
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.all(Radius.circular(kItemPadding)),
+                  ),
+                  disabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.all(Radius.circular(kItemPadding)),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(horizontal: kItemPadding),
                 ),
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderSide: BorderSide.none,
-                  borderRadius: BorderRadius.all(Radius.circular(kItemPadding)),
-                ),
-                contentPadding: EdgeInsets.symmetric(horizontal: kItemPadding),
               ),
             ),
           ),
@@ -269,15 +237,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           Colors.green,
                           () {
-                            // TODO: Navigate to map screen
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'Chức năng bản đồ sẽ được phát triển',
-                                ),
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
+                            Navigator.of(context).pushNamed('/map_screen');
                           },
                           'Bản đồ',
                         ),

@@ -4,6 +4,7 @@ import 'package:flutter_travels_apps/data/models/map_location.dart';
 import 'package:flutter_travels_apps/data/mock/map_locations.dart';
 import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
+import 'package:flutter_travels_apps/core/constants/textstyle_constants.dart';
 import 'package:flutter_travels_apps/representation/widgets/app_bar_container.dart';
 import 'package:flutter_travels_apps/core/helpers/local_storage_helper.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -365,12 +366,12 @@ class _MapScreenState extends State<MapScreen> {
   Widget _buildLocationInfoCard(MapLocation location) {
     return Card(
       elevation: 8,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kDefaultPadding)),
       child: InkWell(
         onTap: () {
           // Có thể navigate đến detail screen
         },
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(kDefaultPadding),
         child: Container(
           padding: EdgeInsets.all(kDefaultPadding),
           child: Column(
@@ -382,11 +383,7 @@ class _MapScreenState extends State<MapScreen> {
                   Expanded(
                     child: Text(
                       location.name,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: ColorPalette.textColor,
-                      ),
+                      style: TextStyles.defaultStyle.fontHeader.bold,
                     ),
                   ),
                   IconButton(
@@ -414,17 +411,14 @@ class _MapScreenState extends State<MapScreen> {
                   children: [
                     Icon(
                       Icons.location_on,
-                      size: 16,
+                      size: kDefaultIconSize,
                       color: ColorPalette.subTitleColor,
                     ),
-                    SizedBox(width: 4),
+                    SizedBox(width: kMinPadding),
                     Expanded(
                       child: Text(
                         location.address!,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: ColorPalette.subTitleColor,
-                        ),
+                        style: TextStyles.defaultStyle.subTitleTextColor,
                       ),
                     ),
                   ],
@@ -433,7 +427,7 @@ class _MapScreenState extends State<MapScreen> {
               ],
               Text(
                 location.description,
-                style: TextStyle(fontSize: 14, color: ColorPalette.textColor),
+                style: TextStyles.defaultStyle,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -441,24 +435,17 @@ class _MapScreenState extends State<MapScreen> {
                 SizedBox(height: kItemPadding),
                 Row(
                   children: [
-                    Icon(Icons.star, size: 16, color: Colors.amber),
-                    SizedBox(width: 4),
+                    Icon(Icons.star, size: kDefaultIconSize, color: Colors.amber),
+                    SizedBox(width: kMinPadding),
                     Text(
                       '${location.rating}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: ColorPalette.textColor,
-                      ),
+                      style: TextStyles.defaultStyle.bold,
                     ),
                     if (location.reviewCount != null) ...[
-                      SizedBox(width: 4),
+                      SizedBox(width: kMinPadding),
                       Text(
                         '(${location.reviewCount} đánh giá)',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: ColorPalette.subTitleColor,
-                        ),
+                        style: TextStyles.defaultStyle.fontCaption.subTitleTextColor,
                       ),
                     ],
                   ],
@@ -472,7 +459,7 @@ class _MapScreenState extends State<MapScreen> {
                     icon: Icon(Icons.directions),
                     label: Text('Chỉ đường'),
                   ),
-                  SizedBox(width: 8),
+                  SizedBox(width: kTopPadding),
                   ElevatedButton.icon(
                     onPressed: () => _drawRouteTo(location),
                     icon: Icon(Icons.timeline),
@@ -489,7 +476,7 @@ class _MapScreenState extends State<MapScreen> {
 
   Widget _buildSearchBar() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: kMediumPadding, vertical: 8),
+      margin: EdgeInsets.symmetric(horizontal: kMediumPadding, vertical: kTopPadding),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
@@ -519,7 +506,7 @@ class _MapScreenState extends State<MapScreen> {
             ),
             contentPadding: EdgeInsets.symmetric(
               horizontal: kDefaultPadding,
-              vertical: 12,
+              vertical: kItemPadding + 2,
             ),
             prefixIcon: Icon(Icons.search, color: ColorPalette.primaryColor),
             suffixIcon: _searchController.text.isNotEmpty
@@ -543,10 +530,10 @@ class _MapScreenState extends State<MapScreen> {
     }
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: kMediumPadding, vertical: 8),
+      margin: EdgeInsets.symmetric(horizontal: kMediumPadding, vertical: kTopPadding),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(kItemPadding + 2),
         boxShadow: [
           BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 2)),
         ],
@@ -570,17 +557,18 @@ class _MapScreenState extends State<MapScreen> {
                   child: Icon(
                     location.type == 'hotel' ? Icons.hotel : Icons.location_on,
                     color: Colors.white,
-                    size: 20,
+                    size: kBottomBarIconSize,
                   ),
                 ),
                 title: Text(
                   location.name,
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyles.defaultStyle.bold,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 subtitle: Text(
                   location.address ?? location.description,
+                  style: TextStyles.defaultStyle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -599,7 +587,7 @@ class _MapScreenState extends State<MapScreen> {
   Widget _buildQuickFilters() {
     return Container(
       height: 50,
-      margin: EdgeInsets.symmetric(horizontal: kMediumPadding, vertical: 8),
+      margin: EdgeInsets.symmetric(horizontal: kMediumPadding, vertical: kTopPadding),
       child: ListView(
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: 0),
@@ -611,7 +599,7 @@ class _MapScreenState extends State<MapScreen> {
             });
             _addMarkers();
           }),
-          SizedBox(width: 8),
+          SizedBox(width: kTopPadding),
           _buildFilterChip('Điểm đến', () {
             setState(() {
               _filteredLocations = _locations
@@ -620,7 +608,7 @@ class _MapScreenState extends State<MapScreen> {
             });
             _addMarkers();
           }),
-          SizedBox(width: 8),
+          SizedBox(width: kTopPadding),
           _buildFilterChip('Khách sạn', () {
             setState(() {
               _filteredLocations = _locations
@@ -629,7 +617,7 @@ class _MapScreenState extends State<MapScreen> {
             });
             _addMarkers();
           }),
-          SizedBox(width: 8),
+          SizedBox(width: kTopPadding),
           _buildFilterChip('Vị trí của tôi', () {
             if (_currentLocation != null) {
               _focusOnLocation(_currentLocation!);
@@ -670,19 +658,16 @@ class _MapScreenState extends State<MapScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: EdgeInsets.symmetric(horizontal: kDefaultPadding, vertical: kItemPadding),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(kBottomBarIconSize),
           border: Border.all(color: ColorPalette.primaryColor),
         ),
         child: Center(
           child: Text(
             label,
-            style: TextStyle(
-              color: ColorPalette.primaryColor,
-              fontWeight: FontWeight.w500,
-            ),
+            style: TextStyles.defaultStyle.medium.primaryTextColor,
           ),
         ),
       ),
@@ -701,7 +686,7 @@ class _MapScreenState extends State<MapScreen> {
             _buildMap(),
           // Floating buttons
           Positioned(
-            right: 16,
+            right: kDefaultPadding,
             bottom: 120,
             child: Column(
               children: [
@@ -711,7 +696,7 @@ class _MapScreenState extends State<MapScreen> {
                   onPressed: _focusMyLocation,
                   child: Icon(Icons.my_location),
                 ),
-                SizedBox(height: 12),
+                SizedBox(height: kItemPadding + 2),
                 if (_selectedLocation != null)
                   FloatingActionButton(
                     heroTag: 'ext_nav',
@@ -742,7 +727,7 @@ class _MapScreenState extends State<MapScreen> {
           // Info Card
           if (_selectedLocation != null)
             Positioned(
-              bottom: 20,
+              bottom: kBottomBarIconSize,
               left: kMediumPadding,
               right: kMediumPadding,
               child: SafeArea(

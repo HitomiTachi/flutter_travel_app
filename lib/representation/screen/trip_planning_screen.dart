@@ -77,33 +77,7 @@ class _TripPlanningScreenState extends State<TripPlanningScreen> {
             },
           ),
           
-          // // Số hoạt động mỗi ngày
-          // ItemAddTripComponent(
-          //   icon: AssetHelper.iconcalendar,
-          //   innitData: activities,
-          //   title: 'Hoạt động/ngày',
-          //   minValue: 1,
-          //   maxValue: 8,
-          //   onValueChanged: (value) {
-          //     setState(() {
-          //       activities = value;
-          //     });
-          //   },
-          // ),
           
-          // // Số ngày du lịch
-          // ItemAddTripComponent(
-          //   icon: AssetHelper.iconbed, // Tạm dùng icon này, có thể thay bằng icon lịch khác
-          //   innitData: days,
-          //   title: 'Số ngày du lịch',
-          //   minValue: 1,
-          //   maxValue: 30,
-          //   onValueChanged: (value) {
-          //     setState(() {
-          //       days = value;
-          //     });
-          //   },
-          // ),
           
           // Số hoạt động mỗi ngày
           ItemAddTripComponent(
