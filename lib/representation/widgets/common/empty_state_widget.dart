@@ -85,6 +85,14 @@ class EmptyStateWidget extends StatelessWidget {
         width: _effectiveIconSize,
         height: _effectiveIconSize,
         fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) {
+          // Fallback to default icon if asset not found
+          return Icon(
+            Icons.broken_image_outlined,
+            size: _effectiveIconSize,
+            color: _iconColor,
+          );
+        },
       );
     }
     
