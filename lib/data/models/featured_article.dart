@@ -5,7 +5,6 @@ class FeaturedArticle {
   final String imageUrl;
   final String author;
   final DateTime publishDate;
-  final int readTime; // minutes
   final String category;
   final int likes;
   final bool isFeatured;
@@ -17,7 +16,6 @@ class FeaturedArticle {
     required this.imageUrl,
     required this.author,
     required this.publishDate,
-    required this.readTime,
     required this.category,
     required this.likes,
     this.isFeatured = false,

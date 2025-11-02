@@ -199,13 +199,13 @@ class ItemLargeArticleWidget extends StatelessWidget {
                     Row(
                       children: [
                         Icon(
-                          FontAwesomeIcons.clock,
+                          Icons.person_outline,
                           color: Colors.white70,
                           size: kDefaultIconSize - 4,
                         ),
                         SizedBox(width: kMinPadding),
                         Text(
-                          '${article.readTime}p',
+                          article.author,
                           style: TextStyles.defaultStyle.copyWith(
                             color: Colors.white70,
                             fontSize: 12,
@@ -330,13 +330,13 @@ class ItemCompactArticleWidget extends StatelessWidget {
                     Row(
                       children: [
                         Icon(
-                          FontAwesomeIcons.clock,
+                          Icons.person_outline,
                           color: Colors.white70,
                           size: kDefaultIconSize - 6,
                         ),
                         SizedBox(width: kMinPadding),
                         Text(
-                          '${article.readTime}p',
+                          article.author,
                           style: TextStyles.defaultStyle.copyWith(
                             color: Colors.white70,
                             fontSize: 10,
@@ -482,13 +482,13 @@ class ItemHorizontalArticleWidget extends StatelessWidget {
                     Row(
                       children: [
                         Icon(
-                          FontAwesomeIcons.clock,
+                          Icons.person_outline,
                           color: Colors.grey[500],
                           size: kDefaultIconSize - 6,
                         ),
                         SizedBox(width: kMinPadding),
                         Text(
-                          '${article.readTime}p',
+                          article.author,
                           style: TextStyles.defaultStyle.copyWith(
                             color: Colors.grey[500],
                             fontSize: 10,

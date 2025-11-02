@@ -697,9 +697,9 @@ class _ArticleCard extends StatelessWidget {
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          const Icon(Icons.menu_book, size: kDefaultIconSize, color: ColorPalette.subTitleColor),
+                          const Icon(Icons.person_outline, size: kDefaultIconSize, color: ColorPalette.subTitleColor),
                           const SizedBox(width: 4),
-                          Text('${article.readTime} phút', style: TextStyles.defaultStyle.setTextSize(12).subTitleTextColor),
+                          Text(article.author, style: TextStyles.defaultStyle.setTextSize(12).subTitleTextColor),
                         ],
                       ),
                     ],
@@ -758,9 +758,9 @@ class _ArticleTile extends StatelessWidget {
                       const Spacer(),
                       Row(
                         children: [
-                          const Icon(Icons.menu_book, size: kDefaultIconSize, color: ColorPalette.subTitleColor),
+                          const Icon(Icons.person_outline, size: kDefaultIconSize, color: ColorPalette.subTitleColor),
                           const SizedBox(width: 4),
-                          Text('${article.readTime} phút', style: TextStyles.defaultStyle.setTextSize(12).subTitleTextColor),
+                          Text(article.author, style: TextStyles.defaultStyle.setTextSize(12).subTitleTextColor),
                         ],
                       ),
                     ],

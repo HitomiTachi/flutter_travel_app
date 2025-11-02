@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/core/constants/textstyle_constants.dart';
-import 'package:flutter_travels_apps/core/helpers/asset_helper.dart';
 import 'package:flutter_travels_apps/representation/widgets/app_bar_container.dart';
 import 'package:flutter_travels_apps/data/mock/destination_data_provider.dart';
 import 'package:flutter_travels_apps/data/mock/article_data_provider.dart';
+import 'package:flutter_travels_apps/data/mock/trip_plans_list_data_provider.dart';
 import 'package:flutter_travels_apps/data/models/popular_destination.dart';
 import 'package:flutter_travels_apps/data/models/featured_article.dart';
+import 'package:flutter_travels_apps/data/models/trip_plan_list_model.dart';
 import 'package:flutter_travels_apps/representation/widgets/like_filter_section.dart';
 
 class LikeScreen extends StatefulWidget {
@@ -26,7 +27,6 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
   bool _grid = true;
   bool _editMode = false;
   final Set<String> _selectedIds = {};
-  bool _showAll = false;
 
   // Scroll control for auto-hide filters
   final ScrollController _scrollController = ScrollController();
@@ -44,19 +44,18 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
   // Tab controller cho 3 nhóm chính
   late TabController _tabController;
 
-  // IDs của các items được yêu thích (mock data)
-  late Set<String> _likedPlaceIds;
-  late Set<String> _likedArticleIds;
-  final List<Map<String, dynamic>> _likedTrips = [
-    {'id': 't1', 'image': AssetHelper.image3, 'title': 'Phú Quốc 4N3Đ', 'days': 4, 'stops': 9},
-  ];
+  // Dữ liệu từ mock providers - hiển thị tất cả
+  late List<PopularDestination> _allDestinations;
+  late List<FeaturedArticle> _allArticles;
+  late List<TripPlan> _allTrips;
 
   @override
   void initState() {
     super.initState();
-    // Load IDs mặc định từ providers
-    _likedPlaceIds = DestinationDataProvider.getDefaultFavoriteIds();
-    _likedArticleIds = ArticleDataProvider.getDefaultFavoriteIds();
+    // Load toàn bộ dữ liệu từ mock providers
+    _allDestinations = DestinationDataProvider.getPopularDestinations();
+    _allArticles = ArticleDataProvider.getFeaturedArticles();
+    _allTrips = TripPlansListDataProvider.getSampleTripPlans();
     
     // Initialize TabController
     _tabController = TabController(length: 3, vsync: this);
@@ -104,9 +103,6 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
         final initialTab = args['initialTab'] as int;
         _tabController.index = initialTab;
       }
-      if (args['showAll'] == true) {
-        _showAll = true;
-      }
     }
   }
 
@@ -118,16 +114,10 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
     });
   }
 
-  // Getters lấy dữ liệu từ mock providers
-  List<PopularDestination> get _likedPlaces {
-    if (_showAll) return DestinationDataProvider.getPopularDestinations();
-    return DestinationDataProvider.getDestinationsByIds(_likedPlaceIds);
-  }
-
-  List<FeaturedArticle> get _likedArticles {
-    if (_showAll) return ArticleDataProvider.getFeaturedArticles();
-    return ArticleDataProvider.getArticlesByIds(_likedArticleIds);
-  }
+  // Getters trả về toàn bộ dữ liệu từ mock providers
+  List<PopularDestination> get _destinations => _allDestinations;
+  List<FeaturedArticle> get _articles => _allArticles;
+  List<TripPlan> get _trips => _allTrips;
 
   @override
   void dispose() {
@@ -158,15 +148,15 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
 
   void _bulkUnfavorite() {
     setState(() {
-      // Xóa khỏi các set IDs
-      _likedPlaceIds.removeWhere((id) => _selectedIds.contains(id));
-      _likedArticleIds.removeWhere((id) => _selectedIds.contains(id));
-      _likedTrips.removeWhere((e) => _selectedIds.contains(e['id']));
+      // Xóa items được chọn
+      _allDestinations.removeWhere((d) => _selectedIds.contains(d.id));
+      _allArticles.removeWhere((a) => _selectedIds.contains(a.id));
+      _allTrips.removeWhere((t) => _selectedIds.contains(t.id));
       _selectedIds.clear();
       _editMode = false;
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Đã xoá khỏi danh sách yêu thích')),
+      const SnackBar(content: Text('Đã xoá khỏi danh sách')),
     );
   }
 
@@ -248,7 +238,7 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
                       keyword: _searchCtl.text,
                       filterIndex: _selectedFilterIndex,
                       filters: _filtersByTab[0]!,
-                      destinations: _likedPlaces,
+                      destinations: _destinations,
                       onToggleSelect: _toggleSelect,
                       scrollController: _scrollController,
                     ),
@@ -260,7 +250,7 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
                       keyword: _searchCtl.text,
                       filterIndex: _selectedFilterIndex,
                       filters: _filtersByTab[1]!,
-                      articles: _likedArticles,
+                      articles: _articles,
                       onToggleSelect: _toggleSelect,
                       scrollController: _scrollController,
                     ),
@@ -270,7 +260,7 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
                       editMode: _editMode,
                       selectedIds: _selectedIds,
                       keyword: _searchCtl.text,
-                      data: _likedTrips,
+                      data: _trips,
                       onToggleSelect: _toggleSelect,
                       scrollController: _scrollController,
                     ),
@@ -479,7 +469,7 @@ class _TripsTab extends StatelessWidget {
   final bool grid, editMode;
   final Set<String> selectedIds;
   final String keyword;
-  final List<Map<String, dynamic>> data;
+  final List<TripPlan> data;
   final ValueChanged<String> onToggleSelect;
   final ScrollController scrollController;
 
@@ -497,9 +487,10 @@ class _TripsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Chỉ lọc theo từ khóa (lịch trình không có sub filter)
-    final filtered = data.where((e) {
+    final filtered = data.where((trip) {
       final matchText = keyword.isEmpty ||
-          (e['title'] as String).toLowerCase().contains(keyword.toLowerCase());
+          trip.title.toLowerCase().contains(keyword.toLowerCase()) ||
+          trip.destination.toLowerCase().contains(keyword.toLowerCase());
       return matchText;
     }).toList();
 
@@ -510,10 +501,10 @@ class _TripsTab extends StatelessWidget {
       padding: const EdgeInsets.all(kDefaultPadding),
       itemBuilder: (_, i) => _TripCard(
         item: filtered[i],
-        selected: selectedIds.contains(filtered[i]['id']),
+        selected: selectedIds.contains(filtered[i].id),
         editMode: editMode,
-        onLongPress: () => onToggleSelect(filtered[i]['id'] as String),
-        onTap: () => editMode ? onToggleSelect(filtered[i]['id'] as String) : null,
+        onLongPress: () => onToggleSelect(filtered[i].id),
+        onTap: () => editMode ? onToggleSelect(filtered[i].id) : null,
       ),
       separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemCount: filtered.length,
@@ -698,7 +689,7 @@ class _ArticleCard extends StatelessWidget {
     return Material(
       elevation: 2,
       color: Colors.white,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(kItemPadding + 2),
       clipBehavior: Clip.hardEdge,
       child: InkWell(
         onTap: onTap,
@@ -708,26 +699,53 @@ class _ArticleCard extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _Thumb(image: article.imageUrl, height: 120, width: double.infinity, borderRadius: BorderRadius.zero),
-                Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(article.title, maxLines: 2, overflow: TextOverflow.ellipsis,
-                          style: TextStyles.defaultStyle.semiBold),
-                      const SizedBox(height: 6),
-                      Text(article.subtitle, maxLines: 2, overflow: TextOverflow.ellipsis,
-                          style: TextStyles.defaultStyle.setTextSize(13).subTitleTextColor),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          const Icon(Icons.menu_book, size: kDefaultIconSize, color: ColorPalette.subTitleColor),
-                          const SizedBox(width: 4),
-                          Text('${article.readTime} phút', style: TextStyles.defaultStyle.setTextSize(12).subTitleTextColor),
-                        ],
-                      ),
-                    ],
+                Expanded(
+                  flex: 3,
+                  child: _Thumb(
+                    image: article.imageUrl,
+                    height: double.infinity,
+                    width: double.infinity,
+                    borderRadius: BorderRadius.zero,
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.all(kTopPadding),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          article.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyles.defaultStyle.semiBold.fontCaption,
+                        ),
+                        const SizedBox(height: kMinPadding - 1),
+                        Text(
+                          article.subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyles.defaultStyle.fontCaption.copyWith(fontSize: 11).subTitleTextColor,
+                        ),
+                        const Spacer(),
+                        Row(
+                          children: [
+                            const Icon(Icons.person_outline, size: kDefaultIconSize - 4, color: ColorPalette.subTitleColor),
+                            const SizedBox(width: kMinPadding - 1),
+                            Expanded(
+                              child: Text(
+                                article.author,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyles.defaultStyle.fontCaption.copyWith(fontSize: 11).subTitleTextColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -783,9 +801,16 @@ class _ArticleTile extends StatelessWidget {
                       const Spacer(),
                       Row(
                         children: [
-                          const Icon(Icons.menu_book, size: kDefaultIconSize, color: ColorPalette.subTitleColor),
+                          const Icon(Icons.person_outline, size: kDefaultIconSize, color: ColorPalette.subTitleColor),
                           const SizedBox(width: 4),
-                          Text('${article.readTime} phút', style: TextStyles.defaultStyle.setTextSize(12).subTitleTextColor),
+                          Expanded(
+                            child: Text(
+                              article.author,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyles.defaultStyle.setTextSize(12).subTitleTextColor,
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -802,7 +827,7 @@ class _ArticleTile extends StatelessWidget {
 }
 
 class _TripCard extends StatelessWidget {
-  final Map<String, dynamic> item;
+  final TripPlan item;
   final bool editMode;
   final bool selected;
   final VoidCallback? onTap;
@@ -833,24 +858,27 @@ class _TripCard extends StatelessWidget {
               padding: const EdgeInsets.all(10),
               child: Row(
                 children: [
-                  _Thumb(image: item['image'], height: 70, width: 100, borderRadius: BorderRadius.circular(10)),
+                  _Thumb(image: item.imageUrl, height: 70, width: 100, borderRadius: BorderRadius.circular(10)),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(item['title'], maxLines: 1, overflow: TextOverflow.ellipsis,
+                        Text(item.title, maxLines: 1, overflow: TextOverflow.ellipsis,
                             style: TextStyles.defaultStyle.semiBold),
+                        const SizedBox(height: 4),
+                        Text(item.destination, maxLines: 1, overflow: TextOverflow.ellipsis,
+                            style: TextStyles.defaultStyle.setTextSize(12).subTitleTextColor),
                         const SizedBox(height: 4),
                         Row(
                           children: [
                             const Icon(Icons.calendar_today, size: 14, color: ColorPalette.subTitleColor),
                             const SizedBox(width: 4),
-                            Text('${item['days']} ngày', style: TextStyles.defaultStyle.setTextSize(12).subTitleTextColor),
+                            Text(item.duration, style: TextStyles.defaultStyle.setTextSize(12).subTitleTextColor),
                             const SizedBox(width: 12),
                             const Icon(Icons.place, size: 14, color: ColorPalette.subTitleColor),
                             const SizedBox(width: 4),
-                            Text('${item['stops']} điểm dừng', style: TextStyles.defaultStyle.setTextSize(12).subTitleTextColor),
+                            Text('${item.activities} hoạt động', style: TextStyles.defaultStyle.setTextSize(12).subTitleTextColor),
                           ],
                         ),
                       ],
