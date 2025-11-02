@@ -8,6 +8,8 @@ import 'package:flutter_travels_apps/representation/widgets/homescreen_widgets/p
 import 'package:flutter_travels_apps/representation/widgets/homescreen_widgets/article_widgets.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_travels_apps/representation/screen/global_search_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -16,6 +18,50 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  String _userName = 'User';
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserName();
+  }
+
+  Future<void> _loadUserName() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        // Lấy thông tin từ Firestore
+        final userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+        
+        if (userDoc.exists) {
+          final data = userDoc.data();
+          setState(() {
+            _userName = data?['name'] ?? (user.isAnonymous ? 'Khách' : 'User');
+            _isLoading = false;
+          });
+        } else {
+          setState(() {
+            _userName = user.isAnonymous ? 'Khách' : 'User';
+            _isLoading = false;
+          });
+        }
+      } else {
+        setState(() {
+          _userName = 'Khách';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _userName = 'User';
+        _isLoading = false;
+      });
+    }
+  }
   Widget _buildItemCategory(
     Widget icon,
     Color color,
@@ -69,23 +115,36 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Text(
-                        'Xin Chào! ',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          color: Colors.white,
-                        ),
-                      ),
-                      Icon(
-                        FontAwesomeIcons.handPeace,
-                        size: 16,
-                        color: Colors.white.withOpacity(0.8),
-                      ),
-                    ],
+                  Text(
+                    'Xin Chào!',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                      color: Colors.white.withOpacity(0.85),
+                    ),
                   ),
+                  SizedBox(height: 4),
+                  if (_isLoading)
+                    SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  else
+                    Text(
+                      _userName,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 24,
+                        color: Colors.white,
+                        letterSpacing: 0.5,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                 ],
               ),
             ),
