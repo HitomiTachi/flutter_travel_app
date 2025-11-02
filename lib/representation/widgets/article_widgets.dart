@@ -4,6 +4,7 @@ import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/constants/textstyle_constants.dart';
 import 'package:flutter_travels_apps/data/models/featured_article.dart';
 import 'package:flutter_travels_apps/data/mock/article_data_provider.dart';
+import 'package:flutter_travels_apps/representation/screen/like_screen.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 // ============================================================================
@@ -15,29 +16,42 @@ class FeaturedArticlesWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final articles = ArticleDataProvider.getFeaturedArticles();
+    // Show up to 10 articles on home screen
+    final displayedArticles = articles.take(10).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Section Header
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: kMediumPadding),
+          padding: EdgeInsets.symmetric(horizontal: kDefaultPadding),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 'Bài viết nổi bật',
                 style: TextStyles.defaultStyle.copyWith(
-                  fontSize: 18,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
+                  color: ColorPalette.textColor,
                 ),
               ),
-              Spacer(),
-              Text(
-                'Xem tất cả',
-                style: TextStyles.defaultStyle.copyWith(
-                  color: ColorPalette.primaryColor,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
+              TextButton(
+                onPressed: () {
+                  // Navigate to Like Screen (tab Bài viết - index 1) and show full list
+                  Navigator.pushNamed(
+                    context,
+                    LikeScreen.routeName,
+                    arguments: {'initialTab': 1, 'showAll': true},
+                  );
+                },
+                child: Text(
+                  'Xem thêm',
+                  style: TextStyles.defaultStyle.copyWith(
+                    color: ColorPalette.primaryColor,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
@@ -46,20 +60,23 @@ class FeaturedArticlesWidget extends StatelessWidget {
         SizedBox(height: kMediumPadding),
 
         // Large Featured Article
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: kMediumPadding),
-          child: ItemLargeArticleWidget(article: articles[0]),
-        ),
+        if (displayedArticles.isNotEmpty)
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: kDefaultPadding),
+            child: ItemLargeArticleWidget(article: displayedArticles[0]),
+          ),
         SizedBox(height: kMediumPadding),
 
         // Compact Articles Grid
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: kMediumPadding),
+          padding: EdgeInsets.symmetric(horizontal: kDefaultPadding),
           child: Row(
             children: [
-              Expanded(child: ItemCompactArticleWidget(article: articles[1])),
-              SizedBox(width: kMediumPadding),
-              Expanded(child: ItemCompactArticleWidget(article: articles[2])),
+              if (displayedArticles.length > 1)
+                Expanded(child: ItemCompactArticleWidget(article: displayedArticles[1])),
+              if (displayedArticles.length > 2) SizedBox(width: kMediumPadding),
+              if (displayedArticles.length > 2)
+                Expanded(child: ItemCompactArticleWidget(article: displayedArticles[2])),
             ],
           ),
         ),
@@ -68,20 +85,13 @@ class FeaturedArticlesWidget extends StatelessWidget {
         // Horizontal Articles List
         Column(
           children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: kMediumPadding),
-              child: ItemHorizontalArticleWidget(article: articles[3]),
-            ),
-            SizedBox(height: kMediumPadding),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: kMediumPadding),
-              child: ItemHorizontalArticleWidget(article: articles[4]),
-            ),
-            SizedBox(height: kMediumPadding),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: kMediumPadding),
-              child: ItemHorizontalArticleWidget(article: articles[5]),
-            ),
+            for (var i = 3; i < displayedArticles.length; i++) ...[
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: kDefaultPadding),
+                child: ItemHorizontalArticleWidget(article: displayedArticles[i]),
+              ),
+              SizedBox(height: kMediumPadding),
+            ],
           ],
         ),
       ],

@@ -4,6 +4,10 @@ import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/core/constants/textstyle_constants.dart';
 import 'package:flutter_travels_apps/core/helpers/asset_helper.dart';
 import 'package:flutter_travels_apps/representation/widgets/app_bar_container.dart';
+import 'package:flutter_travels_apps/data/mock/destination_data_provider.dart';
+import 'package:flutter_travels_apps/data/mock/article_data_provider.dart';
+import 'package:flutter_travels_apps/data/models/popular_destination.dart';
+import 'package:flutter_travels_apps/data/models/featured_article.dart';
 
 class LikeScreen extends StatefulWidget {
   const LikeScreen({Key? key}) : super(key: key);
@@ -20,23 +24,54 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
   final Set<String> _selectedIds = {};
   final _chips = const ['Tất cả', 'Việt Nam', 'Biển', 'Núi', 'Ẩm thực'];
   int _chipIndex = 0;
+  late TabController _tabController;
+  bool _showAll = false;
 
-  final List<Map<String, dynamic>> _likedPlaces = [
-    {'id': 'p1', 'image': AssetHelper.image1, 'name': 'Bà Nà Hills', 'location': 'Đà Nẵng', 'rating': 4.8},
-    {'id': 'p2', 'image': AssetHelper.image2, 'name': 'Chợ Bến Thành', 'location': 'TP.HCM', 'rating': 4.7},
-    {'id': 'p3', 'image': AssetHelper.image3, 'name': 'Vinpearl Safari', 'location': 'Phú Quốc', 'rating': 4.9},
-  ];
-  final List<Map<String, dynamic>> _likedArticles = [
-    {'id': 'a1', 'image': AssetHelper.image2, 'title': 'Ăn gì ở Sài Gòn?', 'desc': 'Map street food cho người mới.', 'reading': '6 phút'},
-    {'id': 'a2', 'image': AssetHelper.image1, 'title': 'Đà Lạt 3N2Đ', 'desc': 'Lịch trình chill, góc sống ảo.', 'reading': '8 phút'},
-  ];
+  // IDs của các items được yêu thích
+  late Set<String> _likedPlaceIds;
+  late Set<String> _likedArticleIds;
   final List<Map<String, dynamic>> _likedTrips = [
     {'id': 't1', 'image': AssetHelper.image3, 'title': 'Phú Quốc 4N3Đ', 'days': 4, 'stops': 9},
   ];
 
   @override
+  void initState() {
+    super.initState();
+    // Load IDs mặc định từ providers (đơn giản hơn)
+    _likedPlaceIds = DestinationDataProvider.getDefaultFavoriteIds();
+    _likedArticleIds = ArticleDataProvider.getDefaultFavoriteIds();
+    
+    // Initialize TabController với initial index
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Get initial tab from route arguments
+    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    if (args != null && args['initialTab'] != null) {
+      final initialTab = args['initialTab'] as int;
+      _tabController.index = initialTab;
+      if (args['showAll'] == true) _showAll = true;
+    }
+  }
+
+  // Getters gọn gàng sử dụng methods từ providers
+  List<PopularDestination> get _likedPlaces {
+    if (_showAll) return DestinationDataProvider.getPopularDestinations();
+    return DestinationDataProvider.getDestinationsByIds(_likedPlaceIds);
+  }
+
+  List<FeaturedArticle> get _likedArticles {
+    if (_showAll) return ArticleDataProvider.getFeaturedArticles();
+    return ArticleDataProvider.getArticlesByIds(_likedArticleIds);
+  }
+
+  @override
   void dispose() {
     _searchCtl.dispose();
+    _tabController.dispose();
     super.dispose();
   }
 
@@ -60,8 +95,9 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
 
   void _bulkUnfavorite() {
     setState(() {
-      _likedPlaces.removeWhere((e) => _selectedIds.contains(e['id']));
-      _likedArticles.removeWhere((e) => _selectedIds.contains(e['id']));
+      // Xóa khỏi các set IDs
+      _likedPlaceIds.removeWhere((id) => _selectedIds.contains(id));
+      _likedArticleIds.removeWhere((id) => _selectedIds.contains(id));
       _likedTrips.removeWhere((e) => _selectedIds.contains(e['id']));
       _selectedIds.clear();
       _editMode = false;
@@ -159,6 +195,7 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
                   child: TabBar(
+                    controller: _tabController,
                     isScrollable: true,
                     indicator: BoxDecoration(
                       color: ColorPalette.primaryColor,
@@ -179,6 +216,7 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
                 // Nội dung tabs
                 Expanded(
                   child: TabBarView(
+                    controller: _tabController,
                     children: [
                       _PlacesTab(
                         grid: _grid,
@@ -186,7 +224,8 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
                         selectedIds: _selectedIds,
                         keyword: _searchCtl.text,
                         filterIndex: _chipIndex,
-                        data: _likedPlaces,
+                        chips: _chips,
+                        destinations: _likedPlaces,
                         onToggleSelect: _toggleSelect,
                       ),
                       _ArticlesTab(
@@ -195,7 +234,8 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
                         selectedIds: _selectedIds,
                         keyword: _searchCtl.text,
                         filterIndex: _chipIndex,
-                        data: _likedArticles,
+                        chips: _chips,
+                        articles: _likedArticles,
                         onToggleSelect: _toggleSelect,
                       ),
                       _TripsTab(
@@ -269,7 +309,8 @@ class _PlacesTab extends StatelessWidget {
   final Set<String> selectedIds;
   final String keyword;
   final int filterIndex;
-  final List<Map<String, dynamic>> data;
+  final List<String> chips;
+  final List<PopularDestination> destinations;
   final ValueChanged<String> onToggleSelect;
 
   const _PlacesTab({
@@ -279,48 +320,53 @@ class _PlacesTab extends StatelessWidget {
     required this.selectedIds,
     required this.keyword,
     required this.filterIndex,
-    required this.data,
+    required this.chips,
+    required this.destinations,
     required this.onToggleSelect,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final filtered = data.where((e) {
+    final filtered = destinations.where((dest) {
       final matchText = keyword.isEmpty ||
-          (e['name'] as String).toLowerCase().contains(keyword.toLowerCase()) ||
-          (e['location'] as String).toLowerCase().contains(keyword.toLowerCase());
-      final matchChip = filterIndex == 0 || (filterIndex == 1 && e['location'] == 'Đà Nẵng');
-      return matchText && matchChip;
+          dest.name.toLowerCase().contains(keyword.toLowerCase()) ||
+          dest.country.toLowerCase().contains(keyword.toLowerCase());
+      return matchText;
     }).toList();
 
-    if (filtered.isEmpty) return const _EmptyState(title: 'Chưa có địa điểm nào được lưu');
+    // Áp dụng filter theo chip (sử dụng method từ provider)
+    final chipFiltered = filterIndex == 0 
+        ? filtered 
+        : DestinationDataProvider.filterByCategory(filtered, chips[filterIndex]);
+
+    if (chipFiltered.isEmpty) return const _EmptyState(title: 'Chưa có địa điểm nào được lưu');
 
     if (grid) {
       return GridView.builder(
         padding: const EdgeInsets.all(kDefaultPadding),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2, mainAxisSpacing: 12, crossAxisSpacing: 12, childAspectRatio: 0.9),
-        itemCount: filtered.length,
+        itemCount: chipFiltered.length,
         itemBuilder: (_, i) => _PlaceCard(
-          item: filtered[i],
-          selected: selectedIds.contains(filtered[i]['id']),
+          destination: chipFiltered[i],
+          selected: selectedIds.contains(chipFiltered[i].id),
           editMode: editMode,
-          onLongPress: () => onToggleSelect(filtered[i]['id'] as String),
-          onTap: () => editMode ? onToggleSelect(filtered[i]['id'] as String) : null,
+          onLongPress: () => onToggleSelect(chipFiltered[i].id),
+          onTap: () => editMode ? onToggleSelect(chipFiltered[i].id) : null,
         ),
       );
     }
     return ListView.separated(
       padding: const EdgeInsets.all(kDefaultPadding),
       itemBuilder: (_, i) => _PlaceTile(
-        item: filtered[i],
-        selected: selectedIds.contains(filtered[i]['id']),
+        destination: chipFiltered[i],
+        selected: selectedIds.contains(chipFiltered[i].id),
         editMode: editMode,
-        onLongPress: () => onToggleSelect(filtered[i]['id'] as String),
-        onTap: () => editMode ? onToggleSelect(filtered[i]['id'] as String) : null,
+        onLongPress: () => onToggleSelect(chipFiltered[i].id),
+        onTap: () => editMode ? onToggleSelect(chipFiltered[i].id) : null,
       ),
       separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemCount: filtered.length,
+      itemCount: chipFiltered.length,
     );
   }
 }
@@ -330,7 +376,8 @@ class _ArticlesTab extends StatelessWidget {
   final Set<String> selectedIds;
   final String keyword;
   final int filterIndex;
-  final List<Map<String, dynamic>> data;
+  final List<String> chips;
+  final List<FeaturedArticle> articles;
   final ValueChanged<String> onToggleSelect;
 
   const _ArticlesTab({
@@ -340,47 +387,53 @@ class _ArticlesTab extends StatelessWidget {
     required this.selectedIds,
     required this.keyword,
     required this.filterIndex,
-    required this.data,
+    required this.chips,
+    required this.articles,
     required this.onToggleSelect,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final filtered = data.where((e) {
+    final filtered = articles.where((article) {
       final matchText = keyword.isEmpty ||
-          (e['title'] as String).toLowerCase().contains(keyword.toLowerCase()) ||
-          (e['desc'] as String).toLowerCase().contains(keyword.toLowerCase());
+          article.title.toLowerCase().contains(keyword.toLowerCase()) ||
+          article.subtitle.toLowerCase().contains(keyword.toLowerCase());
       return matchText;
     }).toList();
+    
+    // Áp dụng filter theo chip (sử dụng method từ provider)
+    final chipFiltered = filterIndex == 0 
+        ? filtered 
+        : ArticleDataProvider.filterByCategory(filtered, chips[filterIndex]);
 
-    if (filtered.isEmpty) return const _EmptyState(title: 'Chưa có bài viết nào được lưu');
+    if (chipFiltered.isEmpty) return const _EmptyState(title: 'Chưa có bài viết nào được lưu');
 
     if (grid) {
       return GridView.builder(
         padding: const EdgeInsets.all(kDefaultPadding),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2, mainAxisSpacing: 12, crossAxisSpacing: 12, childAspectRatio: 0.78),
-        itemCount: filtered.length,
+        itemCount: chipFiltered.length,
         itemBuilder: (_, i) => _ArticleCard(
-          item: filtered[i],
-          selected: selectedIds.contains(filtered[i]['id']),
+          article: chipFiltered[i],
+          selected: selectedIds.contains(chipFiltered[i].id),
           editMode: editMode,
-          onLongPress: () => onToggleSelect(filtered[i]['id'] as String),
-          onTap: () => editMode ? onToggleSelect(filtered[i]['id'] as String) : null,
+          onLongPress: () => onToggleSelect(chipFiltered[i].id),
+          onTap: () => editMode ? onToggleSelect(chipFiltered[i].id) : null,
         ),
       );
     }
     return ListView.separated(
       padding: const EdgeInsets.all(kDefaultPadding),
       itemBuilder: (_, i) => _ArticleTile(
-        item: filtered[i],
-        selected: selectedIds.contains(filtered[i]['id']),
+        article: chipFiltered[i],
+        selected: selectedIds.contains(chipFiltered[i].id),
         editMode: editMode,
-        onLongPress: () => onToggleSelect(filtered[i]['id'] as String),
-        onTap: () => editMode ? onToggleSelect(filtered[i]['id'] as String) : null,
+        onLongPress: () => onToggleSelect(chipFiltered[i].id),
+        onTap: () => editMode ? onToggleSelect(chipFiltered[i].id) : null,
       ),
       separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemCount: filtered.length,
+      itemCount: chipFiltered.length,
     );
   }
 }
@@ -457,7 +510,7 @@ class _SelectableMark extends StatelessWidget {
 }
 
 class _PlaceCard extends StatelessWidget {
-  final Map<String, dynamic> item;
+  final PopularDestination destination;
   final bool editMode;
   final bool selected;
   final VoidCallback? onTap;
@@ -465,7 +518,7 @@ class _PlaceCard extends StatelessWidget {
 
   const _PlaceCard({
     Key? key,
-    required this.item,
+    required this.destination,
     required this.editMode,
     required this.selected,
     this.onTap,
@@ -487,7 +540,7 @@ class _PlaceCard extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _Thumb(image: item['image'], height: 120, width: double.infinity, borderRadius: BorderRadius.zero),
+                _Thumb(image: destination.imageUrl, height: 120, width: double.infinity, borderRadius: BorderRadius.zero),
                 Padding(
                   padding: const EdgeInsets.all(10),
                   child: Row(
@@ -496,14 +549,14 @@ class _PlaceCard extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(item['name'], maxLines: 1, overflow: TextOverflow.ellipsis,
+                            Text(destination.name, maxLines: 1, overflow: TextOverflow.ellipsis,
                                 style: TextStyles.defaultStyle.semiBold),
                             const SizedBox(height: 2),
                             Row(
                               children: [
                                 const Icon(Icons.location_on, size: 14, color: ColorPalette.subTitleColor),
                                 const SizedBox(width: 4),
-                                Text(item['location'], style: TextStyles.defaultStyle.setTextSize(12).subTitleTextColor),
+                                Text(destination.country, style: TextStyles.defaultStyle.setTextSize(12).subTitleTextColor),
                               ],
                             ),
                           ],
@@ -511,7 +564,7 @@ class _PlaceCard extends StatelessWidget {
                       ),
                       const Icon(Icons.star, color: ColorPalette.yellowColor, size: kDefaultIconSize),
                       const SizedBox(width: 4),
-                      Text('${item['rating']}', style: TextStyles.defaultStyle.semiBold),
+                      Text('${destination.rating}', style: TextStyles.defaultStyle.semiBold),
                     ],
                   ),
                 ),
@@ -526,7 +579,7 @@ class _PlaceCard extends StatelessWidget {
 }
 
 class _PlaceTile extends StatelessWidget {
-  final Map<String, dynamic> item;
+  final PopularDestination destination;
   final bool editMode;
   final bool selected;
   final VoidCallback? onTap;
@@ -534,7 +587,7 @@ class _PlaceTile extends StatelessWidget {
 
   const _PlaceTile({
     Key? key,
-    required this.item,
+    required this.destination,
     required this.editMode,
     required this.selected,
     this.onTap,
@@ -555,22 +608,22 @@ class _PlaceTile extends StatelessWidget {
           padding: const EdgeInsets.all(10),
           child: Row(
             children: [
-              _Thumb(image: item['image'], height: 70, width: 100, borderRadius: BorderRadius.circular(10)),
+              _Thumb(image: destination.imageUrl, height: 70, width: 100, borderRadius: BorderRadius.circular(10)),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(item['name'], maxLines: 1, overflow: TextOverflow.ellipsis,
+                    Text(destination.name, maxLines: 1, overflow: TextOverflow.ellipsis,
                         style: TextStyles.defaultStyle.semiBold),
                     const SizedBox(height: 2),
-                    Text(item['location'], style: TextStyles.defaultStyle.setTextSize(12).subTitleTextColor),
+                    Text(destination.country, style: TextStyles.defaultStyle.setTextSize(12).subTitleTextColor),
                     const SizedBox(height: 6),
                     Row(
                       children: [
                         const Icon(Icons.star, color: ColorPalette.yellowColor, size: kDefaultIconSize),
                         const SizedBox(width: 4),
-                        Text('${item['rating']}', style: TextStyles.defaultStyle.semiBold),
+                        Text('${destination.rating}', style: TextStyles.defaultStyle.semiBold),
                       ],
                     ),
                   ],
@@ -586,7 +639,7 @@ class _PlaceTile extends StatelessWidget {
 }
 
 class _ArticleCard extends StatelessWidget {
-  final Map<String, dynamic> item;
+  final FeaturedArticle article;
   final bool editMode;
   final bool selected;
   final VoidCallback? onTap;
@@ -594,7 +647,7 @@ class _ArticleCard extends StatelessWidget {
 
   const _ArticleCard({
     Key? key,
-    required this.item,
+    required this.article,
     required this.editMode,
     required this.selected,
     this.onTap,
@@ -616,23 +669,23 @@ class _ArticleCard extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _Thumb(image: item['image'], height: 120, width: double.infinity, borderRadius: BorderRadius.zero),
+                _Thumb(image: article.imageUrl, height: 120, width: double.infinity, borderRadius: BorderRadius.zero),
                 Padding(
                   padding: const EdgeInsets.all(10),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(item['title'], maxLines: 2, overflow: TextOverflow.ellipsis,
+                      Text(article.title, maxLines: 2, overflow: TextOverflow.ellipsis,
                           style: TextStyles.defaultStyle.semiBold),
                       const SizedBox(height: 6),
-                      Text(item['desc'], maxLines: 2, overflow: TextOverflow.ellipsis,
+                      Text(article.subtitle, maxLines: 2, overflow: TextOverflow.ellipsis,
                           style: TextStyles.defaultStyle.setTextSize(13).subTitleTextColor),
                       const SizedBox(height: 8),
                       Row(
                         children: [
                           const Icon(Icons.menu_book, size: kDefaultIconSize, color: ColorPalette.subTitleColor),
                           const SizedBox(width: 4),
-                          Text(item['reading'], style: TextStyles.defaultStyle.setTextSize(12).subTitleTextColor),
+                          Text('${article.readTime} phút', style: TextStyles.defaultStyle.setTextSize(12).subTitleTextColor),
                         ],
                       ),
                     ],
@@ -649,7 +702,7 @@ class _ArticleCard extends StatelessWidget {
 }
 
 class _ArticleTile extends StatelessWidget {
-  final Map<String, dynamic> item;
+  final FeaturedArticle article;
   final bool editMode;
   final bool selected;
   final VoidCallback? onTap;
@@ -657,7 +710,7 @@ class _ArticleTile extends StatelessWidget {
 
   const _ArticleTile({
     Key? key,
-    required this.item,
+    required this.article,
     required this.editMode,
     required this.selected,
     this.onTap,
@@ -678,7 +731,7 @@ class _ArticleTile extends StatelessWidget {
           padding: const EdgeInsets.all(10),
           child: Row(
             children: [
-              _Thumb(image: item['image'], height: 70, width: 100, borderRadius: BorderRadius.circular(10)),
+              _Thumb(image: article.imageUrl, height: 70, width: 100, borderRadius: BorderRadius.circular(10)),
               const SizedBox(width: 12),
               Expanded(
                 child: SizedBox(
@@ -686,14 +739,14 @@ class _ArticleTile extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(item['title'], maxLines: 2, overflow: TextOverflow.ellipsis,
+                      Text(article.title, maxLines: 2, overflow: TextOverflow.ellipsis,
                           style: TextStyles.defaultStyle.semiBold),
                       const Spacer(),
                       Row(
                         children: [
                           const Icon(Icons.menu_book, size: kDefaultIconSize, color: ColorPalette.subTitleColor),
                           const SizedBox(width: 4),
-                          Text(item['reading'], style: TextStyles.defaultStyle.setTextSize(12).subTitleTextColor),
+                          Text('${article.readTime} phút', style: TextStyles.defaultStyle.setTextSize(12).subTitleTextColor),
                         ],
                       ),
                     ],

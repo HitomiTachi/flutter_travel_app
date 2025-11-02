@@ -4,13 +4,16 @@ import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/constants/textstyle_constants.dart';
 import 'package:flutter_travels_apps/data/mock/destination_data_provider.dart';
 import 'package:flutter_travels_apps/representation/widgets/item_destination_widget.dart';
+import 'package:flutter_travels_apps/representation/screen/like_screen.dart';
 
 class PopularDestinationsWidget extends StatelessWidget {
   const PopularDestinationsWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final popularDestinations = DestinationDataProvider.getPopularDestinations();
+  final popularDestinations = DestinationDataProvider.getPopularDestinations();
+  // Only show up to 10 items on home screen
+  final visibleDestinations = popularDestinations.take(10).toList();
     
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -31,11 +34,11 @@ class PopularDestinationsWidget extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Tính năng đang phát triển'),
-                      behavior: SnackBarBehavior.floating,
-                    ),
+                  // Navigate to Like Screen (tab Địa điểm) and show full list
+                  Navigator.pushNamed(
+                    context,
+                    LikeScreen.routeName,
+                    arguments: {'initialTab': 0, 'showAll': true},
                   );
                 },
                 child: Text(
@@ -57,9 +60,9 @@ class PopularDestinationsWidget extends StatelessWidget {
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: kDefaultPadding),
-            itemCount: popularDestinations.length,
+            itemCount: visibleDestinations.length,
             itemBuilder: (context, index) {
-              final destination = popularDestinations[index];
+              final destination = visibleDestinations[index];
               return ItemDestinationWidget(
                 destination: destination, 
                 index: index
