@@ -149,33 +149,62 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             Spacer(),
-            GestureDetector(
-              onTap: () {
-                // TODO: Navigate to notifications
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Chức năng thông báo sẽ được phát triển'),
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
-              },
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Colors.white.withOpacity(0.2),
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.3),
-                    width: 1,
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(context, '/notification_screen');
+                  },
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.white.withOpacity(0.2),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.3),
+                        width: 1,
+                      ),
+                    ),
+                    child: Icon(
+                      FontAwesomeIcons.bell,
+                      size: 18,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
-                child: Icon(
-                  FontAwesomeIcons.bell,
-                  size: 18,
-                  color: Colors.white,
+                // Badge for unread count
+                Positioned(
+                  top: -4,
+                  right: -4,
+                  child: Container(
+                    padding: EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white,
+                        width: 2,
+                      ),
+                    ),
+                    constraints: BoxConstraints(
+                      minWidth: 20,
+                      minHeight: 20,
+                    ),
+                    child: Center(
+                      child: Text(
+                        '3',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
             SizedBox(width: 12),
             GestureDetector(

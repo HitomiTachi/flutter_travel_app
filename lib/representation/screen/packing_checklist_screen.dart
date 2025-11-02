@@ -3,6 +3,7 @@ import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/core/constants/textstyle_constants.dart';
 import 'package:flutter_travels_apps/representation/widgets/common/app_bar_container.dart';
+import 'package:flutter_travels_apps/representation/widgets/common/empty_state_widget.dart';
 import 'package:flutter_travels_apps/data/models/packing_item_model.dart';
 import 'package:flutter_travels_apps/services/packing_checklist_service.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -91,32 +92,11 @@ class _PackingChecklistScreenState extends State<PackingChecklistScreen> {
             : items.where((item) => item.type == _selectedCategory).toList();
 
         if (filteredItems.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  FontAwesomeIcons.suitcase,
-                  size: 64,
-                  color: ColorPalette.subTitleColor,
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'Checklist trống',
-                  style: TextStyles.defaultStyle.copyWith(
-                    color: ColorPalette.subTitleColor,
-                  ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  'Thêm items hoặc tạo từ template',
-                  style: TextStyles.defaultStyle.copyWith(
-                    fontSize: 12,
-                    color: ColorPalette.subTitleColor,
-                  ),
-                ),
-              ],
-            ),
+          return const EmptyStateWidget(
+            icon: FontAwesomeIcons.suitcase,
+            title: 'Checklist trống',
+            subtitle: 'Thêm items hoặc tạo từ template',
+            iconSize: 64,
           );
         }
 

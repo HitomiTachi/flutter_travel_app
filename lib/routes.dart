@@ -21,6 +21,7 @@ import 'package:flutter_travels_apps/representation/screen/trip_plans_list_scree
 import 'package:flutter_travels_apps/representation/screen/global_search_screen.dart';
 import 'package:flutter_travels_apps/representation/screen/settings_screen.dart';
 import 'package:flutter_travels_apps/representation/screen/map_screen.dart';
+import 'package:flutter_travels_apps/representation/screen/notification_screen.dart';
 
 final Map<String, WidgetBuilder> routes = {
   SplashScreen.routeName: (context) => const SplashScreen(),
@@ -48,5 +49,6 @@ final Map<String, WidgetBuilder> routes = {
   GlobalSearchScreen.routeName: (context) => const GlobalSearchScreen(),
   SettingsScreen.routeName: (context) => const SettingsScreen(),
   MapScreen.routeName: (context) => const MapScreen(),
+  NotificationScreen.routeName: (context) => const NotificationScreen(),
   // ReviewScreen, TripBudgetScreen, PackingChecklistScreen are handled dynamically with arguments
 };

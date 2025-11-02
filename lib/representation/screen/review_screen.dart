@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/representation/widgets/common/app_bar_container.dart';
+import 'package:flutter_travels_apps/representation/widgets/common/empty_state_widget.dart';
 import 'package:flutter_travels_apps/services/review_service.dart';
 import 'package:flutter_travels_apps/services/image_service.dart';
 import 'package:flutter_travels_apps/data/models/review_model.dart';
@@ -366,22 +367,11 @@ class _ReviewScreenState extends State<ReviewScreen> {
                 final reviews = snapshot.data ?? [];
 
                 if (reviews.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.reviews,
-                          size: 64,
-                          color: ColorPalette.subTitleColor,
-                        ),
-                        SizedBox(height: 16),
-                        Text(
-                          'Chưa có đánh giá nào',
-                          style: TextStyle(color: ColorPalette.subTitleColor),
-                        ),
-                      ],
-                    ),
+                  return const EmptyStateWidget(
+                    icon: Icons.reviews,
+                    title: 'Chưa có đánh giá nào',
+                    subtitle: 'Hãy là người đầu tiên để lại đánh giá',
+                    iconSize: 64,
                   );
                 }
 

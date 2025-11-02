@@ -3,6 +3,7 @@ import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/core/constants/textstyle_constants.dart';
 import 'package:flutter_travels_apps/representation/widgets/common/app_bar_container.dart';
+import 'package:flutter_travels_apps/representation/widgets/common/empty_state_widget.dart';
 import 'package:flutter_travels_apps/data/models/expense_model.dart';
 import 'package:flutter_travels_apps/data/models/trip_plan_detail_model.dart';
 import 'package:flutter_travels_apps/services/budget_service.dart';
@@ -304,24 +305,11 @@ class _TripBudgetScreenState extends State<TripBudgetScreen> {
             : expenses.where((e) => e.category == _selectedCategory).toList();
 
         if (filteredExpenses.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  FontAwesomeIcons.receipt,
-                  size: 64,
-                  color: ColorPalette.subTitleColor,
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'Chưa có chi tiêu nào',
-                  style: TextStyles.defaultStyle.copyWith(
-                    color: ColorPalette.subTitleColor,
-                  ),
-                ),
-              ],
-            ),
+          return const EmptyStateWidget(
+            icon: FontAwesomeIcons.receipt,
+            title: 'Chưa có chi tiêu nào',
+            subtitle: 'Thêm chi phí để theo dõi ngân sách chuyến đi',
+            iconSize: 64,
           );
         }
 
