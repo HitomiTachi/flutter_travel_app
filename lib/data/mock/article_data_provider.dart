@@ -275,14 +275,35 @@ class ArticleDataProvider {
     return {'1', '3'}; // Top 15 Điểm Đến và Ẩm Thực Sài Gòn
   }
 
-  /// Lọc theo category
+  /// Lọc theo category (Kinh nghiệm, Review, Gợi ý lịch trình...)
   static List<FeaturedArticle> filterByCategory(
     List<FeaturedArticle> articles, 
     String category,
   ) {
-    if (category == 'Ẩm thực') {
-      return articles.where((a) => a.category == 'Ẩm thực').toList();
+    switch (category) {
+      case 'Tất cả':
+        return articles;
+      case 'Kinh nghiệm':
+        return articles.where((a) => 
+          a.category == 'Du lịch' || 
+          a.title.toLowerCase().contains('kinh nghiệm')
+        ).toList();
+      case 'Review':
+        return articles.where((a) => 
+          a.title.toLowerCase().contains('review') ||
+          a.title.toLowerCase().contains('top') ||
+          a.title.toLowerCase().contains('điểm đến')
+        ).toList();
+      case 'Gợi ý lịch trình':
+        return articles.where((a) => 
+          a.title.toLowerCase().contains('lịch trình') ||
+          a.title.toLowerCase().contains('ngày') ||
+          a.category == 'Lịch trình'
+        ).toList();
+      case 'Ẩm thực':
+        return articles.where((a) => a.category == 'Ẩm thực').toList();
+      default:
+        return articles;
     }
-    return articles;
   }
 }

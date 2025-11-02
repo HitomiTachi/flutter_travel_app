@@ -245,22 +245,43 @@ class DestinationDataProvider {
     return _destinations.take(3).map((d) => d.id).toSet();
   }
 
-  /// Lọc theo category (Việt Nam, Biển, Núi, v.v.)
+  /// Lọc theo category (Biển, Núi, Ẩm thực...)
   static List<PopularDestination> filterByCategory(
     List<PopularDestination> destinations, 
     String category,
   ) {
     switch (category) {
+      case 'Tất cả':
+        return destinations;
       case 'Việt Nam':
         return destinations.where((d) => d.country == 'Việt Nam').toList();
       case 'Biển':
         return destinations.where((d) => 
           d.name.contains('Phú Quốc') || 
-          d.name.contains('Santorini') || 
-          d.name.contains('Bali')
+          d.name.contains('Nha Trang') ||
+          d.name.contains('Vũng Tàu') ||
+          d.name.contains('Mũi Né') ||
+          d.name.contains('Hạ Long') ||
+          d.name.contains('Đà Nẵng') ||
+          d.name.contains('Quy Nhơn') ||
+          d.description.toLowerCase().contains('biển')
         ).toList();
       case 'Núi':
-        return destinations.where((d) => d.name.contains('Đà Lạt')).toList();
+        return destinations.where((d) => 
+          d.name.contains('Đà Lạt') ||
+          d.name.contains('Sapa') ||
+          d.name.contains('Tam Đảo') ||
+          d.name.contains('Mai Châu') ||
+          d.name.contains('Mộc Châu') ||
+          d.name.contains('Hà Giang') ||
+          d.description.toLowerCase().contains('núi')
+        ).toList();
+      case 'Ẩm thực':
+        return destinations.where((d) => 
+          d.name.contains('Huế') ||
+          d.name.contains('Hội An') ||
+          d.description.toLowerCase().contains('ẩm thực')
+        ).toList();
       default:
         return destinations;
     }

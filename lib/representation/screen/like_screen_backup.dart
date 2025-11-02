@@ -8,7 +8,6 @@ import 'package:flutter_travels_apps/data/mock/destination_data_provider.dart';
 import 'package:flutter_travels_apps/data/mock/article_data_provider.dart';
 import 'package:flutter_travels_apps/data/models/popular_destination.dart';
 import 'package:flutter_travels_apps/data/models/featured_article.dart';
-import 'package:flutter_travels_apps/representation/widgets/like_filter_section.dart';
 
 class LikeScreen extends StatefulWidget {
   final Map<String, dynamic>? arguments;
@@ -21,30 +20,16 @@ class LikeScreen extends StatefulWidget {
 }
 
 class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
-  // UI controls
   final _searchCtl = TextEditingController();
   bool _grid = true;
   bool _editMode = false;
   final Set<String> _selectedIds = {};
+  final _chips = const ['Tất cả', 'Việt Nam', 'Biển', 'Núi', 'Ẩm thực'];
+  int _chipIndex = 0;
+  late TabController _tabController;
   bool _showAll = false;
 
-  // Scroll control for auto-hide filters
-  final ScrollController _scrollController = ScrollController();
-  bool _showFilters = true;
-  double _lastScrollOffset = 0;
-
-  // Filter state - Tất cả filters gộp chung theo từng tab
-  final Map<int, List<String>> _filtersByTab = {
-    0: ['Tất cả', 'Biển', 'Núi', 'Ẩm thực'],           // Địa danh
-    1: ['Tất cả', 'Kinh nghiệm', 'Review', 'Gợi ý lịch trình'], // Bài viết
-    2: ['Tất cả'],                                      // Lịch trình
-  };
-  int _selectedFilterIndex = 0;
-
-  // Tab controller cho 3 nhóm chính
-  late TabController _tabController;
-
-  // IDs của các items được yêu thích (mock data)
+  // IDs của các items được yêu thích
   late Set<String> _likedPlaceIds;
   late Set<String> _likedArticleIds;
   final List<Map<String, dynamic>> _likedTrips = [
@@ -54,51 +39,27 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    // Load IDs mặc định từ providers
+    // Load IDs mặc định từ providers (đơn giản hơn)
     _likedPlaceIds = DestinationDataProvider.getDefaultFavoriteIds();
     _likedArticleIds = ArticleDataProvider.getDefaultFavoriteIds();
     
-    // Initialize TabController
+    // Initialize TabController với initial index
     _tabController = TabController(length: 3, vsync: this);
-    _tabController.addListener(_onTabChanged);
-
-    // Initialize ScrollController với listener
-    _scrollController.addListener(_onScroll);
-  }
-
-  // Listener cho scroll để auto-hide filters
-  void _onScroll() {
-    final currentOffset = _scrollController.offset;
-    
-    // Chỉ toggle khi scroll đủ xa (> 50px)
-    if ((currentOffset - _lastScrollOffset).abs() > 50) {
-      // Scroll xuống → ẩn filters
-      if (currentOffset > _lastScrollOffset && currentOffset > 100) {
-        if (_showFilters) {
-          setState(() => _showFilters = false);
-        }
-      }
-      // Scroll lên → hiện filters
-      else if (currentOffset < _lastScrollOffset) {
-        if (!_showFilters) {
-          setState(() => _showFilters = true);
-        }
-      }
-      _lastScrollOffset = currentOffset;
-    }
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     
-    // Get arguments từ widget hoặc route
+    // Priority 1: Get arguments from widget (when called from NavigationHelper)
     Map<String, dynamic>? args = widget.arguments;
+    
+    // Priority 2: Get arguments from route (when called from Navigator.pushNamed)
     if (args == null) {
       args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     }
     
-    // Apply arguments nếu có
+    // Apply arguments if available
     if (args != null) {
       if (args['initialTab'] != null) {
         final initialTab = args['initialTab'] as int;
@@ -110,15 +71,7 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
     }
   }
 
-  // Callback khi đổi tab chính → reset filter
-  void _onTabChanged() {
-    if (!mounted) return;
-    setState(() {
-      _selectedFilterIndex = 0; // Reset về "Tất cả"
-    });
-  }
-
-  // Getters lấy dữ liệu từ mock providers
+  // Getters gọn gàng sử dụng methods từ providers
   List<PopularDestination> get _likedPlaces {
     if (_showAll) return DestinationDataProvider.getPopularDestinations();
     return DestinationDataProvider.getDestinationsByIds(_likedPlaceIds);
@@ -132,8 +85,6 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
   @override
   void dispose() {
     _searchCtl.dispose();
-    _scrollController.dispose();
-    _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
     super.dispose();
   }
@@ -172,157 +123,194 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return AppBarContainerWidget(
-      // ====== HEADER giữ nguyên ======
-      title: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: kDefaultPadding),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                'Khám phá',
-                style: TextStyles.defaultStyle.fontHeader.bold.whiteTextColor,
-              ),
-            ),
-            IconButton(
-              tooltip: _grid ? 'Hiển thị danh sách' : 'Hiển thị lưới',
-              onPressed: () => setState(() => _grid = !_grid),
-              icon: Icon(_grid ? Icons.view_list : Icons.grid_view, color: Colors.white),
-            ),
-            IconButton(
-              tooltip: _editMode ? 'Thoát chọn' : 'Chọn nhiều',
-              onPressed: _toggleEditMode,
-              icon: Icon(_editMode ? Icons.close : Icons.checklist, color: Colors.white),
-            ),
-          ],
-        ),
-      ),
-      // ====== BODY ======
-      child: Stack(
-        children: [
-          Column(
+    return DefaultTabController(
+      length: 3,
+      child: AppBarContainerWidget(
+        // ====== HEADER tuỳ biến của bạn ======
+        title: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: kDefaultPadding),
+          child: Row(
             children: [
-              // Search TextField - giữ nguyên style
-              Material(
-                elevation: 6,
-                borderRadius: BorderRadius.circular(kItemPadding),
-                color: Colors.white,
-                child: TextField(
-                  controller: _searchCtl,
-                  onSubmitted: (_) => setState(() {}),
-                  decoration: InputDecoration(
-                    hintText: 'Tìm kiếm…',
-                    hintStyle: TextStyles.defaultStyle.subTitleTextColor,
-                    prefixIcon: const Icon(Icons.search, size: kDefaultIconSize),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: kItemPadding,
-                      vertical: 12,
+              Expanded(
+                child: Text(
+                  'Khám phá',
+                  style: TextStyles.defaultStyle.fontHeader.bold.whiteTextColor,
+                ),
+              ),
+              IconButton(
+                tooltip: _grid ? 'Hiển thị danh sách' : 'Hiển thị lưới',
+                onPressed: () => setState(() => _grid = !_grid),
+                icon: Icon(_grid ? Icons.view_list : Icons.grid_view, color: Colors.white),
+              ),
+              IconButton(
+                tooltip: _editMode ? 'Thoát chọn' : 'Chọn nhiều',
+                onPressed: _toggleEditMode,
+                icon: Icon(_editMode ? Icons.close : Icons.checklist, color: Colors.white),
+              ),
+            ],
+          ),
+        ),
+        // ====== BODY bắt đầu tại content margin-top 156 của AppBarContainerWidget ======
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                // Search nổi (đồng bộ style)
+                Material(
+                  elevation: 6,
+                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.white,
+                  child: TextField(
+                    controller: _searchCtl,
+                    onSubmitted: (_) => setState(() {}),
+                    decoration: InputDecoration(
+                      hintText: 'Tìm kiếm…',
+                      hintStyle: TextStyles.defaultStyle.subTitleTextColor,
+                      prefixIcon: const Icon(Icons.search, size: kDefaultIconSize),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: kItemPadding,
+                        vertical: 12,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: kDefaultPadding),
+                const SizedBox(height: 12),
 
-              // LikeFilterSection - Tầng 1: TabBar, Tầng 2: Filters
-              LikeFilterSection(
-                tabController: _tabController,
-                allFilters: _filtersByTab[_tabController.index] ?? ['Tất cả'],
-                selectedFilterIndex: _selectedFilterIndex,
-                onFilterSelected: (index) => setState(() => _selectedFilterIndex = index),
-                showFilters: _showFilters,
-              ),
-
-              const SizedBox(height: kDefaultPadding),
-
-              // Nội dung tabs
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    // Tab 0: Địa danh
-                    _PlacesTab(
-                      grid: _grid,
-                      editMode: _editMode,
-                      selectedIds: _selectedIds,
-                      keyword: _searchCtl.text,
-                      filterIndex: _selectedFilterIndex,
-                      filters: _filtersByTab[0]!,
-                      destinations: _likedPlaces,
-                      onToggleSelect: _toggleSelect,
-                      scrollController: _scrollController,
-                    ),
-                    // Tab 1: Bài viết
-                    _ArticlesTab(
-                      grid: _grid,
-                      editMode: _editMode,
-                      selectedIds: _selectedIds,
-                      keyword: _searchCtl.text,
-                      filterIndex: _selectedFilterIndex,
-                      filters: _filtersByTab[1]!,
-                      articles: _likedArticles,
-                      onToggleSelect: _toggleSelect,
-                      scrollController: _scrollController,
-                    ),
-                    // Tab 2: Lịch trình
-                    _TripsTab(
-                      grid: _grid,
-                      editMode: _editMode,
-                      selectedIds: _selectedIds,
-                      keyword: _searchCtl.text,
-                      data: _likedTrips,
-                      onToggleSelect: _toggleSelect,
-                      scrollController: _scrollController,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: kDefaultPadding), // chừa đáy cho action bar
-            ],
-          ),
-
-          // Thanh hành động khi chọn nhiều - giữ nguyên
-          if (_editMode && _selectedIds.isNotEmpty)
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: SafeArea(
-                minimum: const EdgeInsets.all(kDefaultPadding),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () => setState(() => _selectedIds.clear()),
-                        icon: const Icon(Icons.clear_all),
-                        label: Text('Bỏ chọn', style: TextStyles.defaultStyle.semiBold),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          side: const BorderSide(color: ColorPalette.primaryColor),
-                          foregroundColor: ColorPalette.primaryColor,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                // Chips lọc ngang
+                SizedBox(
+                  height: 40,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (_, i) => ChoiceChip(
+                      label: Text(
+                        _chips[i],
+                        style: TextStyles.defaultStyle.semiBold.copyWith(
+                          color: _chipIndex == i ? Colors.white : ColorPalette.primaryColor,
                         ),
                       ),
+                      selected: _chipIndex == i,
+                      onSelected: (_) => setState(() => _chipIndex = i),
+                      selectedColor: ColorPalette.primaryColor,
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: _bulkUnfavorite,
-                        icon: const Icon(Icons.favorite_border),
-                        label: Text('Bỏ yêu thích (${_selectedIds.length})',
-                            style: TextStyles.defaultStyle.semiBold.whiteTextColor),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: ColorPalette.primaryColor,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                      ),
-                    ),
-                  ],
+                    separatorBuilder: (_, __) => const SizedBox(width: 8),
+                    itemCount: _chips.length,
+                  ),
                 ),
-              ),
+                const SizedBox(height: 12),
+
+                // Tabs
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                  child: TabBar(
+                    controller: _tabController,
+                    isScrollable: true,
+                    indicator: BoxDecoration(
+                      color: ColorPalette.primaryColor,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    labelColor: Colors.white,
+                    unselectedLabelColor: ColorPalette.primaryColor,
+                    labelStyle: TextStyles.defaultStyle.semiBold,
+                    tabs: const [
+                      Tab(text: 'Địa danh'),
+                      Tab(text: 'Bài viết'),
+                      Tab(text: 'Lịch trình'),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Nội dung tabs
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _PlacesTab(
+                        grid: _grid,
+                        editMode: _editMode,
+                        selectedIds: _selectedIds,
+                        keyword: _searchCtl.text,
+                        filterIndex: _chipIndex,
+                        chips: _chips,
+                        destinations: _likedPlaces,
+                        onToggleSelect: _toggleSelect,
+                      ),
+                      _ArticlesTab(
+                        grid: _grid,
+                        editMode: _editMode,
+                        selectedIds: _selectedIds,
+                        keyword: _searchCtl.text,
+                        filterIndex: _chipIndex,
+                        chips: _chips,
+                        articles: _likedArticles,
+                        onToggleSelect: _toggleSelect,
+                      ),
+                      _TripsTab(
+                        grid: _grid,
+                        editMode: _editMode,
+                        selectedIds: _selectedIds,
+                        keyword: _searchCtl.text,
+                        filterIndex: _chipIndex,
+                        data: _likedTrips,
+                        onToggleSelect: _toggleSelect,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: kDefaultPadding), // chừa đáy cho action bar
+              ],
             ),
-        ],
+
+            // Thanh hành động khi chọn nhiều
+            if (_editMode && _selectedIds.isNotEmpty)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: SafeArea(
+                  minimum: const EdgeInsets.all(kDefaultPadding),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => setState(() => _selectedIds.clear()),
+                          icon: const Icon(Icons.clear_all),
+                          label: Text('Bỏ chọn', style: TextStyles.defaultStyle.semiBold),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            side: const BorderSide(color: ColorPalette.primaryColor),
+                            foregroundColor: ColorPalette.primaryColor,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: _bulkUnfavorite,
+                          icon: const Icon(Icons.favorite_border),
+                          label: Text('Bỏ yêu thích (${_selectedIds.length})',
+                              style: TextStyles.defaultStyle.semiBold.whiteTextColor),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: ColorPalette.primaryColor,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -335,10 +323,9 @@ class _PlacesTab extends StatelessWidget {
   final Set<String> selectedIds;
   final String keyword;
   final int filterIndex;
-  final List<String> filters;
+  final List<String> chips;
   final List<PopularDestination> destinations;
   final ValueChanged<String> onToggleSelect;
-  final ScrollController scrollController;
 
   const _PlacesTab({
     Key? key,
@@ -347,58 +334,53 @@ class _PlacesTab extends StatelessWidget {
     required this.selectedIds,
     required this.keyword,
     required this.filterIndex,
-    required this.filters,
+    required this.chips,
     required this.destinations,
     required this.onToggleSelect,
-    required this.scrollController,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // Bước 1: Lọc theo từ khóa tìm kiếm
-    final searchFiltered = destinations.where((dest) {
+    final filtered = destinations.where((dest) {
       final matchText = keyword.isEmpty ||
           dest.name.toLowerCase().contains(keyword.toLowerCase()) ||
-          dest.country.toLowerCase().contains(keyword.toLowerCase()) ||
-          dest.description.toLowerCase().contains(keyword.toLowerCase());
+          dest.country.toLowerCase().contains(keyword.toLowerCase());
       return matchText;
     }).toList();
 
-    // Bước 2: Áp dụng filter
-    final filtered = filterIndex == 0 
-        ? searchFiltered 
-        : DestinationDataProvider.filterByCategory(searchFiltered, filters[filterIndex]);
+    // Áp dụng filter theo chip (sử dụng method từ provider)
+    final chipFiltered = filterIndex == 0 
+        ? filtered 
+        : DestinationDataProvider.filterByCategory(filtered, chips[filterIndex]);
 
-    if (filtered.isEmpty) return const _EmptyState(title: 'Không tìm thấy địa điểm nào');
+    if (chipFiltered.isEmpty) return const _EmptyState(title: 'Chưa có địa điểm nào được lưu');
 
     if (grid) {
       return GridView.builder(
-        controller: scrollController,
         padding: const EdgeInsets.all(kDefaultPadding),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2, mainAxisSpacing: 12, crossAxisSpacing: 12, childAspectRatio: 0.9),
-        itemCount: filtered.length,
+        itemCount: chipFiltered.length,
         itemBuilder: (_, i) => _PlaceCard(
-          destination: filtered[i],
-          selected: selectedIds.contains(filtered[i].id),
+          destination: chipFiltered[i],
+          selected: selectedIds.contains(chipFiltered[i].id),
           editMode: editMode,
-          onLongPress: () => onToggleSelect(filtered[i].id),
-          onTap: () => editMode ? onToggleSelect(filtered[i].id) : null,
+          onLongPress: () => onToggleSelect(chipFiltered[i].id),
+          onTap: () => editMode ? onToggleSelect(chipFiltered[i].id) : null,
         ),
       );
     }
     return ListView.separated(
-      controller: scrollController,
       padding: const EdgeInsets.all(kDefaultPadding),
       itemBuilder: (_, i) => _PlaceTile(
-        destination: filtered[i],
-        selected: selectedIds.contains(filtered[i].id),
+        destination: chipFiltered[i],
+        selected: selectedIds.contains(chipFiltered[i].id),
         editMode: editMode,
-        onLongPress: () => onToggleSelect(filtered[i].id),
-        onTap: () => editMode ? onToggleSelect(filtered[i].id) : null,
+        onLongPress: () => onToggleSelect(chipFiltered[i].id),
+        onTap: () => editMode ? onToggleSelect(chipFiltered[i].id) : null,
       ),
       separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemCount: filtered.length,
+      itemCount: chipFiltered.length,
     );
   }
 }
@@ -408,10 +390,9 @@ class _ArticlesTab extends StatelessWidget {
   final Set<String> selectedIds;
   final String keyword;
   final int filterIndex;
-  final List<String> filters;
+  final List<String> chips;
   final List<FeaturedArticle> articles;
   final ValueChanged<String> onToggleSelect;
-  final ScrollController scrollController;
 
   const _ArticlesTab({
     Key? key,
@@ -420,57 +401,53 @@ class _ArticlesTab extends StatelessWidget {
     required this.selectedIds,
     required this.keyword,
     required this.filterIndex,
-    required this.filters,
+    required this.chips,
     required this.articles,
     required this.onToggleSelect,
-    required this.scrollController,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // Bước 1: Lọc theo từ khóa tìm kiếm
-    final searchFiltered = articles.where((article) {
+    final filtered = articles.where((article) {
       final matchText = keyword.isEmpty ||
           article.title.toLowerCase().contains(keyword.toLowerCase()) ||
           article.subtitle.toLowerCase().contains(keyword.toLowerCase());
       return matchText;
     }).toList();
     
-    // Bước 2: Áp dụng filter
-    final filtered = filterIndex == 0 
-        ? searchFiltered 
-        : ArticleDataProvider.filterByCategory(searchFiltered, filters[filterIndex]);
+    // Áp dụng filter theo chip (sử dụng method từ provider)
+    final chipFiltered = filterIndex == 0 
+        ? filtered 
+        : ArticleDataProvider.filterByCategory(filtered, chips[filterIndex]);
 
-    if (filtered.isEmpty) return const _EmptyState(title: 'Không tìm thấy bài viết nào');
+    if (chipFiltered.isEmpty) return const _EmptyState(title: 'Chưa có bài viết nào được lưu');
 
     if (grid) {
       return GridView.builder(
-        controller: scrollController,
         padding: const EdgeInsets.all(kDefaultPadding),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2, mainAxisSpacing: 12, crossAxisSpacing: 12, childAspectRatio: 0.78),
-        itemCount: filtered.length,
+        itemCount: chipFiltered.length,
         itemBuilder: (_, i) => _ArticleCard(
-          article: filtered[i],
-          selected: selectedIds.contains(filtered[i].id),
+          article: chipFiltered[i],
+          selected: selectedIds.contains(chipFiltered[i].id),
           editMode: editMode,
-          onLongPress: () => onToggleSelect(filtered[i].id),
-          onTap: () => editMode ? onToggleSelect(filtered[i].id) : null,
+          onLongPress: () => onToggleSelect(chipFiltered[i].id),
+          onTap: () => editMode ? onToggleSelect(chipFiltered[i].id) : null,
         ),
       );
     }
     return ListView.separated(
-      controller: scrollController,
       padding: const EdgeInsets.all(kDefaultPadding),
       itemBuilder: (_, i) => _ArticleTile(
-        article: filtered[i],
-        selected: selectedIds.contains(filtered[i].id),
+        article: chipFiltered[i],
+        selected: selectedIds.contains(chipFiltered[i].id),
         editMode: editMode,
-        onLongPress: () => onToggleSelect(filtered[i].id),
-        onTap: () => editMode ? onToggleSelect(filtered[i].id) : null,
+        onLongPress: () => onToggleSelect(chipFiltered[i].id),
+        onTap: () => editMode ? onToggleSelect(chipFiltered[i].id) : null,
       ),
       separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemCount: filtered.length,
+      itemCount: chipFiltered.length,
     );
   }
 }
@@ -479,9 +456,9 @@ class _TripsTab extends StatelessWidget {
   final bool grid, editMode;
   final Set<String> selectedIds;
   final String keyword;
+  final int filterIndex;
   final List<Map<String, dynamic>> data;
   final ValueChanged<String> onToggleSelect;
-  final ScrollController scrollController;
 
   const _TripsTab({
     Key? key,
@@ -489,24 +466,22 @@ class _TripsTab extends StatelessWidget {
     required this.editMode,
     required this.selectedIds,
     required this.keyword,
+    required this.filterIndex,
     required this.data,
     required this.onToggleSelect,
-    required this.scrollController,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // Chỉ lọc theo từ khóa (lịch trình không có sub filter)
     final filtered = data.where((e) {
       final matchText = keyword.isEmpty ||
           (e['title'] as String).toLowerCase().contains(keyword.toLowerCase());
       return matchText;
     }).toList();
 
-    if (filtered.isEmpty) return const _EmptyState(title: 'Không tìm thấy lịch trình nào');
+    if (filtered.isEmpty) return const _EmptyState(title: 'Chưa có lịch trình nào được lưu');
 
     return ListView.separated(
-      controller: scrollController,
       padding: const EdgeInsets.all(kDefaultPadding),
       itemBuilder: (_, i) => _TripCard(
         item: filtered[i],
