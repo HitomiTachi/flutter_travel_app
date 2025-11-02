@@ -5,9 +5,9 @@ import 'package:flutter_travels_apps/core/helpers/asset_helper.dart';
 import 'package:flutter_travels_apps/representation/screen/guest_and_room_booking.dart';
 import 'package:flutter_travels_apps/representation/screen/hotel_screen.dart';
 import 'package:flutter_travels_apps/representation/screen/select_date_screen.dart';
-import 'package:flutter_travels_apps/representation/widgets/app_bar_container.dart';
-import 'package:flutter_travels_apps/representation/widgets/button_widget.dart';
-import 'package:flutter_travels_apps/representation/widgets/item_booking_widget.dart';
+import 'package:flutter_travels_apps/representation/widgets/common/app_bar_container.dart';
+import 'package:flutter_travels_apps/representation/widgets/common/button_widget.dart';
+import 'package:flutter_travels_apps/representation/widgets/hotel_boking_widgets/item_booking_widget.dart';
 
 class HotelBookingScreen extends StatefulWidget {
   const HotelBookingScreen({Key? key}) : super(key: key);

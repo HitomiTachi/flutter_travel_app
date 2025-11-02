@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_travels_apps/core/helpers/asset_helper.dart';
 import 'package:flutter_travels_apps/data/models/hotel_model.dart';
-import 'package:flutter_travels_apps/representation/widgets/app_bar_container.dart';
-import 'package:flutter_travels_apps/representation/widgets/item_hotel_widget.dart';
+import 'package:flutter_travels_apps/representation/widgets/common/app_bar_container.dart';
+import 'package:flutter_travels_apps/representation/widgets/hotel_boking_widgets/item_hotel_widget.dart';
 
 class HotelScreen extends StatefulWidget {
   const HotelScreen({Key? key}) : super(key: key);

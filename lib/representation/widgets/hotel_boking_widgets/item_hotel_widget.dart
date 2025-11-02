@@ -5,8 +5,8 @@ import 'package:flutter_travels_apps/core/helpers/asset_helper.dart';
 import 'package:flutter_travels_apps/core/helpers/images_helpers.dart';
 import 'package:flutter_travels_apps/data/models/hotel_model.dart';
 import 'package:flutter_travels_apps/representation/screen/hotel_detail_screen.dart';
-import 'package:flutter_travels_apps/representation/widgets/button_widget.dart';
-import 'package:flutter_travels_apps/representation/widgets/dashline_widget.dart';
+import 'package:flutter_travels_apps/representation/widgets/common/button_widget.dart';
+import 'package:flutter_travels_apps/representation/widgets/common/dashline_widget.dart';
 
 class ItemHotelWidget extends StatelessWidget {
   const ItemHotelWidget({Key? key, required this.hotelModel}) : super(key: key);

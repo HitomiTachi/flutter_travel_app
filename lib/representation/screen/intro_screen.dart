@@ -6,7 +6,7 @@ import 'package:flutter_travels_apps/core/constants/textstyle_constants.dart';
 import 'package:flutter_travels_apps/core/helpers/asset_helper.dart';
 import 'package:flutter_travels_apps/core/helpers/images_helpers.dart';
 import 'package:flutter_travels_apps/representation/screen/main_app.dart';
-import 'package:flutter_travels_apps/representation/widgets/button_widget.dart';
+import 'package:flutter_travels_apps/representation/widgets/common/button_widget.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class IntroScreen extends StatefulWidget {

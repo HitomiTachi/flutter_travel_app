@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/core/constants/textstyle_constants.dart';
-import 'package:flutter_travels_apps/representation/widgets/app_bar_container.dart';
+import 'package:flutter_travels_apps/representation/widgets/common/app_bar_container.dart';
 import 'package:flutter_travels_apps/data/models/expense_model.dart';
 import 'package:flutter_travels_apps/data/models/trip_plan_detail_model.dart';
 import 'package:flutter_travels_apps/services/budget_service.dart';

@@ -4,7 +4,7 @@ import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/constants/textstyle_constants.dart';
 import 'package:flutter_travels_apps/core/helpers/navigation_helper.dart';
 import 'package:flutter_travels_apps/data/mock/destination_data_provider.dart';
-import 'package:flutter_travels_apps/representation/widgets/item_destination_widget.dart';
+import 'package:flutter_travels_apps/representation/widgets/homescreen_widgets/item_destination_widget.dart';
 
 class PopularDestinationsWidget extends StatelessWidget {
   const PopularDestinationsWidget({Key? key}) : super(key: key);

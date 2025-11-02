@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/data/models/trip_plan_data.dart';
 import 'package:flutter_travels_apps/representation/screen/accommodation_list_screen.dart';
-import 'package:flutter_travels_apps/representation/widgets/app_bar_container.dart';
+import 'package:flutter_travels_apps/representation/widgets/common/app_bar_container.dart';
 
 class AccommodationBookingScreen extends StatefulWidget {
   const AccommodationBookingScreen({Key? key}) : super(key: key);

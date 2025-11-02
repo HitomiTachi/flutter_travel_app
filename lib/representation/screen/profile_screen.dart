@@ -5,7 +5,7 @@ import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/helpers/asset_helper.dart';
 import 'package:flutter_travels_apps/representation/screen/personal_info_screen.dart';
 import 'package:flutter_travels_apps/representation/screen/settings_screen.dart';
-import 'package:flutter_travels_apps/representation/widgets/app_bar_container.dart';
+import 'package:flutter_travels_apps/representation/widgets/common/app_bar_container.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 // --- CẬP NHẬT: Thêm các import cần thiết ---

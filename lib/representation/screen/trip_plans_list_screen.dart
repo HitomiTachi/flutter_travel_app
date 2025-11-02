@@ -3,12 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/data/models/trip_plan_list_model.dart';
 import 'package:flutter_travels_apps/data/mock/trip_plans_list_data_provider.dart';
-import 'package:flutter_travels_apps/representation/widgets/trip_cards.dart';
-import 'package:flutter_travels_apps/representation/widgets/trip_components.dart';
+import 'package:flutter_travels_apps/representation/widgets/trip_planing_widgets/trip_cards.dart';
+import 'package:flutter_travels_apps/representation/widgets/trip_planing_widgets/trip_components.dart';
 import 'package:flutter_travels_apps/providers/trip_helpers.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import 'package:flutter_travels_apps/representation/widgets/app_bar_container.dart';
+import 'package:flutter_travels_apps/representation/widgets/common/app_bar_container.dart';
 
 class TripPlansListScreen extends StatefulWidget {
   const TripPlansListScreen({Key? key}) : super(key: key);

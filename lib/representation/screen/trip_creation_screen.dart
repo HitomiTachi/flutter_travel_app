@@ -9,9 +9,9 @@ import 'package:flutter_travels_apps/representation/screen/accommodation_booking
 import 'package:flutter_travels_apps/representation/screen/select_date_screen.dart';
 import 'package:flutter_travels_apps/data/models/trip_plan_data.dart';
 import 'package:flutter_travels_apps/data/models/accommodation_model.dart';
-import 'package:flutter_travels_apps/representation/widgets/app_bar_container.dart';
-import 'package:flutter_travels_apps/representation/widgets/button_widget.dart';
-import 'package:flutter_travels_apps/representation/widgets/item_booking_widget.dart';
+import 'package:flutter_travels_apps/representation/widgets/common/app_bar_container.dart';
+import 'package:flutter_travels_apps/representation/widgets/common/button_widget.dart';
+import 'package:flutter_travels_apps/representation/widgets/hotel_boking_widgets/item_booking_widget.dart';
 
 class TripCreationScreen extends StatefulWidget {
   const TripCreationScreen({Key? key}) : super(key: key);

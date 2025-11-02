@@ -3,7 +3,7 @@ import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/core/helpers/asset_helper.dart';
 import 'package:flutter_travels_apps/core/helpers/images_helpers.dart';
-import 'package:flutter_travels_apps/representation/widgets/button_widget.dart';
+import 'package:flutter_travels_apps/representation/widgets/common/button_widget.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_travels_apps/representation/screen/review_screen.dart';
 import 'package:flutter_travels_apps/services/share_service.dart';

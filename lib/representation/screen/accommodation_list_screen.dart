@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_travels_apps/core/helpers/asset_helper.dart';
 import 'package:flutter_travels_apps/data/models/accommodation_model.dart';
 import 'package:flutter_travels_apps/data/models/trip_plan_data.dart';
-import 'package:flutter_travels_apps/representation/widgets/app_bar_container.dart';
-import 'package:flutter_travels_apps/representation/widgets/item_accommodation_widget.dart';
+import 'package:flutter_travels_apps/representation/widgets/common/app_bar_container.dart';
+import 'package:flutter_travels_apps/representation/widgets/hotel_boking_widgets/item_accommodation_widget.dart';
 
 class AccommodationListScreen extends StatefulWidget {
   const AccommodationListScreen({Key? key}) : super(key: key);

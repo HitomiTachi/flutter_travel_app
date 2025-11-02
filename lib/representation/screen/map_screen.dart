@@ -5,7 +5,7 @@ import 'package:flutter_travels_apps/data/mock/map_locations.dart';
 import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/core/constants/textstyle_constants.dart';
-import 'package:flutter_travels_apps/representation/widgets/app_bar_container.dart';
+import 'package:flutter_travels_apps/representation/widgets/common/app_bar_container.dart';
 import 'package:flutter_travels_apps/core/helpers/local_storage_helper.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';

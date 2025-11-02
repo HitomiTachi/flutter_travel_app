@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/core/helpers/asset_helper.dart';
-import 'package:flutter_travels_apps/representation/widgets/app_bar_container.dart';
-import 'package:flutter_travels_apps/representation/widgets/button_widget.dart';
-import 'package:flutter_travels_apps/representation/widgets/item_add_guest_and_room.dart';
+import 'package:flutter_travels_apps/representation/widgets/common/app_bar_container.dart';
+import 'package:flutter_travels_apps/representation/widgets/common/button_widget.dart';
+import 'package:flutter_travels_apps/representation/widgets/trip_planing_widgets/item_add_guest_and_room.dart';
 class GuestAndRoomBookingScreen extends StatefulWidget {
   const GuestAndRoomBookingScreen({Key? key}) : super(key: key);
 

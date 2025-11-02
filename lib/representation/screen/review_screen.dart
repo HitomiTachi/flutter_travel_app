@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
-import 'package:flutter_travels_apps/representation/widgets/app_bar_container.dart';
+import 'package:flutter_travels_apps/representation/widgets/common/app_bar_container.dart';
 import 'package:flutter_travels_apps/services/review_service.dart';
 import 'package:flutter_travels_apps/services/image_service.dart';
 import 'package:flutter_travels_apps/data/models/review_model.dart';
