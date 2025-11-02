@@ -143,28 +143,7 @@ class ItemDestinationWidget extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       SizedBox(height: kMinPadding),
-                      Row(
-                        children: [
-                          Icon(
-                            FontAwesomeIcons.locationDot,
-                            color: ColorPalette.subTitleColor,
-                            size: kDefaultIconSize - 4,
-                          ),
-                          SizedBox(width: kMinPadding),
-                          Expanded(
-                            child: Text(
-                              destination.country,
-                              style: TextStyles.defaultStyle.copyWith(
-                                fontSize: 13,
-                                color: ColorPalette.subTitleColor,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: kTopPadding),
+                      // Country field removed from preview
                       Expanded(
                         child: Text(
                           destination.description,

@@ -10,7 +10,9 @@ import 'package:flutter_travels_apps/data/models/popular_destination.dart';
 import 'package:flutter_travels_apps/data/models/featured_article.dart';
 
 class LikeScreen extends StatefulWidget {
-  const LikeScreen({Key? key}) : super(key: key);
+  final Map<String, dynamic>? arguments;
+  
+  const LikeScreen({Key? key, this.arguments}) : super(key: key);
   static const routeName = '/like_screen';
 
   @override
@@ -48,12 +50,24 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Get initial tab from route arguments
-    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-    if (args != null && args['initialTab'] != null) {
-      final initialTab = args['initialTab'] as int;
-      _tabController.index = initialTab;
-      if (args['showAll'] == true) _showAll = true;
+    
+    // Priority 1: Get arguments from widget (when called from NavigationHelper)
+    Map<String, dynamic>? args = widget.arguments;
+    
+    // Priority 2: Get arguments from route (when called from Navigator.pushNamed)
+    if (args == null) {
+      args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    }
+    
+    // Apply arguments if available
+    if (args != null) {
+      if (args['initialTab'] != null) {
+        final initialTab = args['initialTab'] as int;
+        _tabController.index = initialTab;
+      }
+      if (args['showAll'] == true) {
+        _showAll = true;
+      }
     }
   }
 
@@ -205,7 +219,7 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
                     unselectedLabelColor: ColorPalette.primaryColor,
                     labelStyle: TextStyles.defaultStyle.semiBold,
                     tabs: const [
-                      Tab(text: 'Địa điểm'),
+                      Tab(text: 'Địa danh'),
                       Tab(text: 'Bài viết'),
                       Tab(text: 'Lịch trình'),
                     ],

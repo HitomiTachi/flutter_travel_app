@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/constants/textstyle_constants.dart';
+import 'package:flutter_travels_apps/core/helpers/navigation_helper.dart';
 import 'package:flutter_travels_apps/data/mock/destination_data_provider.dart';
 import 'package:flutter_travels_apps/representation/widgets/item_destination_widget.dart';
-import 'package:flutter_travels_apps/representation/screen/like_screen.dart';
 
 class PopularDestinationsWidget extends StatelessWidget {
   const PopularDestinationsWidget({Key? key}) : super(key: key);
@@ -34,12 +34,9 @@ class PopularDestinationsWidget extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {
-                  // Navigate to Like Screen (tab Địa điểm) and show full list
-                  Navigator.pushNamed(
-                    context,
-                    LikeScreen.routeName,
-                    arguments: {'initialTab': 0, 'showAll': true},
-                  );
+                  // Sử dụng NavigationHelper để chuyển tab thay vì push screen mới
+                  // Tab 0 = Địa điểm, showAll = true để hiển thị tất cả
+                  NavigationHelper().goToLike(initialTab: 0, showAll: true);
                 },
                 child: Text(
                   'Xem thêm',

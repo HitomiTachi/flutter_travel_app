@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/constants/textstyle_constants.dart';
+import 'package:flutter_travels_apps/core/helpers/navigation_helper.dart';
 import 'package:flutter_travels_apps/data/models/featured_article.dart';
 import 'package:flutter_travels_apps/data/mock/article_data_provider.dart';
-import 'package:flutter_travels_apps/representation/screen/like_screen.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 // ============================================================================
@@ -38,12 +38,9 @@ class FeaturedArticlesWidget extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {
-                  // Navigate to Like Screen (tab Bài viết - index 1) and show full list
-                  Navigator.pushNamed(
-                    context,
-                    LikeScreen.routeName,
-                    arguments: {'initialTab': 1, 'showAll': true},
-                  );
+                  // Sử dụng NavigationHelper để chuyển tab thay vì push screen mới
+                  // Tab 1 = Bài viết, showAll = true để hiển thị tất cả
+                  NavigationHelper().goToLike(initialTab: 1, showAll: true);
                 },
                 child: Text(
                   'Xem thêm',
@@ -452,40 +449,35 @@ class ItemHorizontalArticleWidget extends StatelessWidget {
                 padding: EdgeInsets.all(kMediumPadding),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Flexible(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            article.title,
-                            style: TextStyles.defaultStyle.copyWith(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                              height: 1.3,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          article.title,
+                          style: TextStyles.defaultStyle.copyWith(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            height: 1.3,
                           ),
-                          SizedBox(height: 4),
-                          Flexible(
-                            child: Text(
-                              article.subtitle,
-                              style: TextStyles.defaultStyle.copyWith(
-                                color: Colors.grey[600],
-                                fontSize: 12,
-                                height: 1.2,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          article.subtitle,
+                          style: TextStyles.defaultStyle.copyWith(
+                            color: Colors.grey[600],
+                            fontSize: 11,
+                            height: 1.2,
                           ),
-                        ],
-                      ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ),
-                    SizedBox(height: 8),
                     // Stats Row
                     Row(
                       children: [

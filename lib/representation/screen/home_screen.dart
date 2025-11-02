@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/core/helpers/asset_helper.dart';
 import 'package:flutter_travels_apps/core/helpers/images_helpers.dart';
+import 'package:flutter_travels_apps/core/helpers/navigation_helper.dart';
 import 'package:flutter_travels_apps/representation/widgets/app_bar_container.dart';
-import 'package:flutter_travels_apps/representation/screen/profile_screen.dart';
 import 'package:flutter_travels_apps/representation/widgets/popular_destinations_widget.dart';
 import 'package:flutter_travels_apps/representation/widgets/article_widgets.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -121,7 +121,8 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(width: 12),
             GestureDetector(
               onTap: () {
-                Navigator.pushNamed(context, ProfileScreen.routeName);
+                // Sử dụng NavigationHelper để chuyển tab thay vì push screen mới
+                NavigationHelper().goToProfile();
               },
               child: Container(
                 width: 45,
@@ -236,7 +237,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           Colors.green,
                           () {
-                            Navigator.of(context).pushNamed('/map_screen');
+                            // Sử dụng NavigationHelper để chuyển tab thay vì push screen mới
+                            NavigationHelper().goToMap();
                           },
                           'Bản đồ',
                         ),

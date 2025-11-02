@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/core/helpers/accommodation_selection_helper.dart';
+import 'package:flutter_travels_apps/core/helpers/navigation_helper.dart';
 import 'package:flutter_travels_apps/representation/screen/home_screen.dart';
 import 'package:flutter_travels_apps/representation/screen/like_screen.dart';
 import 'package:flutter_travels_apps/representation/screen/map_screen.dart';
@@ -24,11 +25,36 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
 
   int _currentIndex = 0;
   int _tripCreationRefreshKey = 0;
+  
+  // Key để refresh LikeScreen khi có arguments mới
+  int _likeScreenRefreshKey = 0;
+  Map<String, dynamic>? _likeScreenArguments;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    
+    // Đăng ký callback để các screen khác có thể chuyển tab
+    NavigationHelper().registerTabChangeCallback((index, arguments) {
+      if (mounted) {
+        setState(() {
+          _currentIndex = index;
+          
+          // Xử lý arguments cho LikeScreen
+          if (index == NavigationHelper.likeTab && arguments != null) {
+            _likeScreenArguments = arguments;
+            _likeScreenRefreshKey++; // Force rebuild LikeScreen với arguments mới
+          }
+          
+          // Trigger refresh cho TripCreationScreen nếu tab được chọn là tab 2
+          if (index == 2) {
+            _tripCreationRefreshKey++;
+          }
+        });
+      }
+    });
+    
     // Lắng nghe khi user quay về từ accommodation details
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkForAccommodationSelection();
@@ -37,6 +63,8 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    // Hủy đăng ký callback khi widget bị dispose
+    NavigationHelper().unregisterTabChangeCallback();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -75,7 +103,10 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
         children: [
           HomeScreen(),
           MapScreen(),
-          LikeScreen(),
+          LikeScreen(
+            key: ValueKey(_likeScreenRefreshKey),
+            arguments: _likeScreenArguments,
+          ),
           // TripCreationScreen(key: ValueKey(_tripCreationRefreshKey)),
           ProfileScreen(),
         ],
