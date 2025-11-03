@@ -4,7 +4,6 @@ import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/core/helpers/asset_helper.dart';
 import 'package:flutter_travels_apps/core/helpers/images_helpers.dart';
 import 'package:flutter_travels_apps/data/models/hotel_model.dart';
-import 'package:flutter_travels_apps/representation/screen/hotel_detail_screen.dart';
 import 'package:flutter_travels_apps/representation/widgets/common/button_widget.dart';
 import 'package:flutter_travels_apps/representation/widgets/common/dashline_widget.dart';
 
@@ -153,7 +152,10 @@ class ItemHotelWidget extends StatelessWidget {
                         child: ButtonWidget(
                           title: 'Đặt phòng',
                           onTap: () {
-                            Navigator.of(context).pushNamed(HotelDetailScreen.routeName);
+                            // TODO: Navigate to booking screen
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Chức năng đang phát triển')),
+                            );
                           },
                         ),
                       ),

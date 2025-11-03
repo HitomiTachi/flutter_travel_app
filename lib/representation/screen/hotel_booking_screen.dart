@@ -3,7 +3,6 @@ import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/core/extensions/date_ext.dart';
 import 'package:flutter_travels_apps/core/helpers/asset_helper.dart';
 import 'package:flutter_travels_apps/representation/screen/guest_and_room_booking.dart';
-import 'package:flutter_travels_apps/representation/screen/hotel_screen.dart';
 import 'package:flutter_travels_apps/representation/screen/select_date_screen.dart';
 import 'package:flutter_travels_apps/representation/widgets/common/app_bar_container.dart';
 import 'package:flutter_travels_apps/representation/widgets/common/button_widget.dart';
@@ -68,7 +67,10 @@ class _HotelBookingScreenState extends State<HotelBookingScreen> {
               height: kMediumPadding,
             ),
             ButtonWidget(title: "Tìm Kiếm", onTap: (){
-              Navigator.of(context).pushNamed(HotelScreen.routeName);
+              // TODO: Implement hotel search
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Chức năng đang phát triển')),
+              );
             })
           ],),
       ),

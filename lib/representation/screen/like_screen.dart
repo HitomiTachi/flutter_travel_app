@@ -5,10 +5,8 @@ import 'package:flutter_travels_apps/core/constants/textstyle_constants.dart';
 import 'package:flutter_travels_apps/representation/widgets/common/app_bar_container.dart';
 import 'package:flutter_travels_apps/data/mock/destination_data_provider.dart';
 import 'package:flutter_travels_apps/data/mock/article_data_provider.dart';
-import 'package:flutter_travels_apps/data/mock/trip_plans_list_data_provider.dart';
 import 'package:flutter_travels_apps/data/models/popular_destination.dart';
 import 'package:flutter_travels_apps/data/models/featured_article.dart';
-import 'package:flutter_travels_apps/data/models/trip_plan_list_model.dart';
 import 'package:flutter_travels_apps/providers/like_filter_provider.dart';
 import 'package:flutter_travels_apps/representation/widgets/like_widgets/like_filter_section.dart';
 import 'package:flutter_travels_apps/representation/widgets/like_widgets/like_tabs/places_tab.dart';
@@ -45,7 +43,6 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
   // Dữ liệu từ mock providers - hiển thị tất cả
   late List<PopularDestination> _allDestinations;
   late List<FeaturedArticle> _allArticles;
-  late List<TripPlan> _allTrips;
 
   @override
   void initState() {
@@ -53,7 +50,6 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
     // Load toàn bộ dữ liệu từ mock providers
     _allDestinations = DestinationDataProvider.getPopularDestinations();
     _allArticles = ArticleDataProvider.getFeaturedArticles();
-    _allTrips = TripPlansListDataProvider.getSampleTripPlans();
     
     // Initialize TabController
     _tabController = TabController(length: 2, vsync: this);
@@ -148,7 +144,6 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
       // Xóa items được chọn
       _allDestinations.removeWhere((d) => _selectedIds.contains(d.id));
       _allArticles.removeWhere((a) => _selectedIds.contains(a.id));
-      _allTrips.removeWhere((t) => _selectedIds.contains(t.id));
       _selectedIds.clear();
       _editMode = false;
     });

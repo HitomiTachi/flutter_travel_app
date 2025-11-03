@@ -170,19 +170,23 @@ class _ActionBar extends StatelessWidget {
             color: ColorPalette.primaryColor,
           ),
           const SizedBox(width: 8),
-          Text(
-            'Bạn có $unreadCount thông báo chưa đọc',
-            style: TextStyles.defaultStyle.copyWith(
-              fontSize: 13,
-              color: ColorPalette.textColor,
-              fontWeight: FontWeight.w500,
+          Expanded(
+            child: Text(
+              'Bạn có $unreadCount thông báo chưa đọc',
+              style: TextStyles.defaultStyle.copyWith(
+                fontSize: 13,
+                color: ColorPalette.textColor,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          const Spacer(),
+          const SizedBox(width: 8),
           GestureDetector(
             onTap: onMarkAllRead,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: ColorPalette.primaryColor,
                 borderRadius: BorderRadius.circular(20),
@@ -192,14 +196,14 @@ class _ActionBar extends StatelessWidget {
                 children: [
                   const Icon(
                     FontAwesomeIcons.checkDouble,
-                    size: 11,
+                    size: 10,
                     color: Colors.white,
                   ),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: 4),
                   Text(
-                    'Đánh dấu đã đọc',
+                    'Đánh dấu',
                     style: TextStyles.defaultStyle.copyWith(
-                      fontSize: 12,
+                      fontSize: 11,
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
                     ),
