@@ -173,7 +173,7 @@ class ReviewService {
   }
 
   // Toggle helpful cho review (cho phép cả anonymous user)
-  Future<void> toggleHelpful(String reviewId) async {
+  Future<void> toggleHelpful(String reviewId, bool isYes) async {
     final user = _auth.currentUser;
     if (user == null) {
       throw Exception('Vui lòng đăng nhập để đánh giá hữu ích');
@@ -187,16 +187,30 @@ class ReviewService {
 
     final review = ReviewModel.fromFirestore(reviewDoc);
     final helpfulUserIds = List<String>.from(review.helpfulUserIds);
-    final isHelpful = helpfulUserIds.contains(user.uid);
+    final wasHelpful = helpfulUserIds.contains(user.uid);
 
-    if (isHelpful) {
+    int newHelpfulYes = review.helpfulYes;
+    int newHelpfulNo = review.helpfulNo;
+
+    if (wasHelpful) {
       helpfulUserIds.remove(user.uid);
+      if (isYes) {
+        newHelpfulYes--;
+      } else {
+        newHelpfulNo--;
+      }
     } else {
       helpfulUserIds.add(user.uid);
+      if (isYes) {
+        newHelpfulYes++;
+      } else {
+        newHelpfulNo++;
+      }
     }
 
     await _firestore.collection('reviews').doc(reviewId).update({
-      'helpfulCount': helpfulUserIds.length,
+      'helpfulYes': newHelpfulYes,
+      'helpfulNo': newHelpfulNo,
       'helpfulUserIds': helpfulUserIds,
     });
   }
@@ -239,5 +253,72 @@ class ReviewService {
       (sum, review) => sum + review.rating,
     );
     return totalRating / reviews.length;
+  }
+
+  // Lọc reviews theo rating
+  List<ReviewModel> filterByRating(List<ReviewModel> reviews, {required double minRating}) {
+    return reviews.where((review) => review.rating >= minRating).toList();
+  }
+
+  // Lọc reviews theo trip type
+  List<ReviewModel> filterByTripType(List<ReviewModel> reviews, {required String tripType}) {
+    if (tripType == 'all') return reviews;
+    return reviews.where((review) => review.tripType == tripType).toList();
+  }
+
+  // Lọc reviews đã verified
+  List<ReviewModel> filterByVerified(List<ReviewModel> reviews, {required bool isVerified}) {
+    return reviews.where((review) => review.isVerified == isVerified).toList();
+  }
+
+  // Sắp xếp reviews
+  List<ReviewModel> sortReviews(List<ReviewModel> reviews, {required ReviewSortType sortType}) {
+    final sortedReviews = List<ReviewModel>.from(reviews);
+    
+    switch (sortType) {
+      case ReviewSortType.newest:
+        sortedReviews.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        break;
+      case ReviewSortType.oldest:
+        sortedReviews.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+        break;
+      case ReviewSortType.highestRating:
+        sortedReviews.sort((a, b) => b.rating.compareTo(a.rating));
+        break;
+      case ReviewSortType.lowestRating:
+        sortedReviews.sort((a, b) => a.rating.compareTo(b.rating));
+        break;
+      case ReviewSortType.mostHelpful:
+        sortedReviews.sort((a, b) => b.helpfulYes.compareTo(a.helpfulYes));
+        break;
+    }
+    
+    return sortedReviews;
+  }
+
+  // Lấy % người recommend
+  double getRecommendedPercentage(List<ReviewModel> reviews) {
+    if (reviews.isEmpty) return 0.0;
+    final recommended = reviews.where((review) => review.isRecommended).length;
+    return (recommended / reviews.length) * 100;
+  }
+
+  // Lấy phân bố rating (1-5 sao)
+  Map<int, int> getRatingDistribution(List<ReviewModel> reviews) {
+    final distribution = <int, int>{1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
+    for (final review in reviews) {
+      final stars = review.rating.round();
+      distribution[stars] = (distribution[stars] ?? 0) + 1;
+    }
+    return distribution;
+  }
+
+  // Lấy phân bố theo trip type
+  Map<String, int> getTripTypeDistribution(List<ReviewModel> reviews) {
+    final distribution = <String, int>{};
+    for (final review in reviews) {
+      distribution[review.tripType] = (distribution[review.tripType] ?? 0) + 1;
+    }
+    return distribution;
   }
 }

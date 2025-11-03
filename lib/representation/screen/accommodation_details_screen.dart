@@ -9,7 +9,7 @@ import 'package:flutter_travels_apps/representation/widgets/trip_planing_widgets
 import 'package:flutter_travels_apps/data/models/trip_plan_data.dart';
 import 'package:flutter_travels_apps/data/models/accommodation_model.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:flutter_travels_apps/representation/screen/review_screen.dart';
+import 'package:flutter_travels_apps/representation/screen/destination_reviews_screen.dart';
 import 'package:flutter_travels_apps/services/share_service.dart';
 
 class AccommodationDetailsScreen extends StatefulWidget {
@@ -293,15 +293,14 @@ class _AccommodationDetailsScreenState
           Expanded(
             child: ElevatedButton.icon(
               onPressed: () {
-                Navigator.push(
+                Navigator.pushNamed(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => ReviewScreen(
-                      targetId: accommodationModel?.id ?? 'temp_id',
-                      targetType: 'hotel',
-                      targetName: accommodationName,
-                    ),
-                  ),
+                  DestinationReviewsScreen.routeName,
+                  arguments: {
+                    'destinationId': accommodationModel?.id ?? 'temp_id',
+                    'destinationName': accommodationName,
+                    'targetType': 'location',
+                  },
                 );
               },
               icon: Icon(Icons.star, size: 20, color: Colors.white),

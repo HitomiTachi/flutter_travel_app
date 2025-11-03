@@ -34,9 +34,8 @@ class PopularDestinationsWidget extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {
-                  // Sử dụng NavigationHelper để chuyển tab thay vì push screen mới
-                  // Tab 0 = Địa điểm, showAll = true để hiển thị tất cả
-                  NavigationHelper().goToLike(initialTab: 0, showAll: true);
+                  // Chuyển sang tab Map để xem tất cả địa điểm
+                  NavigationHelper().goToMap();
                 },
                 child: Text(
                   'Xem thêm',

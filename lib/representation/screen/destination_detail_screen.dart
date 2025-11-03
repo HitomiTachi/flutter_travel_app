@@ -3,30 +3,41 @@ import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/core/helpers/asset_helper.dart';
 import 'package:flutter_travels_apps/core/helpers/images_helpers.dart';
-import 'package:flutter_travels_apps/representation/widgets/common/button_widget.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_travels_apps/representation/screen/destination_reviews_screen.dart';
 import 'package:flutter_travels_apps/services/share_service.dart';
+import 'package:flutter_travels_apps/data/models/popular_destination.dart';
 
-class HotelDetailScreen extends StatefulWidget {
-  const HotelDetailScreen({super.key});
+class DestinationDetailScreen extends StatefulWidget {
+  final PopularDestination? destination;
+  
+  const DestinationDetailScreen({
+    super.key,
+    this.destination,
+  });
 
-  static const String routeName = '/hotel_detail_screen';
+  static const String routeName = '/destination_detail_screen';
 
   @override
-  State<HotelDetailScreen> createState() => _HotelDetailScreenState();
+  State<DestinationDetailScreen> createState() => _DestinationDetailScreenState();
 }
 
-class _HotelDetailScreenState extends State<HotelDetailScreen> {
+class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
+  bool isFavorite = false;
+  
   @override
   Widget build(BuildContext context) {
+    // Lấy destination từ widget hoặc từ arguments
+    final PopularDestination destination = widget.destination ?? 
+      (ModalRoute.of(context)?.settings.arguments as PopularDestination?) ?? _getDefaultDestination();
+    
     return Scaffold(
       body: Stack(
         children: [
           // Background Image
           Positioned.fill(
             child: ImageHelper.loadFromAsset(
-              AssetHelper.imgHotel3,
+              destination.imageUrl,
               fit: BoxFit.cover,
             ),
           ),
@@ -36,9 +47,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
             top: MediaQuery.of(context).padding.top + kDefaultPadding,
             left: kDefaultPadding,
             child: GestureDetector(
-              onTap: () {
-                Navigator.of(context).pop();
-              },
+              onTap: () => Navigator.of(context).pop(),
               child: Container(
                 padding: EdgeInsets.all(kItemPadding),
                 decoration: BoxDecoration(
@@ -65,20 +74,29 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
           Positioned(
             top: MediaQuery.of(context).padding.top + kDefaultPadding,
             right: kDefaultPadding,
-            child: Container(
-              padding: EdgeInsets.all(kItemPadding),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.9),
-                borderRadius: BorderRadius.circular(kDefaultPadding),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: Offset(0, 2),
-                  ),
-                ],
+            child: GestureDetector(
+              onTap: () {
+                setState(() => isFavorite = !isFavorite);
+              },
+              child: Container(
+                padding: EdgeInsets.all(kItemPadding),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(kDefaultPadding),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  isFavorite ? FontAwesomeIcons.solidHeart : FontAwesomeIcons.heart,
+                  size: 20,
+                  color: isFavorite ? Colors.red : Colors.black87,
+                ),
               ),
-              child: Icon(FontAwesomeIcons.heart, size: 20, color: Colors.red),
             ),
           ),
 
@@ -125,36 +143,36 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                         controller: scrollController,
                         padding: EdgeInsets.all(kDefaultPadding * 1.5),
                         children: [
-                          // Hotel Name & Rating
-                          _buildHotelHeader(),
+                          // Destination Name & Rating
+                          _buildDestinationHeader(destination),
                           SizedBox(height: kDefaultPadding),
 
                           // Nút Đánh giá và Chia sẻ
-                          _buildActionButtons(),
+                          _buildActionButtons(destination),
                           SizedBox(height: kDefaultPadding),
 
                           // Location
-                          _buildLocationSection(),
+                          _buildLocationSection(destination),
                           SizedBox(height: kDefaultPadding * 1.5),
 
                           // Description
-                          _buildDescriptionSection(),
+                          _buildDescriptionSection(destination),
                           SizedBox(height: kDefaultPadding * 1.5),
 
-                          // Amenities
-                          _buildAmenitiesSection(),
+                          // Highlights
+                          _buildHighlightsSection(),
                           SizedBox(height: kDefaultPadding * 1.5),
 
                           // Gallery
-                          _buildGallerySection(),
+                          _buildGallerySection(destination),
                           SizedBox(height: kDefaultPadding * 1.5),
 
                           // Reviews
-                          _buildReviewsSection(),
+                          _buildReviewsSection(destination),
                           SizedBox(height: kDefaultPadding * 2),
 
-                          // Price & Book Button
-                          _buildBookingSection(),
+                          // Action Buttons
+                          _buildBookingSection(destination),
                           SizedBox(height: kDefaultPadding),
                         ],
                       ),
@@ -169,12 +187,12 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
     );
   }
 
-  Widget _buildHotelHeader() {
+  Widget _buildDestinationHeader(PopularDestination destination) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Royal Pain Heritage',
+          destination.name,
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -186,14 +204,14 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
           children: [
             ...List.generate(5, (index) {
               return Icon(
-                index < 4 ? Icons.star : Icons.star_border,
+                index < destination.rating.floor() ? Icons.star : Icons.star_border,
                 color: Colors.amber,
                 size: 20,
               );
             }),
             SizedBox(width: kMinPadding),
             Text(
-              '4.5',
+              destination.rating.toStringAsFixed(1),
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: Colors.amber[700],
@@ -201,7 +219,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
             ),
             SizedBox(width: kMinPadding),
             Text(
-              '(3,241 reviews)',
+              '(${destination.reviewCount} đánh giá)',
               style: TextStyle(color: ColorPalette.subTitleColor, fontSize: 12),
             ),
           ],
@@ -210,10 +228,8 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
     );
   }
 
-  Widget _buildActionButtons() {
+  Widget _buildActionButtons(PopularDestination destination) {
     final shareService = ShareService();
-    const hotelName = 'Royal Pain Heritage';
-    const hotelDescription = 'Khách sạn 5 sao sang trọng';
 
     return Container(
       padding: EdgeInsets.symmetric(vertical: kDefaultPadding),
@@ -226,9 +242,9 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                   context,
                   DestinationReviewsScreen.routeName,
                   arguments: {
-                    'destinationId': 'hotel_1',
-                    'destinationName': hotelName,
-                    'targetType': 'hotel',
+                    'destinationId': destination.id,
+                    'destinationName': destination.name,
+                    'targetType': 'location',
                   },
                 );
               },
@@ -255,9 +271,9 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
             child: OutlinedButton.icon(
               onPressed: () async {
                 await shareService.shareLocation(
-                  name: hotelName,
-                  description: hotelDescription,
-                  rating: 4.5,
+                  name: destination.name,
+                  description: destination.description,
+                  rating: destination.rating,
                 );
               },
               icon: Icon(Icons.share, size: 18),
@@ -276,7 +292,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
     );
   }
 
-  Widget _buildLocationSection() {
+  Widget _buildLocationSection(PopularDestination destination) {
     return Row(
       children: [
         Icon(
@@ -287,27 +303,24 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
         SizedBox(width: kMinPadding),
         Expanded(
           child: Text(
-            'Purwokerto, Jawa Tengah, Indonesia',
+            destination.country,
             style: TextStyle(
               color: Colors.black87,
               fontWeight: FontWeight.w500,
+              fontSize: 15,
             ),
           ),
-        ),
-        Text(
-          '364 km away',
-          style: TextStyle(color: ColorPalette.subTitleColor, fontSize: 12),
         ),
       ],
     );
   }
 
-  Widget _buildDescriptionSection() {
+  Widget _buildDescriptionSection(PopularDestination destination) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'About this hotel',
+          'Giới thiệu',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -316,28 +329,28 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
         ),
         SizedBox(height: kDefaultPadding),
         Text(
-          'Royal Pain Heritage is a luxurious heritage hotel located in the heart of Purwokerto. The hotel combines traditional Javanese architecture with modern amenities, offering guests a unique and comfortable stay experience.',
+          destination.description,
           style: TextStyle(color: Colors.black54, height: 1.6, fontSize: 14),
         ),
       ],
     );
   }
 
-  Widget _buildAmenitiesSection() {
-    final amenities = [
-      {'icon': FontAwesomeIcons.wifi, 'label': 'Free WiFi'},
-      {'icon': FontAwesomeIcons.car, 'label': 'Parking'},
-      {'icon': FontAwesomeIcons.utensils, 'label': 'Restaurant'},
-      {'icon': FontAwesomeIcons.dumbbell, 'label': 'Fitness'},
-      {'icon': FontAwesomeIcons.personSwimming, 'label': 'Pool'},
-      {'icon': FontAwesomeIcons.spa, 'label': 'Spa'},
+  Widget _buildHighlightsSection() {
+    final highlights = [
+      {'icon': FontAwesomeIcons.camera, 'label': 'Chụp ảnh'},
+      {'icon': FontAwesomeIcons.utensils, 'label': 'Ẩm thực'},
+      {'icon': FontAwesomeIcons.personHiking, 'label': 'Dã ngoại'},
+      {'icon': FontAwesomeIcons.water, 'label': 'Bãi biển'},
+      {'icon': FontAwesomeIcons.mountain, 'label': 'Núi non'},
+      {'icon': FontAwesomeIcons.landmark, 'label': 'Di tích'},
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Amenities',
+          'Điểm nổi bật',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -354,7 +367,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
             crossAxisSpacing: kDefaultPadding,
             mainAxisSpacing: kDefaultPadding,
           ),
-          itemCount: amenities.length,
+          itemCount: highlights.length,
           itemBuilder: (context, index) {
             return Container(
               padding: EdgeInsets.symmetric(
@@ -369,14 +382,14 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    amenities[index]['icon'] as IconData,
+                    highlights[index]['icon'] as IconData,
                     size: 14,
                     color: ColorPalette.primaryColor,
                   ),
                   SizedBox(width: kMinPadding),
                   Flexible(
                     child: Text(
-                      amenities[index]['label'] as String,
+                      highlights[index]['label'] as String,
                       style: TextStyle(
                         fontSize: 12,
                         color: ColorPalette.primaryColor,
@@ -394,12 +407,12 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
     );
   }
 
-  Widget _buildGallerySection() {
+  Widget _buildGallerySection(PopularDestination destination) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Gallery',
+          'Hình ảnh',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -414,10 +427,10 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
             itemCount: 4,
             itemBuilder: (context, index) {
               final images = [
+                destination.imageUrl,
                 AssetHelper.imgHotel1,
                 AssetHelper.imgHotel2,
                 AssetHelper.imgHotel3,
-                AssetHelper.imgHotel1,
               ];
               return Container(
                 width: 120,
@@ -437,7 +450,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
     );
   }
 
-  Widget _buildReviewsSection() {
+  Widget _buildReviewsSection(PopularDestination destination) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -445,7 +458,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Reviews',
+              'Đánh giá',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -458,14 +471,14 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                   context,
                   DestinationReviewsScreen.routeName,
                   arguments: {
-                    'destinationId': 'hotel_1',
-                    'destinationName': 'Royal Pain Heritage',
-                    'targetType': 'hotel',
+                    'destinationId': destination.id,
+                    'destinationName': destination.name,
+                    'targetType': 'location',
                   },
                 );
               },
               child: Text(
-                'See all',
+                'Xem tất cả',
                 style: TextStyle(
                   color: ColorPalette.primaryColor,
                   fontWeight: FontWeight.w600,
@@ -498,7 +511,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                 radius: 20,
                 backgroundColor: ColorPalette.primaryColor,
                 child: Text(
-                  'JD',
+                  'NV',
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -511,7 +524,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'John Doe',
+                      'Nguyễn Văn A',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
@@ -528,7 +541,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                         }),
                         SizedBox(width: kMinPadding),
                         Text(
-                          '2 days ago',
+                          '2 ngày trước',
                           style: TextStyle(
                             color: ColorPalette.subTitleColor,
                             fontSize: 12,
@@ -543,7 +556,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
           ),
           SizedBox(height: kDefaultPadding),
           Text(
-            'Amazing hotel with great service! The staff was very friendly and the room was clean and comfortable.',
+            'Địa điểm tuyệt vời! Phong cảnh đẹp, không khí trong lành. Rất đáng để ghé thăm.',
             style: TextStyle(color: Colors.black54, fontSize: 14, height: 1.4),
           ),
         ],
@@ -551,53 +564,46 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
     );
   }
 
-  Widget _buildBookingSection() {
-    return Container(
-      padding: EdgeInsets.all(kDefaultPadding * 1.5),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(kDefaultPadding * 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 20,
-            offset: Offset(0, -5),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '\$143',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: ColorPalette.primaryColor,
-                ),
-              ),
-              Text(
-                'per night',
-                style: TextStyle(
-                  color: ColorPalette.subTitleColor,
-                  fontSize: 12,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(width: kDefaultPadding),
-          Expanded(
-            child: ButtonWidget(
-              title: 'Book Now',
-              onTap: () {
-                // Handle booking
-              },
+  Widget _buildBookingSection(PopularDestination destination) {
+    return Column(
+      children: [
+        // Tạm ẩn nút "Lên kế hoạch du lịch"
+        // ButtonWidget(
+        //   title: 'Lên kế hoạch du lịch',
+        //   onTap: () {
+        //     Navigator.pushNamed(context, '/trip_creation_screen');
+        //   },
+        // ),
+        // SizedBox(height: kDefaultPadding),
+        OutlinedButton.icon(
+          onPressed: () {
+            // Navigate to Map
+            Navigator.pop(context);
+          },
+          icon: Icon(Icons.map, size: 18),
+          label: Text('Xem trên bản đồ'),
+          style: OutlinedButton.styleFrom(
+            padding: EdgeInsets.symmetric(vertical: 14, horizontal: kDefaultPadding),
+            side: BorderSide(color: ColorPalette.primaryColor),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
+    );
+  }
+
+  // Default destination nếu không có data
+  PopularDestination _getDefaultDestination() {
+    return PopularDestination(
+      id: '0',
+      name: 'Địa điểm du lịch',
+      country: 'Việt Nam',
+      imageUrl: AssetHelper.imgHotel3,
+      rating: 4.5,
+      reviewCount: 100,
+      description: 'Một địa điểm tuyệt vời để khám phá',
     );
   }
 }

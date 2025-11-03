@@ -509,7 +509,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   onPressed: user != null
                       ? () async {
                           try {
-                            await _reviewService.toggleHelpful(review.id);
+                            await _reviewService.toggleHelpful(review.id, true);
                           } catch (e) {
                             if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -521,7 +521,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       : null,
                 ),
                 Text(
-                  '${review.helpfulCount} hữu ích',
+                  '${review.helpfulYes} hữu ích',
                   style: TextStyle(
                     fontSize: 12,
                     color: ColorPalette.subTitleColor,

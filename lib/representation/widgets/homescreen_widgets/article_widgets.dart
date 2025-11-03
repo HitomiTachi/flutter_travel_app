@@ -8,7 +8,7 @@ import 'package:flutter_travels_apps/data/mock/article_data_provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 // ============================================================================
-// FEATURED ARTICLES CONTAINER WIDGET
+// ĐÁNH GIÁ NỔI BẬT (Thay thế "Bài viết nổi bật")
 // ============================================================================
 class FeaturedArticlesWidget extends StatelessWidget {
   const FeaturedArticlesWidget({super.key});
@@ -16,20 +16,19 @@ class FeaturedArticlesWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final articles = ArticleDataProvider.getFeaturedArticles();
-    // Show up to 10 articles on home screen
     final displayedArticles = articles.take(10).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section Header
+        // Header section
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: kDefaultPadding),
+          padding: const EdgeInsets.symmetric(horizontal: kDefaultPadding),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Bài viết nổi bật',
+                'Đánh giá nổi bật',
                 style: TextStyles.defaultStyle.copyWith(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -38,8 +37,7 @@ class FeaturedArticlesWidget extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {
-                  // Sử dụng NavigationHelper để chuyển tab thay vì push screen mới
-                  // Tab 1 = Bài viết, showAll = true để hiển thị tất cả
+                  // Điều hướng tab “Bài viết” như trước
                   NavigationHelper().goToLike(initialTab: 1, showAll: true);
                 },
                 child: Text(
@@ -54,42 +52,28 @@ class FeaturedArticlesWidget extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(height: kMediumPadding),
+        const SizedBox(height: kMediumPadding),
 
-        // Large Featured Article
-        if (displayedArticles.isNotEmpty)
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: kDefaultPadding),
-            child: ItemLargeArticleWidget(article: displayedArticles[0]),
+        // Horizontal Reviews ListView - trượt ngang giống Điểm đến phổ biến
+        SizedBox(
+          height: 340,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: kDefaultPadding),
+            itemCount: displayedArticles.length,
+            itemBuilder: (context, index) {
+              final article = displayedArticles[index];
+              return Padding(
+                padding: EdgeInsets.only(
+                  right: index < displayedArticles.length - 1 ? kDefaultPadding : 0,
+                ),
+                child: SizedBox(
+                  width: 300,
+                  child: _ReviewCard(article: article),
+                ),
+              );
+            },
           ),
-        SizedBox(height: kMediumPadding),
-
-        // Compact Articles Grid
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: kDefaultPadding),
-          child: Row(
-            children: [
-              if (displayedArticles.length > 1)
-                Expanded(child: ItemCompactArticleWidget(article: displayedArticles[1])),
-              if (displayedArticles.length > 2) SizedBox(width: kMediumPadding),
-              if (displayedArticles.length > 2)
-                Expanded(child: ItemCompactArticleWidget(article: displayedArticles[2])),
-            ],
-          ),
-        ),
-        SizedBox(height: kMediumPadding),
-
-        // Horizontal Articles List
-        Column(
-          children: [
-            for (var i = 3; i < displayedArticles.length; i++) ...[
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: kDefaultPadding),
-                child: ItemHorizontalArticleWidget(article: displayedArticles[i]),
-              ),
-              SizedBox(height: kMediumPadding),
-            ],
-          ],
         ),
       ],
     );
@@ -97,418 +81,205 @@ class FeaturedArticlesWidget extends StatelessWidget {
 }
 
 // ============================================================================
-// LARGE ARTICLE WIDGET - For featured/highlighted articles
+// REVIEW CARD WIDGET – dạng card đánh giá du lịch
 // ============================================================================
-class ItemLargeArticleWidget extends StatelessWidget {
+class _ReviewCard extends StatelessWidget {
   final FeaturedArticle article;
 
-  const ItemLargeArticleWidget({super.key, required this.article});
+  const _ReviewCard({required this.article});
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 12,
+      elevation: 4,
       shadowColor: ColorPalette.primaryColor.withOpacity(0.15),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(kTopPadding * 2),
+        borderRadius: BorderRadius.circular(kItemPadding),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(kTopPadding * 2),
-        child: SizedBox(
-          height: 300,
-          child: Stack(
-            children: [
-              // Background Image
-              Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage(article.imageUrl),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              // Gradient Overlay
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      ColorPalette.primaryColor.withOpacity(0.9),
-                    ],
-                  ),
-                ),
-              ),
-              // Category Badge
-              Positioned(
-                top: kMediumPadding,
-                left: kMediumPadding,
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: kTopPadding,
-                    vertical: kMinPadding,
-                  ),
-                  decoration: BoxDecoration(
-                    color: ColorPalette.secondColor,
-                    borderRadius: BorderRadius.circular(kMediumPadding),
-                  ),
-                  child: Text(
-                    article.category,
-                    style: TextStyles.defaultStyle.copyWith(
-                      color: Colors.white,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              // Content
-              Positioned(
-                bottom: kMediumPadding,
-                left: kMediumPadding,
-                right: kMediumPadding,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      article.title,
-                      style: TextStyles.defaultStyle.copyWith(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        height: 1.3,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: kMinPadding),
-                    Text(
-                      article.subtitle,
-                      style: TextStyles.defaultStyle.copyWith(
-                        color: Colors.white70,
-                        fontSize: 14,
-                        height: 1.2,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: kTopPadding),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.person_outline,
-                          color: Colors.white70,
-                          size: kDefaultIconSize - 4,
-                        ),
-                        SizedBox(width: kMinPadding),
-                        Text(
-                          article.author,
-                          style: TextStyles.defaultStyle.copyWith(
-                            color: Colors.white70,
-                            fontSize: 12,
-                          ),
-                        ),
-                        Spacer(),
-                        Icon(
-                          FontAwesomeIcons.heart,
-                          color: ColorPalette.yellowColor,
-                          size: kDefaultIconSize - 4,
-                        ),
-                        SizedBox(width: kMinPadding),
-                        Text(
-                          article.likes.toString(),
-                          style: TextStyles.defaultStyle.copyWith(
-                            color: Colors.white70,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ============================================================================
-// COMPACT ARTICLE WIDGET - For grid layout
-// ============================================================================
-class ItemCompactArticleWidget extends StatelessWidget {
-  final FeaturedArticle article;
-
-  const ItemCompactArticleWidget({super.key, required this.article});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 8,
-      shadowColor: ColorPalette.primaryColor.withOpacity(0.1),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(kMediumPadding),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(kMediumPadding),
-        child: SizedBox(
-          height: 140,
-          child: Stack(
-            children: [
-              // Background Image
-              Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage(article.imageUrl),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              // Gradient Overlay
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      ColorPalette.primaryColor.withOpacity(0.8),
-                    ],
-                  ),
-                ),
-              ),
-              // Category Badge
-              Positioned(
-                top: kTopPadding,
-                left: kTopPadding,
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: kTopPadding,
-                    vertical: kMinPadding,
-                  ),
-                  decoration: BoxDecoration(
-                    color: ColorPalette.secondColor,
-                    borderRadius: BorderRadius.circular(kMediumPadding),
-                  ),
-                  child: Text(
-                    article.category,
-                    style: TextStyles.defaultStyle.copyWith(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              // Content
-              Positioned(
-                bottom: kTopPadding,
-                left: kTopPadding,
-                right: kTopPadding,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      article.title,
-                      style: TextStyles.defaultStyle.copyWith(
-                        color: Colors.white,
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        height: 1.2,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: kMinPadding),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.person_outline,
-                          color: Colors.white70,
-                          size: kDefaultIconSize - 6,
-                        ),
-                        SizedBox(width: kMinPadding),
-                        Text(
-                          article.author,
-                          style: TextStyles.defaultStyle.copyWith(
-                            color: Colors.white70,
-                            fontSize: 10,
-                          ),
-                        ),
-                        Spacer(),
-                        Icon(
-                          FontAwesomeIcons.heart,
-                          color: ColorPalette.yellowColor,
-                          size: kDefaultIconSize - 6,
-                        ),
-                        SizedBox(width: kMinPadding),
-                        Text(
-                          article.likes.toString(),
-                          style: TextStyles.defaultStyle.copyWith(
-                            color: Colors.white70,
-                            fontSize: 10,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ============================================================================
-// HORIZONTAL ARTICLE WIDGET - For list layout
-// ============================================================================
-class ItemHorizontalArticleWidget extends StatelessWidget {
-  final FeaturedArticle article;
-
-  const ItemHorizontalArticleWidget({super.key, required this.article});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 5,
-      shadowColor: ColorPalette.primaryColor.withOpacity(0.1),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(kMediumPadding),
-      ),
-      child: Container(
-        constraints: BoxConstraints(minHeight: 110, maxHeight: 130),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        borderRadius: BorderRadius.circular(kItemPadding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Image Section
-            SizedBox(
-              width: 100,
-              child: ClipRRect(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(kMediumPadding),
-                  bottomLeft: Radius.circular(kMediumPadding),
+            // Ảnh nền review - Giảm chiều cao
+            Stack(
+              children: [
+                Image.asset(
+                  article.imageUrl,
+                  height: 160,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
                 ),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Image.asset(article.imageUrl, fit: BoxFit.cover),
-                    // Gradient overlay
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.transparent,
-                            ColorPalette.primaryColor.withOpacity(0.3),
+                // overlay nhẹ
+                Container(
+                  height: 160,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.6),
+                      ],
+                    ),
+                  ),
+                ),
+                // rating + vị trí
+                Positioned(
+                  left: kDefaultPadding,
+                  bottom: kDefaultPadding,
+                  right: kDefaultPadding,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.location_on,
+                              color: Colors.white,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                article.category,
+                                style: TextStyles.defaultStyle.copyWith(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
                           ],
                         ),
                       ),
-                    ),
-                    // Category Badge
-                    Positioned(
-                      top: kTopPadding,
-                      left: kTopPadding,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: kTopPadding,
-                          vertical: kMinPadding / 2,
-                        ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: ColorPalette.secondColor,
-                          borderRadius: BorderRadius.circular(kMediumPadding),
+                          color: Colors.white.withOpacity(0.95),
+                          borderRadius: BorderRadius.circular(12),
                         ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: const [
+                            Icon(Icons.star,
+                                color: Colors.orange, size: 14),
+                            SizedBox(width: 3),
+                            Text(
+                              "4.9",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+
+            // Nội dung dưới ảnh - Tối ưu padding và spacing
+            Padding(
+              padding: const EdgeInsets.all(kDefaultPadding),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Avatar + Tên người đánh giá
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 16,
+                        backgroundImage: AssetImage(article.imageUrl),
+                      ),
+                      const SizedBox(width: kDefaultPadding / 2),
+                      Expanded(
                         child: Text(
-                          article.category,
+                          article.author,
                           style: TextStyles.defaultStyle.copyWith(
-                            color: Colors.white,
-                            fontSize: 8,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(FontAwesomeIcons.solidHeart,
+                              color: ColorPalette.yellowColor, size: 14),
+                          const SizedBox(width: 4),
+                          Text(
+                            article.likes.toString(),
+                            style: TextStyles.defaultStyle.copyWith(
+                              fontSize: 12,
+                              color: Colors.black54,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: kDefaultPadding / 2),
+
+                  // Tiêu đề + mô tả ngắn
+                  Text(
+                    article.title,
+                    style: TextStyles.defaultStyle.copyWith(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: ColorPalette.textColor,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    article.subtitle,
+                    style: TextStyles.defaultStyle.copyWith(
+                      color: Colors.grey[600],
+                      fontSize: 12,
+                      height: 1.3,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: kDefaultPadding / 2),
+
+                  // Nút xem chi tiết
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton.icon(
+                      style: TextButton.styleFrom(
+                        foregroundColor: ColorPalette.primaryColor,
+                        padding: EdgeInsets.symmetric(horizontal: kDefaultPadding / 2),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      onPressed: () {
+                        NavigationHelper().goToLike(
+                            initialTab: 1, showAll: true);
+                      },
+                      icon: const Icon(Icons.arrow_forward_ios, size: 12),
+                      label: const Text(
+                        "Xem chi tiết",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-            // Content Section
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.all(kMediumPadding),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          article.title,
-                          style: TextStyles.defaultStyle.copyWith(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                            height: 1.3,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          article.subtitle,
-                          style: TextStyles.defaultStyle.copyWith(
-                            color: Colors.grey[600],
-                            fontSize: 11,
-                            height: 1.2,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                    // Stats Row
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.person_outline,
-                          color: Colors.grey[500],
-                          size: kDefaultIconSize - 6,
-                        ),
-                        SizedBox(width: kMinPadding),
-                        Text(
-                          article.author,
-                          style: TextStyles.defaultStyle.copyWith(
-                            color: Colors.grey[500],
-                            fontSize: 10,
-                          ),
-                        ),
-                        SizedBox(width: kMediumPadding),
-                        Icon(
-                          FontAwesomeIcons.heart,
-                          color: ColorPalette.yellowColor,
-                          size: kDefaultIconSize - 6,
-                        ),
-                        SizedBox(width: kMinPadding),
-                        Text(
-                          article.likes.toString(),
-                          style: TextStyles.defaultStyle.copyWith(
-                            color: Colors.grey[500],
-                            fontSize: 10,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],
