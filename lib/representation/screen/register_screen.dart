@@ -10,6 +10,8 @@ import 'package:flutter_travels_apps/core/helpers/images_helpers.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
+
   @override
   _RegisterScreenState createState() => _RegisterScreenState();
 }

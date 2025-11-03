@@ -11,10 +11,10 @@ import 'package:flutter_travels_apps/data/models/trip_plan_data.dart';
 
 class ItemAccommodationWidget extends StatelessWidget {
   const ItemAccommodationWidget({
-    Key? key,
+    super.key,
     required this.accommodationModel,
     required this.tripData,
-  }) : super(key: key);
+  });
 
   final AccommodationModel accommodationModel;
   final TripPlanData tripData;

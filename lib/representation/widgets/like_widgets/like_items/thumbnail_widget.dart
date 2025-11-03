@@ -8,12 +8,12 @@ class ThumbnailWidget extends StatelessWidget {
   final BorderRadiusGeometry borderRadius;
 
   const ThumbnailWidget({
-    Key? key,
+    super.key,
     required this.imageUrl,
     required this.height,
     required this.width,
     required this.borderRadius,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -11,13 +11,13 @@ class LikeFilterSection extends StatefulWidget {
   final bool showFilters; // Hiển thị/ẩn tầng 2
 
   const LikeFilterSection({
-    Key? key,
+    super.key,
     required this.tabController,
     required this.allFilters,
     required this.selectedFilterIndex,
     required this.onFilterSelected,
     this.showFilters = true,
-  }) : super(key: key);
+  });
 
   @override
   State<LikeFilterSection> createState() => _LikeFilterSectionState();

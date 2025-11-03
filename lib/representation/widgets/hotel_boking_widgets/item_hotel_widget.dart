@@ -9,7 +9,7 @@ import 'package:flutter_travels_apps/representation/widgets/common/button_widget
 import 'package:flutter_travels_apps/representation/widgets/common/dashline_widget.dart';
 
 class ItemHotelWidget extends StatelessWidget {
-  const ItemHotelWidget({Key? key, required this.hotelModel}) : super(key: key);
+  const ItemHotelWidget({super.key, required this.hotelModel});
 
   final HotelModel hotelModel;
 

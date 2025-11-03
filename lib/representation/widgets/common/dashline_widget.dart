@@ -4,10 +4,10 @@ import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 
 class DashlineWidget extends StatelessWidget {
   const DashlineWidget({
-    Key? key,
+    super.key,
     this.height = 1,
     this.color = ColorPalette.dividerColor,
-  }) : super(key: key);
+  });
 
   final double height;
   final Color color;

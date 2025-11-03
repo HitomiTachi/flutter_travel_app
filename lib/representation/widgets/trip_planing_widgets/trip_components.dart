@@ -10,10 +10,10 @@ class TripQuickStats extends StatelessWidget {
   final VoidCallback? onViewAll;
 
   const TripQuickStats({
-    Key? key,
+    super.key,
     required this.trips,
     this.onViewAll,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -158,10 +158,10 @@ class TripFilterChips extends StatelessWidget {
   final Function(TripStatus?) onFilterChanged;
 
   const TripFilterChips({
-    Key? key,
+    super.key,
     required this.selectedStatus,
     required this.onFilterChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -247,10 +247,10 @@ class TripEmptyState extends StatelessWidget {
   final String subtitle;
 
   const TripEmptyState({
-    Key? key,
+    super.key,
     this.title = 'Chưa có chuyến đi nào',
     this.subtitle = 'Hãy tạo chuyến đi đầu tiên của bạn để bắt đầu khám phá thế giới!',
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -440,7 +440,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             trailing: Switch(
               value: value,
               onChanged: onChanged,
-              activeColor: ColorPalette.primaryColor,
+              activeThumbColor: ColorPalette.primaryColor,
             ),
           ),
         ),

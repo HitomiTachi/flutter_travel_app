@@ -18,8 +18,8 @@ class NotificationScreen extends StatefulWidget {
 }
 
 class _NotificationScreenState extends State<NotificationScreen> {
-  List<NotificationModel> _allNotifications = [];
-  int _unreadCount = 0;
+  late List<NotificationModel> _allNotifications;
+  late int _unreadCount;
   
   @override
   void initState() {
@@ -28,30 +28,32 @@ class _NotificationScreenState extends State<NotificationScreen> {
   }
 
   void _loadNotifications() {
-    setState(() {
-      _allNotifications = NotificationDataProvider.getMockNotifications();
-      _unreadCount = _allNotifications.where((n) => !n.isRead).length;
-    });
+    _allNotifications = NotificationDataProvider.getMockNotifications();
+    _unreadCount = _allNotifications.where((n) => !n.isRead).length;
   }
 
   void _markAsRead(NotificationModel notification) {
-    setState(() {
-      final index = _allNotifications.indexWhere((n) => n.id == notification.id);
-      if (index != -1) {
+    final index = _allNotifications.indexWhere((n) => n.id == notification.id);
+    if (index != -1) {
+      setState(() {
         _allNotifications[index] = notification.copyWith(isRead: true);
-        _loadNotifications();
-      }
-    });
+        _unreadCount = _allNotifications.where((n) => !n.isRead).length;
+      });
+    }
   }
 
   void _markAllAsRead() {
     setState(() {
-      _allNotifications = _allNotifications.map((n) => n.copyWith(isRead: true)).toList();
-      _loadNotifications();
+      for (int i = 0; i < _allNotifications.length; i++) {
+        if (!_allNotifications[i].isRead) {
+          _allNotifications[i] = _allNotifications[i].copyWith(isRead: true);
+        }
+      }
+      _unreadCount = 0;
     });
     
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+      const SnackBar(
         content: Text('Đã đánh dấu tất cả là đã đọc'),
         behavior: SnackBarBehavior.floating,
         backgroundColor: ColorPalette.primaryColor,
@@ -61,19 +63,22 @@ class _NotificationScreenState extends State<NotificationScreen> {
   }
 
   void _deleteNotification(NotificationModel notification) {
-    setState(() {
-      _allNotifications.removeWhere((n) => n.id == notification.id);
-      _loadNotifications();
-    });
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Đã xóa thông báo'),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: Colors.red.shade400,
-        duration: Duration(seconds: 2),
-      ),
-    );
+    final index = _allNotifications.indexWhere((n) => n.id == notification.id);
+    if (index != -1) {
+      setState(() {
+        _allNotifications.removeAt(index);
+        if (!notification.isRead) _unreadCount--;
+      });
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Đã xóa thông báo'),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.red.shade400,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   @override
@@ -83,46 +88,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
       implementLeading: true,
       child: Column(
         children: [
-          // Nút đánh dấu tất cả đã đọc
           if (_unreadCount > 0)
-            Padding(
-              padding: EdgeInsets.fromLTRB(kDefaultPadding, kMediumPadding, kDefaultPadding, kTopPadding),
-              child: Row(
-                children: [
-                  TextButton.icon(
-                    onPressed: _markAllAsRead,
-                    icon: Icon(
-                      FontAwesomeIcons.checkDouble,
-                      size: 12,
-                      color: ColorPalette.primaryColor,
-                    ),
-                    label: Text(
-                      'Đánh dấu tất cả đã đọc',
-                      style: TextStyles.defaultStyle.copyWith(
-                        fontSize: 12,
-                        color: ColorPalette.primaryColor,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                  Spacer(),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: ColorPalette.primaryColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      '$_unreadCount chưa đọc',
-                      style: TextStyles.defaultStyle.copyWith(
-                        fontSize: 12,
-                        color: ColorPalette.primaryColor,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            _ActionBar(
+              unreadCount: _unreadCount,
+              onMarkAllRead: _markAllAsRead,
             ),
 
           // Danh sách thông báo
@@ -136,56 +105,191 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   Widget _buildNotificationList(List<NotificationModel> notifications) {
     if (notifications.isEmpty) {
-      return _buildEmptyState();
+      return const _EmptyStateWidget();
     }
 
     final grouped = NotificationDataProvider.groupByDate(notifications);
     
     return ListView.builder(
-      padding: EdgeInsets.symmetric(horizontal: kDefaultPadding, vertical: kTopPadding),
+      padding: const EdgeInsets.symmetric(
+        horizontal: kDefaultPadding,
+        vertical: kTopPadding,
+      ),
       itemCount: grouped.length,
       itemBuilder: (context, index) {
         final key = grouped.keys.elementAt(index);
         final items = grouped[key]!;
         
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header ngày tháng
-            Padding(
-              padding: EdgeInsets.only(left: 4, bottom: kTopPadding, top: index == 0 ? 0 : kMediumPadding),
-              child: Text(
-                key,
-                style: TextStyles.defaultStyle.copyWith(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: ColorPalette.subTitleColor,
-                ),
-              ),
-            ),
-            
-            // Các thông báo
-            ...items.map((notification) => _buildNotificationCard(notification)).toList(),
-          ],
+        return _DateGroup(
+          dateLabel: key,
+          notifications: items,
+          isFirstGroup: index == 0,
+          onMarkAsRead: _markAsRead,
+          onDelete: _deleteNotification,
         );
       },
     );
   }
+}
 
-  Widget _buildNotificationCard(NotificationModel notification) {
+class _ActionBar extends StatelessWidget {
+  final int unreadCount;
+  final VoidCallback onMarkAllRead;
+
+  const _ActionBar({
+    required this.unreadCount,
+    required this.onMarkAllRead,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(
+        kDefaultPadding,
+        kMediumPadding,
+        kDefaultPadding,
+        kTopPadding,
+      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: kDefaultPadding,
+        vertical: 12,
+      ),
+      decoration: BoxDecoration(
+        color: ColorPalette.primaryColor.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(kItemPadding),
+        border: Border.all(
+          color: ColorPalette.primaryColor.withOpacity(0.15),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          const Icon(
+            FontAwesomeIcons.bell,
+            size: 14,
+            color: ColorPalette.primaryColor,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            'Bạn có $unreadCount thông báo chưa đọc',
+            style: TextStyles.defaultStyle.copyWith(
+              fontSize: 13,
+              color: ColorPalette.textColor,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const Spacer(),
+          GestureDetector(
+            onTap: onMarkAllRead,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: ColorPalette.primaryColor,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    FontAwesomeIcons.checkDouble,
+                    size: 11,
+                    color: Colors.white,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Đánh dấu đã đọc',
+                    style: TextStyles.defaultStyle.copyWith(
+                      fontSize: 12,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DateGroup extends StatelessWidget {
+  final String dateLabel;
+  final List<NotificationModel> notifications;
+  final bool isFirstGroup;
+  final Function(NotificationModel) onMarkAsRead;
+  final Function(NotificationModel) onDelete;
+
+  const _DateGroup({
+    required this.dateLabel,
+    required this.notifications,
+    required this.isFirstGroup,
+    required this.onMarkAsRead,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Header ngày tháng
+        Padding(
+          padding: EdgeInsets.only(
+            left: 4,
+            bottom: kTopPadding,
+            top: isFirstGroup ? 0 : kMediumPadding,
+          ),
+          child: Text(
+            dateLabel,
+            style: TextStyles.defaultStyle.copyWith(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: ColorPalette.subTitleColor,
+            ),
+          ),
+        ),
+        
+        // ✅ TỐI ƯU: Dùng ListView.builder thay vì map
+        ...notifications.map((notification) => _NotificationCard(
+          notification: notification,
+          onMarkAsRead: () => onMarkAsRead(notification),
+          onDelete: () => onDelete(notification),
+        )),
+      ],
+    );
+  }
+}
+
+/// ✅ TỐI ƯU: Extract notification card widget
+class _NotificationCard extends StatelessWidget {
+  final NotificationModel notification;
+  final VoidCallback onMarkAsRead;
+  final VoidCallback onDelete;
+
+  const _NotificationCard({
+    required this.notification,
+    required this.onMarkAsRead,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Dismissible(
       key: Key(notification.id),
       direction: DismissDirection.endToStart,
-      onDismissed: (_) => _deleteNotification(notification),
+      onDismissed: (_) => onDelete(),
       background: Container(
-        margin: EdgeInsets.only(bottom: 12),
+        margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
           color: Colors.red.shade400,
           borderRadius: BorderRadius.circular(kItemPadding),
         ),
         alignment: Alignment.centerRight,
-        padding: EdgeInsets.only(right: kMediumPadding),
-        child: Icon(
+        padding: const EdgeInsets.only(right: kMediumPadding),
+        child: const Icon(
           FontAwesomeIcons.trash,
           color: Colors.white,
           size: 18,
@@ -194,41 +298,41 @@ class _NotificationScreenState extends State<NotificationScreen> {
       child: GestureDetector(
         onTap: () {
           if (!notification.isRead) {
-            _markAsRead(notification);
+            onMarkAsRead();
           }
-          // TODO: Điều hướng đến chi tiết
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Mở: ${notification.actionUrl ?? "N/A"}'),
               behavior: SnackBarBehavior.floating,
-              duration: Duration(seconds: 1),
+              duration: const Duration(seconds: 1),
             ),
           );
         },
         child: Container(
-          margin: EdgeInsets.only(bottom: 12),
-          padding: EdgeInsets.all(14),
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(kItemPadding),
             border: Border.all(
-              color: notification.isRead 
-                ? Colors.black.withOpacity(0.03)
-                : ColorPalette.primaryColor.withOpacity(0.15),
+              color: notification.isRead
+                  ? Colors.black.withOpacity(0.03)
+                  : ColorPalette.primaryColor.withOpacity(0.15),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: notification.isRead 
-                  ? Colors.black.withOpacity(0.02)
-                  : ColorPalette.primaryColor.withOpacity(0.06),
+                color: notification.isRead
+                    ? Colors.black.withOpacity(0.02)
+                    : ColorPalette.primaryColor.withOpacity(0.06),
                 blurRadius: 8,
-                offset: Offset(0, 2),
+                offset: const Offset(0, 2),
               ),
             ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               // Title với badge chưa đọc
               Row(
@@ -247,11 +351,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     ),
                   ),
                   if (!notification.isRead) ...[
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Container(
                       width: 8,
                       height: 8,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: ColorPalette.primaryColor,
                         shape: BoxShape.circle,
                       ),
@@ -260,7 +364,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 ],
               ),
               
-              SizedBox(height: 6),
+              const SizedBox(height: 6),
               
               // Message
               Text(
@@ -274,7 +378,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 overflow: TextOverflow.ellipsis,
               ),
               
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               
               // Thời gian
               Row(
@@ -284,7 +388,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     size: 11,
                     color: ColorPalette.subTitleColor.withOpacity(0.7),
                   ),
-                  SizedBox(width: 5),
+                  const SizedBox(width: 5),
                   Text(
                     notification.timeAgo,
                     style: TextStyles.defaultStyle.copyWith(
@@ -300,9 +404,14 @@ class _NotificationScreenState extends State<NotificationScreen> {
       ),
     );
   }
+}
 
-  Widget _buildEmptyState() {
-    return Center(
+class _EmptyStateWidget extends StatelessWidget {
+  const _EmptyStateWidget();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
       child: Padding(
         padding: EdgeInsets.all(kDefaultPadding),
         child: EmptyStateWidget(

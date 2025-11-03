@@ -331,7 +331,7 @@ class _MapScreenState extends State<MapScreen> {
     return SizedBox.expand(
       child: VietmapGL(
         // Ép dùng style demo rõ ràng để tránh lỗi không tải style mặc định
-        styleString: VietmapStyles.demo,
+        styleString: 'https://maps.vietmap.vn/maps/styles/tm/tiles.json?apikey=506862bb03a3d71632bdeb7674a3625328cb7e5a9b011841',
         initialCameraPosition: CameraPosition(
           target: LatLng(
             _currentLocation?.latitude ?? 21.0285,

@@ -7,10 +7,10 @@ class SelectableMark extends StatelessWidget {
   final bool selected;
   
   const SelectableMark({
-    Key? key,
+    super.key,
     required this.visible,
     required this.selected,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

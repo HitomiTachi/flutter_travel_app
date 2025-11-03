@@ -16,7 +16,7 @@ import 'package:flutter_travels_apps/services/auth_service.dart';
 // --- KẾT THÚC CẬP NHẬT ---
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  const ProfileScreen({super.key});
 
   static const String routeName = '/profile_screen';
 

@@ -158,11 +158,11 @@ class TripActivityModel {
   // Format duration
   String get durationDisplay {
     if (durationMinutes == null) return 'Không xác định';
-    if (durationMinutes! < 60) return '${durationMinutes} phút';
+    if (durationMinutes! < 60) return '$durationMinutes phút';
     final hours = durationMinutes! ~/ 60;
     final minutes = durationMinutes! % 60;
-    if (minutes == 0) return '${hours} giờ';
-    return '${hours} giờ ${minutes} phút';
+    if (minutes == 0) return '$hours giờ';
+    return '$hours giờ $minutes phút';
   }
 
   // Format cost

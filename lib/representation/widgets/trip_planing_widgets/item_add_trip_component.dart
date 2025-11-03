@@ -5,14 +5,14 @@ import 'package:flutter_travels_apps/core/helpers/images_helpers.dart';
 
 class ItemAddTripComponent extends StatefulWidget {
   const ItemAddTripComponent({
-    Key? key,
+    super.key,
     required this.title,
     required this.icon,
     required this.innitData,
     this.onValueChanged,
     this.maxValue = 100, // Giới hạn tối đa cho một số thành phần
     this.minValue = 1,   // Giới hạn tối thiểu
-  }) : super(key: key);
+  });
 
   final String title;
   final String icon;

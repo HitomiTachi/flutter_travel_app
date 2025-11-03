@@ -5,7 +5,7 @@ import 'package:flutter_travels_apps/representation/widgets/common/app_bar_conta
 import 'package:flutter_travels_apps/representation/widgets/hotel_boking_widgets/item_hotel_widget.dart';
 
 class HotelScreen extends StatefulWidget {
-  const HotelScreen({Key? key}) : super(key: key);
+  const HotelScreen({super.key});
 
 
   static const String routeName = '/hotel_screen';
@@ -54,7 +54,7 @@ class _HotelScreenState extends State<HotelScreen> {
       child: SingleChildScrollView(
         child: Column(
           children: [
-            ...listHotel.map((e) => ItemHotelWidget(hotelModel: e)).toList(),
+            ...listHotel.map((e) => ItemHotelWidget(hotelModel: e)),
           ],
         ),
       )

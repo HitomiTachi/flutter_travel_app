@@ -14,12 +14,12 @@ class TripPlanCard extends StatelessWidget {
   final VoidCallback onActionTap;
 
   const TripPlanCard({
-    Key? key,
+    super.key,
     required this.trip,
     required this.onTap,
     required this.onMenuTap,
     required this.onActionTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -268,7 +268,7 @@ class TripPlanCard extends StatelessWidget {
         Expanded(
           child: _buildInfoItem(
             FontAwesomeIcons.calendar,
-            '${trip.duration}',
+            trip.duration,
             Colors.blue,
           ),
         ),
@@ -397,13 +397,13 @@ class TripStatsCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   const TripStatsCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.value,
     required this.icon,
     required this.color,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

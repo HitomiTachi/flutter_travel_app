@@ -7,7 +7,7 @@ import 'package:flutter_travels_apps/representation/widgets/trip_planing_widgets
 import 'package:flutter_travels_apps/data/models/trip_plan_data.dart';
 
 class TripPlanningScreen extends StatefulWidget {
-  const TripPlanningScreen({Key? key}) : super(key: key);
+  const TripPlanningScreen({super.key});
 
   static const String routeName = '/trip_planning_screen';
   

@@ -10,7 +10,7 @@ import 'package:flutter_travels_apps/representation/widgets/common/button_widget
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class IntroScreen extends StatefulWidget {
-  const IntroScreen({Key? key}) : super(key: key);
+  const IntroScreen({super.key});
 
   static const String routeName = '/intro_screen';
 
@@ -23,6 +23,7 @@ class _IntroScreenState extends State<IntroScreen> {
 
   final PageController _pageController = PageController();
   final StreamController<int> _pageStreamController = StreamController<int>.broadcast();
+  @override
   void initState(){
     super.initState();
     _pageController.addListener((){

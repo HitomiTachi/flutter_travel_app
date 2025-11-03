@@ -12,7 +12,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 // --- KẾT THÚC IMPORT (Đã xóa các thư viện ảnh) ---
 
 class PersonalInfoScreen extends StatefulWidget {
-  const PersonalInfoScreen({Key? key}) : super(key: key);
+  const PersonalInfoScreen({super.key});
 
   static const String routeName = '/personal_info_screen';
 
@@ -113,7 +113,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen>
     }
 
     try {
-      final doc = await _firestore.collection('users').doc(_currentUser!.uid).get();
+      final doc = await _firestore.collection('users').doc(_currentUser.uid).get();
       
       if (doc.exists && doc.data() != null) {
         _userData = doc.data()!;
@@ -778,7 +778,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen>
       };
 
       // 2. Gửi lệnh update lên Firestore
-      await _firestore.collection('users').doc(_currentUser!.uid).update(dataToSave);
+      await _firestore.collection('users').doc(_currentUser.uid).update(dataToSave);
 
       // 3. Cập nhật dữ liệu local
       _userData!.addAll(dataToSave);

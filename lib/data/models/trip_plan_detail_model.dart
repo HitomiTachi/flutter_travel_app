@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'trip_activity_model.dart';
 
 enum TripStatus { planned, ongoing, completed, cancelled }
 

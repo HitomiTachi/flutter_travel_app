@@ -15,13 +15,13 @@ class ArticleCard extends StatelessWidget {
   final VoidCallback? onLongPress;
 
   const ArticleCard({
-    Key? key,
+    super.key,
     required this.article,
     required this.editMode,
     required this.selected,
     this.onTap,
     this.onLongPress,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -106,13 +106,13 @@ class ArticleTile extends StatelessWidget {
   final VoidCallback? onLongPress;
 
   const ArticleTile({
-    Key? key,
+    super.key,
     required this.article,
     required this.editMode,
     required this.selected,
     this.onTap,
     this.onLongPress,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

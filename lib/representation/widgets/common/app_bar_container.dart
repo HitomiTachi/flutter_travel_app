@@ -5,13 +5,13 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class AppBarContainerWidget extends StatelessWidget {
   const AppBarContainerWidget({
-    Key? key,
+    super.key,
     required this.child,
     this.title,
     this.implementLeading = false,
     this.titleString,
     this.implementTraling = false,
-  }) : super(key: key);
+  });
 
   final Widget child;
   final Widget? title;

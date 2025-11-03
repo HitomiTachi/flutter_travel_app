@@ -10,10 +10,10 @@ class ItemDestinationWidget extends StatelessWidget {
   final int index;
 
   const ItemDestinationWidget({
-    Key? key,
+    super.key,
     required this.destination,
     required this.index,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

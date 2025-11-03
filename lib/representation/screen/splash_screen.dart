@@ -6,7 +6,7 @@ import 'package:flutter_travels_apps/representation/screen/intro_screen.dart';
 import 'package:flutter_travels_apps/representation/screen/main_app.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   static const String routeName = '/splash_screen';
 

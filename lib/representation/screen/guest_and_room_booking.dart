@@ -5,7 +5,7 @@ import 'package:flutter_travels_apps/representation/widgets/common/app_bar_conta
 import 'package:flutter_travels_apps/representation/widgets/common/button_widget.dart';
 import 'package:flutter_travels_apps/representation/widgets/trip_planing_widgets/item_add_guest_and_room.dart';
 class GuestAndRoomBookingScreen extends StatefulWidget {
-  const GuestAndRoomBookingScreen({Key? key}) : super(key: key);
+  const GuestAndRoomBookingScreen({super.key});
 
 
   static const String routeName = '/guest_and_room_booking_screen';

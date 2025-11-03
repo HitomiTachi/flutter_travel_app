@@ -7,7 +7,7 @@ import 'package:flutter_travels_apps/data/mock/destination_data_provider.dart';
 import 'package:flutter_travels_apps/representation/widgets/homescreen_widgets/item_destination_widget.dart';
 
 class PopularDestinationsWidget extends StatelessWidget {
-  const PopularDestinationsWidget({Key? key}) : super(key: key);
+  const PopularDestinationsWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +52,7 @@ class PopularDestinationsWidget extends StatelessWidget {
         ),
         SizedBox(height: kMediumPadding),
         // Horizontal Destinations ListView
-        Container(
+        SizedBox(
           height: 300,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,

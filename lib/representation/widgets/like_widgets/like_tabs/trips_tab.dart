@@ -16,7 +16,7 @@ class TripsTab extends StatelessWidget {
   final ScrollController scrollController;
 
   const TripsTab({
-    Key? key,
+    super.key,
     required this.grid,
     required this.editMode,
     required this.selectedIds,
@@ -24,7 +24,7 @@ class TripsTab extends StatelessWidget {
     required this.data,
     required this.onToggleSelect,
     required this.scrollController,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -14,7 +14,7 @@ import 'package:flutter_travels_apps/representation/widgets/common/button_widget
 import 'package:flutter_travels_apps/representation/widgets/hotel_boking_widgets/item_booking_widget.dart';
 
 class TripCreationScreen extends StatefulWidget {
-  const TripCreationScreen({Key? key}) : super(key: key);
+  const TripCreationScreen({super.key});
 
   static const String routeName = '/trip_creation_screen';
   

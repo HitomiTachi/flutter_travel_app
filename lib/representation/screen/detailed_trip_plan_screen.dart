@@ -7,7 +7,7 @@ import 'package:flutter_travels_apps/data/models/trip_plan_data.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class DetailedTripPlanScreen extends StatefulWidget {
-  const DetailedTripPlanScreen({Key? key}) : super(key: key);
+  const DetailedTripPlanScreen({super.key});
   static const String routeName = '/detailed_trip_plan_screen';
 
   @override

@@ -15,13 +15,13 @@ class PlaceCard extends StatelessWidget {
   final VoidCallback? onLongPress;
 
   const PlaceCard({
-    Key? key,
+    super.key,
     required this.destination,
     required this.editMode,
     required this.selected,
     this.onTap,
     this.onLongPress,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -97,13 +97,13 @@ class PlaceTile extends StatelessWidget {
   final VoidCallback? onLongPress;
 
   const PlaceTile({
-    Key? key,
+    super.key,
     required this.destination,
     required this.editMode,
     required this.selected,
     this.onTap,
     this.onLongPress,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

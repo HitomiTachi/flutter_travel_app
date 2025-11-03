@@ -4,7 +4,7 @@ import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/core/constants/textstyle_constants.dart';
 
 class ButtonWidget extends StatelessWidget {
-  const ButtonWidget({ Key? key, required this.title, this.onTap}) : super(key: key);
+  const ButtonWidget({ super.key, required this.title, this.onTap});
 
   final String title;
   final Function()? onTap;

@@ -5,7 +5,7 @@ import 'package:flutter_travels_apps/representation/screen/accommodation_list_sc
 import 'package:flutter_travels_apps/representation/widgets/common/app_bar_container.dart';
 
 class AccommodationBookingScreen extends StatefulWidget {
-  const AccommodationBookingScreen({Key? key}) : super(key: key);
+  const AccommodationBookingScreen({super.key});
 
   static const String routeName = '/accommodation_booking_screen';
 

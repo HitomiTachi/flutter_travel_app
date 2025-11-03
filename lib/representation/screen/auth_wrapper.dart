@@ -15,6 +15,8 @@ import 'package:flutter_travels_apps/representation/screen/main_app.dart';
 // --- KẾT THÚC THAY ĐỔI ---
 
 class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
+
   @override
   Widget build(BuildContext context) {
     // Lấy AuthService từ Provider

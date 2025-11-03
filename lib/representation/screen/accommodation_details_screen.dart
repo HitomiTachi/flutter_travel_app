@@ -13,7 +13,7 @@ import 'package:flutter_travels_apps/representation/screen/review_screen.dart';
 import 'package:flutter_travels_apps/services/share_service.dart';
 
 class AccommodationDetailsScreen extends StatefulWidget {
-  const AccommodationDetailsScreen({Key? key}) : super(key: key);
+  const AccommodationDetailsScreen({super.key});
 
   static const String routeName = '/accommodation_details_screen';
 

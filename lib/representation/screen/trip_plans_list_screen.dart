@@ -11,7 +11,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_travels_apps/representation/widgets/common/app_bar_container.dart';
 
 class TripPlansListScreen extends StatefulWidget {
-  const TripPlansListScreen({Key? key}) : super(key: key);
+  const TripPlansListScreen({super.key});
 
   static const String routeName = '/trip_plans_list_screen';
 
@@ -118,7 +118,7 @@ class _TripPlansListScreenState extends State<TripPlansListScreen>
               onActionTap: () => _handleTripAction(trip),
             ),
           );
-        }).toList(),
+        }),
       ],
     );
   }

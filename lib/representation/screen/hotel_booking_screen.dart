@@ -10,7 +10,7 @@ import 'package:flutter_travels_apps/representation/widgets/common/button_widget
 import 'package:flutter_travels_apps/representation/widgets/hotel_boking_widgets/item_booking_widget.dart';
 
 class HotelBookingScreen extends StatefulWidget {
-  const HotelBookingScreen({Key? key}) : super(key: key);
+  const HotelBookingScreen({super.key});
 
   static const String routeName = '/hotel_booking_screen';
   @override

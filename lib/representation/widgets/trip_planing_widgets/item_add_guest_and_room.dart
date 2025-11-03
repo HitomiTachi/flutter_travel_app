@@ -5,12 +5,12 @@ import 'package:flutter_travels_apps/core/helpers/images_helpers.dart';
 
 class ItemAddGuestAndRoom extends StatefulWidget {
   const ItemAddGuestAndRoom({
-    Key? key,
+    super.key,
     required this.title,
     required this.icon,
     required this.innitData,
     this.onValueChanged,
-  }) : super(key: key);
+  });
 
   final String title;
   final String icon;

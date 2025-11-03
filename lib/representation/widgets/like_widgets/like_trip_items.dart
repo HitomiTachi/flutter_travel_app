@@ -14,13 +14,13 @@ class TripCard extends StatelessWidget {
   final VoidCallback? onLongPress;
 
   const TripCard({
-    Key? key,
+    super.key,
     required this.item,
     required this.editMode,
     required this.selected,
     this.onTap,
     this.onLongPress,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

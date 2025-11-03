@@ -13,7 +13,7 @@ import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
 
 class MainApp extends StatefulWidget {
-  const MainApp ({Key? key}) :super(key: key);
+  const MainApp ({super.key});
 
   static const routeName = 'main_app';
 

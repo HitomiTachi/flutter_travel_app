@@ -11,6 +11,8 @@ class SelectDateScreen extends StatelessWidget {
   DateTime? rangeStartDate;
   DateTime? rangeEndDate;
 
+  SelectDateScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return AppBarContainerWidget(

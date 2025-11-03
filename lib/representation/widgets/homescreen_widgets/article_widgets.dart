@@ -11,7 +11,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 // FEATURED ARTICLES CONTAINER WIDGET
 // ============================================================================
 class FeaturedArticlesWidget extends StatelessWidget {
-  const FeaturedArticlesWidget({Key? key}) : super(key: key);
+  const FeaturedArticlesWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -102,8 +102,7 @@ class FeaturedArticlesWidget extends StatelessWidget {
 class ItemLargeArticleWidget extends StatelessWidget {
   final FeaturedArticle article;
 
-  const ItemLargeArticleWidget({Key? key, required this.article})
-    : super(key: key);
+  const ItemLargeArticleWidget({super.key, required this.article});
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +114,7 @@ class ItemLargeArticleWidget extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(kTopPadding * 2),
-        child: Container(
+        child: SizedBox(
           height: 300,
           child: Stack(
             children: [
@@ -244,8 +243,7 @@ class ItemLargeArticleWidget extends StatelessWidget {
 class ItemCompactArticleWidget extends StatelessWidget {
   final FeaturedArticle article;
 
-  const ItemCompactArticleWidget({Key? key, required this.article})
-    : super(key: key);
+  const ItemCompactArticleWidget({super.key, required this.article});
 
   @override
   Widget build(BuildContext context) {
@@ -257,7 +255,7 @@ class ItemCompactArticleWidget extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(kMediumPadding),
-        child: Container(
+        child: SizedBox(
           height: 140,
           child: Stack(
             children: [
@@ -375,8 +373,7 @@ class ItemCompactArticleWidget extends StatelessWidget {
 class ItemHorizontalArticleWidget extends StatelessWidget {
   final FeaturedArticle article;
 
-  const ItemHorizontalArticleWidget({Key? key, required this.article})
-    : super(key: key);
+  const ItemHorizontalArticleWidget({super.key, required this.article});
 
   @override
   Widget build(BuildContext context) {
@@ -392,7 +389,7 @@ class ItemHorizontalArticleWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Image Section
-            Container(
+            SizedBox(
               width: 100,
               child: ClipRRect(
                 borderRadius: BorderRadius.only(

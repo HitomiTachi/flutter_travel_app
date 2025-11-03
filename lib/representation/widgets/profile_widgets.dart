@@ -11,14 +11,14 @@ class ProfileMenuItemWidget extends StatelessWidget {
   final bool showDivider;
 
   const ProfileMenuItemWidget({
-    Key? key,
+    super.key,
     required this.icon,
     required this.title,
     required this.subtitle,
     required this.onTap,
     this.iconColor,
     this.showDivider = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -83,12 +83,12 @@ class ProfileStatsCardWidget extends StatelessWidget {
   final Color color;
 
   const ProfileStatsCardWidget({
-    Key? key,
+    super.key,
     required this.icon,
     required this.value,
     required this.label,
     required this.color,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -151,13 +151,13 @@ class ProfileHeaderWidget extends StatelessWidget {
   final VoidCallback onEditAvatar;
 
   const ProfileHeaderWidget({
-    Key? key,
+    super.key,
     required this.userName,
     required this.userLocation,
     required this.memberSince,
     required this.avatarAsset,
     required this.onEditAvatar,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

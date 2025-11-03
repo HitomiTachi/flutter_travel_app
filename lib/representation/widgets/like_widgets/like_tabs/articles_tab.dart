@@ -19,7 +19,7 @@ class ArticlesTab extends StatelessWidget {
   final ScrollController scrollController;
 
   const ArticlesTab({
-    Key? key,
+    super.key,
     required this.grid,
     required this.editMode,
     required this.selectedIds,
@@ -29,7 +29,7 @@ class ArticlesTab extends StatelessWidget {
     required this.articles,
     required this.onToggleSelect,
     required this.scrollController,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
