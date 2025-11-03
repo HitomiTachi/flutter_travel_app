@@ -6,14 +6,12 @@ import 'package:flutter_travels_apps/core/helpers/navigation_helper.dart';
 import 'package:flutter_travels_apps/representation/screen/home_screen.dart';
 import 'package:flutter_travels_apps/representation/screen/like_screen.dart';
 import 'package:flutter_travels_apps/representation/screen/map_screen.dart';
-import 'package:flutter_travels_apps/representation/screen/trip_creation_screen.dart';
 import 'package:flutter_travels_apps/representation/screen/profile_screen.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
-
 class MainApp extends StatefulWidget {
-  const MainApp ({super.key});
+  const MainApp({super.key});
 
   static const routeName = 'main_app';
 
@@ -22,10 +20,9 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
-
   int _currentIndex = 0;
   int _tripCreationRefreshKey = 0;
-  
+
   // Key để refresh LikeScreen khi có arguments mới
   int _likeScreenRefreshKey = 0;
   Map<String, dynamic>? _likeScreenArguments;
@@ -34,19 +31,19 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    
+
     // Đăng ký callback để các screen khác có thể chuyển tab
     NavigationHelper().registerTabChangeCallback((index, arguments) {
       if (mounted) {
         setState(() {
           _currentIndex = index;
-          
+
           // Xử lý arguments cho LikeScreen
           if (index == NavigationHelper.likeTab && arguments != null) {
             _likeScreenArguments = arguments;
             _likeScreenRefreshKey++; // Force rebuild LikeScreen với arguments mới
           }
-          
+
           // Trigger refresh cho TripCreationScreen nếu tab được chọn là tab 2
           if (index == 2) {
             _tripCreationRefreshKey++;
@@ -54,7 +51,7 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
         });
       }
     });
-    
+
     // Lắng nghe khi user quay về từ accommodation details
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkForAccommodationSelection();
@@ -93,10 +90,10 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
   }
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     // Kiểm tra accommodation selection mỗi lần build
     _checkForAccommodationSelection();
-    
+
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
@@ -124,30 +121,25 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
         },
         selectedItemColor: ColorPalette.primaryColor,
         unselectedItemColor: ColorPalette.primaryColor.withOpacity(0.2),
-        margin: EdgeInsets.symmetric(horizontal: kMediumPadding, vertical: kDefaultPadding),
+        margin: EdgeInsets.symmetric(
+          horizontal: kMediumPadding,
+          vertical: kDefaultPadding,
+        ),
         items: [
           SalomonBottomBarItem(
-            icon: Icon(FontAwesomeIcons.house,
-              size: kDefaultIconSize,
-            ),
+            icon: Icon(FontAwesomeIcons.house, size: kDefaultIconSize),
             title: Text('Trang chủ'),
           ),
           SalomonBottomBarItem(
-            icon: Icon(FontAwesomeIcons.map,
-              size: kDefaultIconSize,
-            ),
+            icon: Icon(FontAwesomeIcons.map, size: kDefaultIconSize),
             title: Text('Bản đồ'),
           ),
           SalomonBottomBarItem(
-            icon: Icon(FontAwesomeIcons.solidHeart,
-              size: kDefaultIconSize,
-            ),
+            icon: Icon(FontAwesomeIcons.solidHeart, size: kDefaultIconSize),
             title: Text('Khám phá'),
           ),
           SalomonBottomBarItem(
-            icon: Icon(FontAwesomeIcons.solidUser,
-              size: kDefaultIconSize,
-            ),
+            icon: Icon(FontAwesomeIcons.solidUser, size: kDefaultIconSize),
             title: Text('Hồ sơ'),
           ),
         ],
