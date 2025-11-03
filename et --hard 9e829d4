@@ -1,0 +1,686 @@
+[33mcommit 9e829d481382587f7368bedd9f697dab8aba7ce3[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: HitomiTachi <lethanhnhanminer@gmail.com>
+Date:   Thu Oct 23 04:18:53 2025 +0700
+
+    Chỉnh 1 ít giao diện
+
+[1mdiff --git a/lib/data/models/trip_creation_form.dart b/lib/data/models/trip_creation_form.dart[m
+[1mnew file mode 100644[m
+[1mindex 0000000..823f647[m
+[1m--- /dev/null[m
+[1m+++ b/lib/data/models/trip_creation_form.dart[m
+[36m@@ -0,0 +1,99 @@[m
+[32m+[m[32mclass TripPlanData {[m
+[32m+[m[32m  String destination;[m
+[32m+[m[32m  String departure;[m
+[32m+[m[32m  String startDate;[m
+[32m+[m[32m  String endDate;[m
+[32m+[m[32m  int travelers;[m
+[32m+[m[32m  int destinations;[m
+[32m+[m[32m  int activitiesPerDay;[m
+[32m+[m[32m  double budget;[m
+[32m+[m[32m  bool includeTransport;[m
+[32m+[m[32m  bool includeRestaurants;[m
+[32m+[m[32m  bool includeEntertainment;[m
+[32m+[m
+[32m+[m[32m  TripPlanData({[m
+[32m+[m[32m    this.destination = 'Hà Nội, Việt Nam',[m
+[32m+[m[32m    this.departure = 'TP. Hồ Chí Minh',[m
+[32m+[m[32m    this.startDate = '13 Feb 2025',[m
+[32m+[m[32m    this.endDate = '20 Feb 2025',[m
+[32m+[m[32m    this.travelers = 2,[m
+[32m+[m[32m    this.destinations = 1,[m
+[32m+[m[32m    this.activitiesPerDay = 3,[m
+[32m+[m[32m    this.budget = 5000000,[m
+[32m+[m[32m    this.includeTransport = true,[m
+[32m+[m[32m    this.includeRestaurants = true,[m
+[32m+[m[32m    this.includeEntertainment = false,[m
+[32m+[m[32m  });[m
+[32m+[m
+[32m+[m[32m  String get dateRange => '$startDate - $endDate';[m
+[32m+[m[41m  [m
+[32m+[m[32m  // Tự động tính số ngày dựa trên startDate và endDate[m
+[32m+[m[32m  int get totalDays {[m
+[32m+[m[32m    try {[m
+[32m+[m[32m      // Tính toán đơn giản dựa trên format ngày[m
+[32m+[m[32m      // Ví dụ: "13 Feb - 20 Feb 2025" -> 7 ngày[m
+[32m+[m[32m      if (startDate.isNotEmpty && endDate.isNotEmpty) {[m
+[32m+[m[32m        // Parse cơ bản để lấy số ngày[m
+[32m+[m[32m        final startDay = _extractDay(startDate);[m
+[32m+[m[32m        final endDay = _extractDay(endDate);[m
+[32m+[m[41m        [m
+[32m+[m[32m        if (startDay > 0 && endDay > 0 && endDay >= startDay) {[m
+[32m+[m[32m          return endDay - startDay + 1;[m
+[32m+[m[32m        }[m
+[32m+[m[32m      }[m
+[32m+[m[32m      return 7; // Default value[m
+[32m+[m[32m    } catch (e) {[m
+[32m+[m[32m      return 7; // Default value[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m[41m  [m
+[32m+[m[32m  // Hàm helper để extract ngày từ string[m
+[32m+[m[32m  int _extractDay(String dateStr) {[m
+[32m+[m[32m    try {[m
+[32m+[m[32m      // Extract số từ đầu string, ví dụ: "13 Feb" -> 13[m
+[32m+[m[32m      final parts = dateStr.trim().split(' ');[m
+[32m+[m[32m      if (parts.isNotEmpty) {[m
+[32m+[m[32m        return int.tryParse(parts[0]) ?? 0;[m
+[32m+[m[32m      }[m
+[32m+[m[32m      return 0;[m
+[32m+[m[32m    } catch (e) {[m
+[32m+[m[32m      return 0;[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m[41m  [m
+[32m+[m[32m  String get planSummary => '$travelers Người, $totalDays ngày, $activitiesPerDay hoạt động/ngày';[m
+[32m+[m
+[32m+[m[32m  // Copy constructor để tạo bản sao[m
+[32m+[m[32m  TripPlanData copyWith({[m
+[32m+[m[32m    String? destination,[m
+[32m+[m[32m    String? departure,[m
+[32m+[m[32m    String? startDate,[m
+[32m+[m[32m    String? endDate,[m
+[32m+[m[32m    int? travelers,[m
+[32m+[m[32m    int? destinations,[m
+[32m+[m[32m    int? activitiesPerDay,[m
+[32m+[m[32m    double? budget,[m
+[32m+[m[32m    bool? includeTransport,[m
+[32m+[m[32m    bool? includeRestaurants,[m
+[32m+[m[32m    bool? includeEntertainment,[m
+[32m+[m[32m  }) {[m
+[32m+[m[32m    return TripPlanData([m
+[32m+[m[32m      destination: destination ?? this.destination,[m
+[32m+[m[32m      departure: departure ?? this.departure,[m
+[32m+[m[32m      startDate: startDate ?? this.startDate,[m
+[32m+[m[32m      endDate: endDate ?? this.endDate,[m
+[32m+[m[32m      travelers: travelers ?? this.travelers,[m
+[32m+[m[32m      destinations: destinations ?? this.destinations,[m
+[32m+[m[32m      activitiesPerDay: activitiesPerDay ?? this.activitiesPerDay,[m
+[32m+[m[32m      budget: budget ?? this.budget,[m
+[32m+[m[32m      includeTransport: includeTransport ?? this.includeTransport,[m
+[32m+[m[32m      includeRestaurants: includeRestaurants ?? this.includeRestaurants,[m
+[32m+[m[32m      includeEntertainment: includeEntertainment ?? this.includeEntertainment,[m
+[32m+[m[32m    );[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  @override[m
+[32m+[m[32m  String toString() {[m
+[32m+[m[32m    return 'TripPlanData(destination: $destination, travelers: $travelers, days: $totalDays)';[m
+[32m+[m[32m  }[m
+[32m+[m[32m}[m
+\ No newline at end of file[m
+[1mdiff --git a/lib/data/models/trip_plan.dart b/lib/data/models/trip_plan.dart[m
+[1mnew file mode 100644[m
+[1mindex 0000000..81e5a97[m
+[1m--- /dev/null[m
+[1m+++ b/lib/data/models/trip_plan.dart[m
+[36m@@ -0,0 +1,99 @@[m
+[32m+[m[32mimport 'package:flutter_travels_apps/data/models/trip_plan_data.dart';[m
+[32m+[m
+[32m+[m[32mclass TripPlan {[m
+[32m+[m[32m  final String id;[m
+[32m+[m[32m  final String title;[m
+[32m+[m[32m  final String destination;[m
+[32m+[m[32m  final String startDate;[m
+[32m+[m[32m  final String endDate;[m
+[32m+[m[32m  final String duration;[m
+[32m+[m[32m  final double budget;[m
+[32m+[m[32m  final int travelers;[m
+[32m+[m[32m  final TripStatus status;[m
+[32m+[m[32m  final String imageUrl;[m
+[32m+[m[32m  final int activities;[m
+[32m+[m[32m  final double progress;[m
+[32m+[m
+[32m+[m[32m  TripPlan({[m
+[32m+[m[32m    required this.id,[m
+[32m+[m[32m    required this.title,[m
+[32m+[m[32m    required this.destination,[m
+[32m+[m[32m    required this.startDate,[m
+[32m+[m[32m    required this.endDate,[m
+[32m+[m[32m    required this.duration,[m
+[32m+[m[32m    required this.budget,[m
+[32m+[m[32m    required this.travelers,[m
+[32m+[m[32m    required this.status,[m
+[32m+[m[32m    required this.imageUrl,[m
+[32m+[m[32m    required this.activities,[m
+[32m+[m[32m    required this.progress,[m
+[32m+[m[32m  });[m
+[32m+[m
+[32m+[m[32m  // Convert to TripPlanData for compatibility with existing screens[m
+[32m+[m[32m  TripPlanData toTripPlanData() {[m
+[32m+[m[32m    return TripPlanData([m
+[32m+[m[32m      destination: destination,[m
+[32m+[m[32m      startDate: startDate,[m
+[32m+[m[32m      endDate: endDate,[m
+[32m+[m[32m      travelers: travelers,[m
+[32m+[m[32m      budget: budget,[m
+[32m+[m[32m    );[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  // Create TripPlan from TripPlanData[m
+[32m+[m[32m  factory TripPlan.fromTripPlanData(TripPlanData data, {[m
+[32m+[m[32m    required String id,[m
+[32m+[m[32m    required String title,[m
+[32m+[m[32m    required String duration,[m
+[32m+[m[32m    required TripStatus status,[m
+[32m+[m[32m    required String imageUrl,[m
+[32m+[m[32m    required int activities,[m
+[32m+[m[32m    required double progress,[m
+[32m+[m[32m  }) {[m
+[32m+[m[32m    return TripPlan([m
+[32m+[m[32m      id: id,[m
+[32m+[m[32m      title: title,[m
+[32m+[m[32m      destination: data.destination,[m
+[32m+[m[32m      startDate: data.startDate,[m
+[32m+[m[32m      endDate: data.endDate,[m
+[32m+[m[32m      duration: duration,[m
+[32m+[m[32m      budget: data.budget,[m
+[32m+[m[32m      travelers: data.travelers,[m
+[32m+[m[32m      status: status,[m
+[32m+[m[32m      imageUrl: imageUrl,[m
+[32m+[m[32m      activities: activities,[m
+[32m+[m[32m      progress: progress,[m
+[32m+[m[32m    );[m
+[32m+[m[32m  }[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32menum TripStatus {[m
+[32m+[m[32m  completed,[m
+[32m+[m[32m  ongoing,[m
+[32m+[m[32m  planned,[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m// Extension for TripStatus to get display properties[m
+[32m+[m[32mextension TripStatusExtension on TripStatus {[m
+[32m+[m[32m  String get displayText {[m
+[32m+[m[32m    switch (this) {[m
+[32m+[m[32m      case TripStatus.completed:[m
+[32m+[m[32m        return 'Hoàn thành';[m
+[32m+[m[32m      case TripStatus.ongoing:[m
+[32m+[m[32m        return 'Đang thực hiện';[m
+[32m+[m[32m      case TripStatus.planned:[m
+[32m+[m[32m        return 'Kế hoạch';[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  String get filterText {[m
+[32m+[m[32m    switch (this) {[m
+[32m+[m[32m      case TripStatus.completed:[m
+[32m+[m[32m        return 'Hoàn thành';[m
+[32m+[m[32m      case TripStatus.ongoing:[m
+[32m+[m[32m        return 'Đang thực hiện';[m
+[32m+[m[32m      case TripStatus.planned:[m
+[32m+[m[32m        return 'Kế hoạch';[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m[32m}[m
+\ No newline at end of file[m
+[1mdiff --git a/lib/data/providers/article_data_provider.dart b/lib/data/providers/article_data_provider.dart[m
+[1mnew file mode 100644[m
+[1mindex 0000000..92eff1a[m
+[1m--- /dev/null[m
+[1m+++ b/lib/data/providers/article_data_provider.dart[m
+[36m@@ -0,0 +1,101 @@[m
+[32m+[m[32mimport 'package:flutter_travels_apps/data/models/featured_article.dart';[m
+[32m+[m
+[32m+[m[32mclass ArticleDataProvider {[m
+[32m+[m[32m  static List<FeaturedArticle> getFeaturedArticles() {[m
+[32m+[m[32m    return [[m
+[32m+[m[32m      FeaturedArticle([m
+[32m+[m[32m        id: '1',[m
+[32m+[m[32m        title: 'Top 15 Điểm Đến Tuyệt Vời Nhất Việt Nam 2024',[m
+[32m+[m[32m        subtitle: 'Khám phá những địa danh đẹp nhất đất nước hình chữ S từ Bắc vào Nam',[m
+[32m+[m[32m        imageUrl: 'assets/images/img1.jpg',[m
+[32m+[m[32m        author: 'Minh Châu',[m
+[32m+[m[32m        publishDate: DateTime.now().subtract(Duration(days: 1)),[m
+[32m+[m[32m        readTime: 12,[m
+[32m+[m[32m        category: 'Khám phá',[m
+[32m+[m[32m        likes: 1247,[m
+[32m+[m[32m        isFeatured: true,[m
+[32m+[m[32m      ),[m
+[32m+[m[32m      FeaturedArticle([m
+[32m+[m[32m        id: '2',[m
+[32m+[m[32m        title: 'Bí Kíp Du Lịch Bụi Đông Nam Á Tiết Kiệm',[m
+[32m+[m[32m        subtitle: 'Hướng dẫn chi tiết để có chuyến đi backpacking hoàn hảo với ngân sách thấp',[m
+[32m+[m[32m        imageUrl: 'assets/images/img2.jpg',[m
+[32m+[m[32m        author: 'Hoàng Anh',[m
+[32m+[m[32m        publishDate: DateTime.now().subtract(Duration(days: 3)),[m
+[32m+[m[32m        readTime: 8,[m
+[32m+[m[32m        category: 'Mẹo hay',[m
+[32m+[m[32m        likes: 892,[m
+[32m+[m[32m        isFeatured: true,[m
+[32m+[m[32m      ),[m
+[32m+[m[32m      FeaturedArticle([m
+[32m+[m[32m        id: '3',[m
+[32m+[m[32m        title: 'Ẩm Thực Đường Phố Sài Gòn Phải Thử',[m
+[32m+[m[32m        subtitle: 'Những món ăn vặt không thể bỏ qua khi đến thành phố Hồ Chí Minh',[m
+[32m+[m[32m        imageUrl: 'assets/images/img3.jpg',[m
+[32m+[m[32m        author: 'Thuỳ Linh',[m
+[32m+[m[32m        publishDate: DateTime.now().subtract(Duration(days: 5)),[m
+[32m+[m[32m        readTime: 6,[m
+[32m+[m[32m        category: 'Ẩm thực',[m
+[32m+[m[32m        likes: 567,[m
+[32m+[m[32m      ),[m
+[32m+[m[32m      FeaturedArticle([m
+[32m+[m[32m        id: '4',[m
+[32m+[m[32m        title: 'Resort Cao Cấp Phú Quốc Đáng Trải Nghiệm',[m
+[32m+[m[32m        subtitle: 'Danh sách những khu nghỉ dưỡng 5 sao tốt nhất tại đảo ngọc',[m
+[32m+[m[32m        imageUrl: 'assets/images/imgHotel.jpg',[m
+[32m+[m[32m        author: 'Đức Minh',[m
+[32m+[m[32m        publishDate: DateTime.now().subtract(Duration(days: 7)),[m
+[32m+[m[32m        readTime: 10,[m
+[32m+[m[32m        category: 'Nghỉ dưỡng',[m
+[32m+[m[32m        likes: 724,[m
+[32m+[m[32m      ),[m
+[32m+[m[32m      FeaturedArticle([m
+[32m+[m[32m        id: '5',[m
+[32m+[m[32m        title: 'Hành Trình Khám Phá Hạ Long Bằng Du Thuyền',[m
+[32m+[m[32m        subtitle: 'Trải nghiệm overnight cruise qua vịnh Hạ Long huyền diệu',[m
+[32m+[m[32m        imageUrl: 'assets/images/img1.jpg',[m
+[32m+[m[32m        author: 'Văn Hưng',[m
+[32m+[m[32m        publishDate: DateTime.now().subtract(Duration(days: 10)),[m
+[32m+[m[32m        readTime: 15,[m
+[32m+[m[32m        category: 'Phiêu lưu',[m
+[32m+[m[32m        likes: 445,[m
+[32m+[m[32m      ),[m
+[32m+[m[32m      FeaturedArticle([m
+[32m+[m[32m        id: '6',[m
+[32m+[m[32m        title: 'Lịch Trình Du Lịch Đà Lạt 3 Ngày 2 Đêm',[m
+[32m+[m[32m        subtitle: 'Khám phá thành phố ngàn hoa với lịch trình chi tiết và tiết kiệm',[m
+[32m+[m[32m        imageUrl: 'assets/images/img2.jpg',[m
+[32m+[m[32m        author: 'Thanh Hà',[m
+[32m+[m[32m        publishDate: DateTime.now().subtract(Duration(days: 12)),[m
+[32m+[m[32m        readTime: 9,[m
+[32m+[m[32m        category: 'Lịch trình',[m
+[32m+[m[32m        likes: 658,[m
+[32m+[m[32m      ),[m
+[32m+[m[32m    ];[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  static List<FeaturedArticle> getArticlesByCategory(String category) {[m
+[32m+[m[32m    final articles = getFeaturedArticles();[m
+[32m+[m[32m    if (category == 'Tất cả') return articles;[m
+[32m+[m[32m    return articles.where((article) => article.category == category).toList();[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  static List<String> getAvailableCategories() {[m
+[32m+[m[32m    final articles = getFeaturedArticles();[m
+[32m+[m[32m    final categories = articles.map((article) => article.category).toSet().toList();[m
+[32m+[m[32m    return ['Tất cả', ...categories];[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  static List<FeaturedArticle> getFeaturedOnly() {[m
+[32m+[m[32m    return getFeaturedArticles().where((article) => article.isFeatured == true).toList();[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  static List<FeaturedArticle> searchArticles(String query) {[m
+[32m+[m[32m    final articles = getFeaturedArticles();[m
+[32m+[m[32m    return articles.where((article) =>[m[41m [m
+[32m+[m[32m      article.title.toLowerCase().contains(query.toLowerCase()) ||[m
+[32m+[m[32m      article.subtitle.toLowerCase().contains(query.toLowerCase()) ||[m
+[32m+[m[32m      article.category.toLowerCase().contains(query.toLowerCase())[m
+[32m+[m[32m    ).toList();[m
+[32m+[m[32m  }[m
+[32m+[m[32m}[m
+\ No newline at end of file[m
+[1mdiff --git a/lib/data/providers/destination_data_provider.dart b/lib/data/providers/destination_data_provider.dart[m
+[1mnew file mode 100644[m
+[1mindex 0000000..06690fd[m
+[1m--- /dev/null[m
+[1m+++ b/lib/data/providers/destination_data_provider.dart[m
+[36m@@ -0,0 +1,99 @@[m
+[32m+[m[32mimport 'package:flutter_travels_apps/data/models/popular_destination.dart';[m
+[32m+[m
+[32m+[m[32mclass DestinationDataProvider {[m
+[32m+[m[32m  static List<PopularDestination> getPopularDestinations() {[m
+[32m+[m[32m    return [[m
+[32m+[m[32m      PopularDestination([m
+[32m+[m[32m        id: '1',[m
+[32m+[m[32m        name: 'Hạ Long Bay',[m
+[32m+[m[32m        country: 'Việt Nam',[m
+[32m+[m[32m        imageUrl: 'assets/images/img1.jpg',[m
+[32m+[m[32m        rating: 4.9,[m
+[32m+[m[32m        reviewCount: 3247,[m
+[32m+[m[32m        description: 'Di sản thế giới với hàng nghìn đảo đá vôi kỳ thú',[m
+[32m+[m[32m        isPopular: true,[m
+[32m+[m[32m      ),[m
+[32m+[m[32m      PopularDestination([m
+[32m+[m[32m        id: '2',[m
+[32m+[m[32m        name: 'Phú Quốc',[m
+[32m+[m[32m        country: 'Việt Nam',[m
+[32m+[m[32m        imageUrl: 'assets/images/img2.jpg',[m
+[32m+[m[32m        rating: 4.8,[m
+[32m+[m[32m        reviewCount: 2156,[m
+[32m+[m[32m        description: 'Đảo ngọc nhiệt đới với bãi biển cát trắng tuyệt đẹp',[m
+[32m+[m[32m        isPopular: true,[m
+[32m+[m[32m      ),[m
+[32m+[m[32m      PopularDestination([m
+[32m+[m[32m        id: '3',[m
+[32m+[m[32m        name: 'Tokyo',[m
+[32m+[m[32m        country: 'Japan',[m
+[32m+[m[32m        imageUrl: 'assets/images/img3.jpg',[m
+[32m+[m[32m        rating: 4.7,[m
+[32m+[m[32m        reviewCount: 3521,[m
+[32m+[m[32m        description: 'Thủ đô hiện đại kết hợp văn hóa truyền thống độc đáo',[m
+[32m+[m[32m      ),[m
+[32m+[m[32m      PopularDestination([m
+[32m+[m[32m        id: '4',[m
+[32m+[m[32m        name: 'Santorini',[m
+[32m+[m[32m        country: 'Hy Lạp',[m
+[32m+[m[32m        imageUrl: 'assets/images/imgHotel.jpg',[m
+[32m+[m[32m        rating: 4.9,[m
+[32m+[m[32m        reviewCount: 1923,[m
+[32m+[m[32m        description: 'Đảo lãng mạn với kiến trúc trắng xanh đặc trưng',[m
+[32m+[m[32m      ),[m
+[32m+[m[32m      PopularDestination([m
+[32m+[m[32m        id: '5',[m
+[32m+[m[32m        name: 'Bali',[m
+[32m+[m[32m        country: 'Indonesia',[m
+[32m+[m[32m        imageUrl: 'assets/images/img1.jpg',[m
+[32m+[m[32m        rating: 4.6,[m
+[32m+[m[32m        reviewCount: 2847,[m
+[32m+[m[32m        description: 'Thiên đường nhiệt đới với văn hóa Hindu độc đáo',[m
+[32m+[m[32m      ),[m
+[32m+[m[32m      PopularDestination([m
+[32m+[m[32m        id: '6',[m
+[32m+[m[32m        name: 'Đà Lạt',[m
+[32m+[m[32m        country: 'Việt Nam',[m
+[32m+[m[32m        imageUrl: 'assets/images/img2.jpg',[m
+[32m+[m[32m        rating: 4.5,[m
+[32m+[m[32m        reviewCount: 1654,[m
+[32m+[m[32m        description: 'Thành phố ngàn hoa với khí hậu mát mẻ quanh năm',[m
+[32m+[m[32m      ),[m
+[32m+[m[32m    ];[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  static List<PopularDestination> getDestinationsByCountry(String country) {[m
+[32m+[m[32m    final destinations = getPopularDestinations();[m
+[32m+[m[32m    if (country == 'Tất cả') return destinations;[m
+[32m+[m[32m    return destinations.where((dest) => dest.country == country).toList();[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  static List<String> getAvailableCountries() {[m
+[32m+[m[32m    final destinations = getPopularDestinations();[m
+[32m+[m[32m    final countries = destinations.map((dest) => dest.country).toSet().toList();[m
+[32m+[m[32m    return ['Tất cả', ...countries];[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  static List<PopularDestination> getPopularOnly() {[m
+[32m+[m[32m    return getPopularDestinations().where((dest) => dest.isPopular == true).toList();[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  static List<PopularDestination> getTopRatedDestinations({int limit = 5}) {[m
+[32m+[m[32m    final destinations = getPopularDestinations();[m
+[32m+[m[32m    destinations.sort((a, b) => b.rating.compareTo(a.rating));[m
+[32m+[m[32m    return destinations.take(limit).toList();[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  static List<PopularDestination> searchDestinations(String query) {[m
+[32m+[m[32m    final destinations = getPopularDestinations();[m
+[32m+[m[32m    return destinations.where((dest) =>[m[41m [m
+[32m+[m[32m      dest.name.toLowerCase().contains(query.toLowerCase()) ||[m
+[32m+[m[32m      dest.country.toLowerCase().contains(query.toLowerCase()) ||[m
+[32m+[m[32m      dest.description.toLowerCase().contains(query.toLowerCase())[m
+[32m+[m[32m    ).toList();[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  static List<PopularDestination> getDestinationsByRating(double minRating) {[m
+[32m+[m[32m    return getPopularDestinations().where((dest) => dest.rating >= minRating).toList();[m
+[32m+[m[32m  }[m
+[32m+[m[32m}[m
+\ No newline at end of file[m
+[1mdiff --git a/lib/data/providers/trip_plans_provider.dart b/lib/data/providers/trip_plans_provider.dart[m
+[1mnew file mode 100644[m
+[1mindex 0000000..17e9746[m
+[1m--- /dev/null[m
+[1m+++ b/lib/data/providers/trip_plans_provider.dart[m
+[36m@@ -0,0 +1,111 @@[m
+[32m+[m[32mimport 'package:flutter_travels_apps/data/models/trip_plan.dart';[m
+[32m+[m
+[32m+[m[32mclass TripPlansDataProvider {[m
+[32m+[m[32m  static List<TripPlan> getSampleTripPlans() {[m
+[32m+[m[32m    return [[m
+[32m+[m[32m      TripPlan([m
+[32m+[m[32m        id: '1',[m
+[32m+[m[32m        title: 'Khám phá Hà Nội',[m
+[32m+[m[32m        destination: 'Hà Nội, Việt Nam',[m
+[32m+[m[32m        startDate: '15 Nov 2024',[m
+[32m+[m[32m        endDate: '18 Nov 2024',[m
+[32m+[m[32m        duration: '4 ngày 3 đêm',[m
+[32m+[m[32m        budget: 3500000,[m
+[32m+[m[32m        travelers: 2,[m
+[32m+[m[32m        status: TripStatus.completed,[m
+[32m+[m[32m        imageUrl: 'assets/images/img1.jpg',[m
+[32m+[m[32m        activities: 12,[m
+[32m+[m[32m        progress: 1.0,[m
+[32m+[m[32m      ),[m
+[32m+[m[32m      TripPlan([m
+[32m+[m[32m        id: '2',[m
+[32m+[m[32m        title: 'Phượt Sapa mùa lúa chín',[m
+[32m+[m[32m        destination: 'Sapa, Lào Cai',[m
+[32m+[m[32m        startDate: '20 Dec 2024',[m
+[32m+[m[32m        endDate: '23 Dec 2024',[m
+[32m+[m[32m        duration: '4 ngày 3 đêm',[m
+[32m+[m[32m        budget: 4200000,[m
+[32m+[m[32m        travelers: 4,[m
+[32m+[m[32m        status: TripStatus.ongoing,[m
+[32m+[m[32m        imageUrl: 'assets/images/img2.jpg',[m
+[32m+[m[32m        activities: 15,[m
+[32m+[m[32m        progress: 0.6,[m
+[32m+[m[32m      ),[m
+[32m+[m[32m      TripPlan([m
+[32m+[m[32m        id: '3',[m
+[32m+[m[32m        title: 'Nghỉ dưỡng Đà Nẵng',[m
+[32m+[m[32m        destination: 'Đà Nẵng, Việt Nam',[m
+[32m+[m[32m        startDate: '10 Jan 2025',[m
+[32m+[m[32m        endDate: '15 Jan 2025',[m
+[32m+[m[32m        duration: '6 ngày 5 đêm',[m
+[32m+[m[32m        budget: 6800000,[m
+[32m+[m[32m        travelers: 2,[m
+[32m+[m[32m        status: TripStatus.planned,[m
+[32m+[m[32m        imageUrl: 'assets/images/img3.jpg',[m
+[32m+[m[32m        activities: 18,[m
+[32m+[m[32m        progress: 0.3,[m
+[32m+[m[32m      ),[m
+[32m+[m[32m      TripPlan([m
+[32m+[m[32m        id: '4',[m
+[32m+[m[32m        title: 'Khám phá Phú Quốc',[m
+[32m+[m[32m        destination: 'Phú Quốc, Kiên Giang',[m
+[32m+[m[32m        startDate: '22 Feb 2025',[m
+[32m+[m[32m        endDate: '26 Feb 2025',[m
+[32m+[m[32m        duration: '5 ngày 4 đêm',[m
+[32m+[m[32m        budget: 5500000,[m
+[32m+[m[32m        travelers: 6,[m
+[32m+[m[32m        status: TripStatus.planned,[m
+[32m+[m[32m        imageUrl: 'assets/images/imgHotel.jpg',[m
+[32m+[m[32m        activities: 20,[m
+[32m+[m[32m        progress: 0.8,[m
+[32m+[m[32m      ),[m
+[32m+[m[32m      TripPlan([m
+[32m+[m[32m        id: '5',[m
+[32m+[m[32m        title: 'Trekking Fansipan',[m
+[32m+[m[32m        destination: 'Sapa, Lào Cai',[m
+[32m+[m[32m        startDate: '05 Aug 2024',[m
+[32m+[m[32m        endDate: '08 Aug 2024',[m
+[32m+[m[32m        duration: '4 ngày 3 đêm',[m
+[32m+[m[32m        budget: 3200000,[m
+[32m+[m[32m        travelers: 3,[m
+[32m+[m[32m        status: TripStatus.completed,[m
+[32m+[m[32m        imageUrl: 'assets/images/imgHotel2.jpg',[m
+[32m+[m[32m        activities: 10,[m
+[32m+[m[32m        progress: 1.0,[m
+[32m+[m[32m      ),[m
+[32m+[m[32m    ];[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  static List<TripPlan> filterTripsByStatus(List<TripPlan> trips, String filter) {[m
+[32m+[m[32m    if (filter == 'Tất cả') return trips;[m
+[32m+[m[41m    [m
+[32m+[m[32m    TripStatus? filterStatus;[m
+[32m+[m[32m    switch (filter) {[m
+[32m+[m[32m      case 'Hoàn thành':[m
+[32m+[m[32m        filterStatus = TripStatus.completed;[m
+[32m+[m[32m        break;[m
+[32m+[m[32m      case 'Đang thực hiện':[m
+[32m+[m[32m        filterStatus = TripStatus.ongoing;[m
+[32m+[m[32m        break;[m
+[32m+[m[32m      case 'Kế hoạch':[m
+[32m+[m[32m        filterStatus = TripStatus.planned;[m
+[32m+[m[32m        break;[m
+[32m+[m[32m      default:[m
+[32m+[m[32m        return trips;[m
+[32m+[m[32m    }[m
+[32m+[m[41m    [m
+[32m+[m[32m    return trips.where((trip) => trip.status == filterStatus).toList();[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  static List<String> getFilterOptions() {[m
+[32m+[m[32m    return ['Tất cả', 'Hoàn thành', 'Đang thực hiện', 'Kế hoạch'];[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  static Map<String, int> getTripStats(List<TripPlan> trips) {[m
+[32m+[m[32m    return {[m
+[32m+[m[32m      'completed': trips.where((t) => t.status == TripStatus.completed).length,[m
+[32m+[m[32m      'ongoing': trips.where((t) => t.status == TripStatus.ongoing).length,[m
+[32m+[m[32m      'planned': trips.where((t) => t.status == TripStatus.planned).length,[m
+[32m+[m[32m    };[m
+[32m+[m[32m  }[m
+[32m+[m[32m}[m
+\ No newline at end of file[m
+[1mdiff --git a/lib/representation/screen/detailed_trip_plan_screen.dart b/lib/representation/screen/detailed_trip_plan_screen.dart[m
+[1mindex 4015c1d..dcb638c 100644[m
+[1m--- a/lib/representation/screen/detailed_trip_plan_screen.dart[m
+[1m+++ b/lib/representation/screen/detailed_trip_plan_screen.dart[m
+[36m@@ -8,7 +8,6 @@[m [mimport 'package:font_awesome_flutter/font_awesome_flutter.dart';[m
+ [m
+ class DetailedTripPlanScreen extends StatefulWidget {[m
+   const DetailedTripPlanScreen({Key? key}) : super(key: key);[m
+[31m-[m
+   static const String routeName = '/detailed_trip_plan_screen';[m
+ [m
+   @override[m
+[36m@@ -19,36 +18,31 @@[m [mclass _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>[m
+     with TickerProviderStateMixin {[m
+   int selectedDay = 1;[m
+   late TripPlanData tripData;[m
+[31m-  late AnimationController _animationController;[m
+[31m-  late Animation<double> _fadeAnimation;[m
+[31m-  late PageController _pageController;[m
+[32m+[m[32m  late final AnimationController _animationController;[m
+[32m+[m[32m  late final Animation<double> _fadeAnimation;[m
+[32m+[m[32m  late final PageController _pageController;[m
+   bool isLoading = true;[m
+ [m
+   @override[m
+   void initState() {[m
+     super.initState();[m
+     _animationController = AnimationController([m
+[31m-      duration: const Duration(milliseconds: 300),[m
+[32m+[m[32m      duration: const Duration(milliseconds: 260),[m
+       vsync: this,[m
+     );[m
+[31m-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate([m
+[31m-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),[m
+[31m-    );[m
+[31m-    _pageController = PageController();[m
+[32m+[m[32m    _fadeAnimation = CurvedAnimation(parent: _animationController, curve: Curves.easeInOut);[m
+[32m+[m[32m    _pageController = PageController(initialPage: selectedDay - 1);[m
+ [m
+     WidgetsBinding.instance.addPostFrameCallback((_) {[m
+       final args = ModalRoute.of(context)?.settings.arguments;[m
+       if (args != null && args is TripPlanData) {[m
+[31m-        setState(() {[m
+[31m-          tripData = args;[m
+[31m-          isLoading = false;[m
+[31m-        });[m
+[32m+[m[32m        tripData = args;[m
+       } else {[m
+         tripData = TripPlanData();[m
+[31m-        setState(() {[m
+[31m-          isLoading = false;[m
+[31m-        });[m
+       }[m
+[32m+[m[32m      selectedDay = tripData.totalDays.clamp(1, tripData.totalDays);[m
+[32m+[m[32m      isLoading = false;[m
+[32m+[m[32m      setState(() {});[m
+       _animationController.forward();[m
+     });[m
+   }[m
+[36m@@ -60,7 +54,7 @@[m [mclass _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>[m
+     super.dispose();[m
+   }[m
+ [m
+[31m-  // ================== SAMPLE DATA BUILDER ==================[m
+[32m+[m[32m  // ================== SAMPLE DATA ==================[m
+   Map<int, List<TripActivity>> get tripPlan => {[m
+         for (int i = 1; i <= tripData.totalDays; i++) i: _getActivitiesForDay(i),[m
+       };[m
+[36m@@ -85,7 +79,7 @@[m [mclass _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>[m
+             description: 'Nhận phòng và nghỉ ngơi sau chuyến đi',[m
+             type: ActivityType.accommodation,[m
+             duration: '30 phút',[m
+[31m-            cost: '${tripData.budget ~/ tripData.totalDays} VNĐ/ngày',[m
+[32m+[m[32m            cost: '${tripData.budget ~/ (tripData.totalDays == 0 ? 1 : tripData.totalDays)} VNĐ/ngày',[m
+             icon: FontAwesomeIcons.bed,[m
+             color: ColorPalette.secondColor,[m
+           ),[m
+[36m@@ -183,11 +177,11 @@[m [mclass _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>[m
+   @override[m
+   Widget build(BuildContext context) {[m
+     if (isLoading) {[m
+[31m-      return const Scaffold([m
+[31m-        body: Center(child: CircularProgressIndicator()),[m
+[31m-      );[m
+[32m+[m[32m      return const Scaffold(body: Center(child: CircularProgressIndicator()));[m
+     }[m
+ [m
+[32m+[m[32m    final bottomSafe = MediaQuery.of(context).padding.bottom;[m
+[32m+[m
+     return AppBarContainerWidget([m
+       title: Padding([m
+         padding: const EdgeInsets.symmetric(horizontal: kDefaultPadding),[m
+[36m@@ -197,29 +191,22 @@[m [mclass _DetailedTripPlanScreenState extends State<DetailedTripPlanScreen>[m
+               child: Column([m
+                 crossAxisAlignment: CrossAxisAlignment.start,[m
+                 children: [[m
+[31m-                  Row([m
+[31m-                    mainAxisSize: MainAxisSize.min,[m
+[31m-                    children: [[m
+[31m-                      Flexible([m
+[31m-                        child: Text([m
+[31m-                          'Kế Hoạch Chi Tiết',[m
+[31m-                          maxLines: 1,[m
+[31m-                          overflow: TextOverflow.ellipsis,[m
+[31m-                          style: TextStyles.defaultStyle.copyWith([m
+[31m-                            fontSize: 20,[m
+[31m-                            fontWeight: FontWeight.bold,[m
+[31m-                            color: Colors.white,[m
+[31m-                          ),[m
+[32m+[m[32m                  Row(mainAxisSize: MainAxisSize.min, children: [[m
+[32m+[m[32m                    Flexible([m
+[32m+[m[32m                      child: Text([m
+[32m+[m[32m                        'Kế Hoạch Chi Tiết',[m
+[32m+[m[32m                        maxLines: 1,[m
+[32m+[m[32m                        overflow: TextOverflow.ellipsis,[m
+[32m+[m[32m                        style: TextStyles.defaultStyle.copyWith([m
+[32m+[m[32m                          fontSize: 20,[m
+[32m+[m[32m                          fontWeight: FontWeight.bold,[m
+[32m+[m[32m                          color: Colors.white,[m
+                         ),[m
+                       ),[m
+[31m-                      const SizedBox(width: 6),[m
+[31m-                      Icon([m
+[31m-                        FontAwesomeIcons.route,[m
+[31m-                        size: 16,[m
+[31m-                        color: Colors.white.withOpacity(0.9),[m
+[31m-                      ),[m
+[31m-                    ],[m
+[31m-                  ),[m
+[32m+[m[32m                    ),[m
+[32m+[m[32m                    const SizedBox(width: 6),[m
+[32m+[m[32m                    Icon(FontAwesomeIcons.route, size: 16, color: Colors.white.withOpacity(0.92)),[m
+[32m+[m[32m                  ]),[m
+                   const SizedBox(height: 4),[m
+                   Text([m
+             
