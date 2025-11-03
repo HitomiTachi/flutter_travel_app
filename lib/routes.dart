@@ -23,6 +23,9 @@ import 'package:flutter_travels_apps/representation/screen/settings_screen.dart'
 import 'package:flutter_travels_apps/representation/screen/map_screen.dart';
 import 'package:flutter_travels_apps/representation/screen/notification_screen.dart';
 
+import 'package:flutter_travels_apps/representation/screen/post_list_screen.dart';
+import 'package:flutter_travels_apps/representation/screen/create_post_screen.dart';
+
 final Map<String, WidgetBuilder> routes = {
   SplashScreen.routeName: (context) => const SplashScreen(),
   IntroScreen.routeName: (context) => const IntroScreen(),
@@ -50,5 +53,7 @@ final Map<String, WidgetBuilder> routes = {
   SettingsScreen.routeName: (context) => const SettingsScreen(),
   MapScreen.routeName: (context) => const MapScreen(),
   NotificationScreen.routeName: (context) => const NotificationScreen(),
+  PostListScreen.routeName: (context) => const PostListScreen(),
+  CreatePostScreen.routeName: (context) => const CreatePostScreen(),
   // ReviewScreen, TripBudgetScreen, PackingChecklistScreen are handled dynamically with arguments
 };
