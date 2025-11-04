@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/data/models/post_model.dart';
@@ -31,14 +31,14 @@ class _EditPostScreenState extends State<EditPostScreen> {
   @override
   void initState() {
     super.initState();
-    _descriptionController = TextEditingController(text: widget.post.description ?? '');
-    _locationNameController = TextEditingController(text: widget.post.locationName ?? '');
-    _latitudeController = TextEditingController(
-      text: widget.post.location?.latitude.toString() ?? ''
-    );
+    _descriptionController =
+        TextEditingController(text: widget.post.description ?? '');
+    _locationNameController =
+        TextEditingController(text: widget.post.locationName ?? '');
+    _latitudeController =
+        TextEditingController(text: widget.post.location?.latitude.toString() ?? '');
     _longitudeController = TextEditingController(
-      text: widget.post.location?.longitude.toString() ?? ''
-    );
+        text: widget.post.location?.longitude.toString() ?? '');
   }
 
   @override
@@ -52,7 +52,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
 
   Future<void> _updatePost() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     setState(() => _isLoading = true);
 
     try {
@@ -63,7 +63,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
         postId: widget.post.id,
         description: _descriptionController.text,
         locationName: _locationNameController.text,
-        location: (latitude != null && longitude != null) 
+        location: (latitude != null && longitude != null)
             ? GeoPoint(latitude, longitude)
             : null,
       );
@@ -85,9 +85,14 @@ class _EditPostScreenState extends State<EditPostScreen> {
     }
   }
 
-
-
+  // -----------------------------------------------------------------
+  // ----- PHẦN GIAO DIỆN BUILD ĐÃ ĐƯỢC CẬP NHẬT -----
+  // -----------------------------------------------------------------
+  @override
   Widget build(BuildContext context) {
+    // Lấy text theme từ context để dùng cho tiêu đề
+    final textTheme = Theme.of(context).textTheme;
+
     return AppBarContainerWidget(
       titleString: 'Chỉnh sửa bài viết',
       implementLeading: true,
@@ -100,47 +105,72 @@ class _EditPostScreenState extends State<EditPostScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Default Image
-                    const Text(
-                      'Ảnh',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                    // --- Nhóm 1: Ảnh (Đã căn giữa và thêm viền) ---
+                    Center(
+                      child: Column(
+                        children: [
+                          Text(
+                            'Ảnh bài viết',
+                            style: textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            width: 120,
+                            height: 120,
+                            clipBehavior: Clip.antiAlias, // Để bo góc hoạt động
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                  color: Colors.grey.shade300,
+                                  width: 1), // Thêm viền mỏng
+                              image: const DecorationImage(
+                                image:
+                                    AssetImage(PostService.defaultImagePath),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        image: const DecorationImage(
-                          image: AssetImage(PostService.defaultImagePath),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
+                    const SizedBox(height: kMediumPadding * 1.5), // Tăng khoảng cách
+
+                    // --- Nhóm 2: Chi tiết bài viết ---
+                    Text(
+                      'Chi tiết bài viết',
+                      style: textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: kMediumPadding),
-
-                    // Description
                     TextFormField(
                       controller: _descriptionController,
                       decoration: const InputDecoration(
                         labelText: 'Mô tả',
                         hintText: 'Chia sẻ trải nghiệm của bạn...',
                         border: OutlineInputBorder(),
+                        alignLabelWithHint:
+                            true, // Căn label lên trên cho maxLines
                       ),
                       maxLines: 5,
                     ),
-                    const SizedBox(height: kMediumPadding),
+                    const SizedBox(height: kMediumPadding * 1.5), // Tăng khoảng cách
 
-                    // Location
+                    // --- Nhóm 3: Thông tin địa điểm ---
+                    Text(
+                      'Thông tin địa điểm',
+                      style: textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: kMediumPadding),
                     TextFormField(
                       controller: _locationNameController,
                       decoration: const InputDecoration(
                         labelText: 'Tên địa điểm',
                         hintText: 'Nhập tên địa điểm...',
                         border: OutlineInputBorder(),
+                        prefixIcon:
+                            Icon(Icons.location_pin), // Thêm icon
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -151,7 +181,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
                     ),
                     const SizedBox(height: kMediumPadding),
 
-                    // Location Coordinates
+                    // --- Tọa độ ---
                     Row(
                       children: [
                         Expanded(
@@ -161,8 +191,10 @@ class _EditPostScreenState extends State<EditPostScreen> {
                               labelText: 'Vĩ độ',
                               hintText: 'Ví dụ: 10.762622',
                               border: OutlineInputBorder(),
+                              prefixIcon: Icon(Icons.map_outlined), // Thêm icon
                             ),
-                            keyboardType: TextInputType.numberWithOptions(decimal: true),
+                            keyboardType:
+                                const TextInputType.numberWithOptions(decimal: true),
                             validator: (value) {
                               if (value == null || value.isEmpty) return null;
                               if (double.tryParse(value) == null) {
@@ -180,8 +212,10 @@ class _EditPostScreenState extends State<EditPostScreen> {
                               labelText: 'Kinh độ',
                               hintText: 'Ví dụ: 106.660172',
                               border: OutlineInputBorder(),
+                              prefixIcon: Icon(Icons.map), // Thêm icon
                             ),
-                            keyboardType: TextInputType.numberWithOptions(decimal: true),
+                            keyboardType:
+                                const TextInputType.numberWithOptions(decimal: true),
                             validator: (value) {
                               if (value == null || value.isEmpty) return null;
                               if (double.tryParse(value) == null) {
@@ -193,12 +227,13 @@ class _EditPostScreenState extends State<EditPostScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: kMediumPadding),
+                    const SizedBox(height: kMediumPadding * 2), // Tăng khoảng cách
 
-                    // Submit Button
+                    // --- Nút Submit (Thêm icon) ---
                     SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton(
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.save_alt_outlined), // Thêm icon
                         onPressed: _updatePost,
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -206,7 +241,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: const Text(
+                        label: const Text(
                           'Cập nhật',
                           style: TextStyle(fontSize: 16),
                         ),

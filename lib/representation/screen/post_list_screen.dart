@@ -261,43 +261,64 @@ class _PostListScreenState extends State<PostListScreen> {
     }
   }
 
-  Future<void> _showDeleteConfirmationDialog(PostModel post) async {
-    return showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Xác nhận xóa'),
-        content: const Text('Bạn có chắc chắn muốn xóa bài viết này không?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              try {
-                await _postService.deletePost(post.id);
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Đã xóa bài viết'),
-                  ),
-                );
-              } catch (e) {
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Lỗi: $e'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Xóa'),
-          ),
-        ],
-      ),
-    );
-  }
+  // Hàm này là một Future, vì nó sẽ hiển thị một Dialog và chờ người dùng tương tác.
+Future<void> _showDeleteConfirmationDialog(PostModel post) async {
+  final scaffoldMessenger = ScaffoldMessenger.of(context);
+  return showDialog(
+    // `context` này vẫn là context của màn hình chính
+    context: context,
+    
+    // `builder` sẽ tạo ra một context MỚI, riêng biệt cho Dialog.
+    // Chúng ta đổi tên nó thành `dialogContext` để phân biệt rõ ràng.
+    builder: (BuildContext dialogContext) => AlertDialog(
+      
+      // --- NỘI DUNG CỦA DIALOG ---
+      title: const Text('Xác nhận xóa'), // Tiêu đề
+      content: const Text('Bạn có chắc chắn muốn xóa bài viết này không?'), // Nội dung
+      
+      // --- CÁC NÚT HÀNH ĐỘNG ---
+      actions: [
+        
+        // --- NÚT "HỦY" ---
+        TextButton(
+          // Khi nhấn "Hủy", ta dùng `dialogContext` để đóng chính Dialog này
+          onPressed: () => Navigator.pop(dialogContext),
+          child: const Text('Hủy'),
+        ),
+        
+        // --- NÚT "XÓA" ---
+        TextButton(
+          // Hàm `onPressed` này là `async` vì nó cần gọi hàm `await` (để xóa)
+          onPressed: () async {
+
+            Navigator.pop(dialogContext);
+            try {
+              // Bước 2: Thực hiện hành động `await` (xóa post)
+              // Giao diện sẽ ở trạng thái "chờ" (await) cho đến khi hàm này xong
+              await _postService.deletePost(post.id);
+              if (!mounted) return;
+              scaffoldMessenger.showSnackBar(
+                const SnackBar(
+                  content: Text('Đã xóa bài viết'),
+                ),
+              );
+
+            } catch (e) {  
+              if (!mounted) return;
+              scaffoldMessenger.showSnackBar(
+                SnackBar(
+                  content: Text('Lỗi: $e'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          },
+          // Tô màu đỏ cho nút "Xóa" để cảnh báo
+          style: TextButton.styleFrom(foregroundColor: Colors.red),
+          child: const Text('Xóa'),
+        ),
+      ],
+    ),
+  );
+}
 }
