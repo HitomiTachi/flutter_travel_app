@@ -5,6 +5,7 @@ import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/helpers/asset_helper.dart';
 import 'package:flutter_travels_apps/representation/screen/personal_info_screen.dart';
 import 'package:flutter_travels_apps/representation/screen/settings_screen.dart';
+import 'package:flutter_travels_apps/representation/screen/post_list_screen.dart';
 import 'package:flutter_travels_apps/representation/widgets/common/app_bar_container.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -448,47 +449,51 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  // --- CẬP NHẬT: Lấy số liệu 'favoritePlaceIds' ---
+  // --- CẬP NHẬT: Đếm số bài viết từ Firestore ---
   Widget _buildQuickStatsSection(Map<String, dynamic> userData) {
-    // Đếm số lượng 'favoritePlaceIds'
-    final int savedPlacesCount =
-        (userData['favoritePlaceIds'] as List?)?.length ?? 0;
-    // (Giả sử 'completedTrips' và 'rating' chưa có, ta tạm ẩn)
-    // final int completedTripsCount = userData['completedTrips'] ?? 0;
-    // final String rating = userData['rating']?.toString() ?? 'N/A';
+    return StreamBuilder<QuerySnapshot>(
+      stream: _firestore
+          .collection('posts')
+          .where('userId', isEqualTo: _currentUser?.uid)
+          .snapshots(),
+      builder: (context, snapshot) {
+        // Đếm số bài viết
+        final int postCount = snapshot.hasData ? snapshot.data!.docs.length : 0;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: kMediumPadding),
-      child: Row(
-        children: [
-          Expanded(
-            child: _buildStatCard(
-              FontAwesomeIcons.mapLocationDot,
-              '0', // <-- Tạm ẩn
-              'Chuyến đi',
-              Colors.green,
-            ),
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: kMediumPadding),
+          child: Row(
+            children: [
+              Expanded(
+                child: _buildStatCard(
+                  FontAwesomeIcons.mapLocationDot,
+                  '0', // <-- Tạm ẩn
+                  'Chuyến đi',
+                  Colors.green,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildStatCard(
+                  FontAwesomeIcons.newspaper,
+                  '$postCount', // <-- Đã cập nhật để hiển thị số bài viết thực tế
+                  'Bài viết',
+                  Colors.blue,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildStatCard(
+                  FontAwesomeIcons.star,
+                  'N/A', // <-- Tạm ẩn
+                  'Đánh giá',
+                  Colors.amber,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildStatCard(
-              FontAwesomeIcons.heart,
-              '$savedPlacesCount', // <-- CẬP NHẬT
-              'Yêu thích',
-              Colors.red,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildStatCard(
-              FontAwesomeIcons.star,
-              'N/A', // <-- Tạm ẩn
-              'Đánh giá',
-              Colors.amber,
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -557,10 +562,10 @@ class _ProfileScreenState extends State<ProfileScreen>
         () => _navigateToMyTrips(),
       ),
       _buildModernMenuItem(
-        FontAwesomeIcons.heart,
-        'Danh sách yêu thích',
-        'Địa điểm và chuyến đi đã lưu',
-        Colors.red,
+        FontAwesomeIcons.newspaper,
+        'Danh sách bài viết',
+        'Các bài viết đã đăng',
+        Colors.blue,
         () => _navigateToFavorites(),
       ),
       _buildModernMenuItem(
@@ -906,7 +911,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   void _navigateToFavorites() {
-    _showComingSoonDialog('Danh sách yêu thích');
+    Navigator.pushNamed(context, PostListScreen.routeName);
   }
 
   void _navigateToPaymentMethods() {
