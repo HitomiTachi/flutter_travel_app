@@ -191,14 +191,14 @@ class _ActionBar extends StatelessWidget {
                 children: [
                   Icon(
                     FontAwesomeIcons.checkDouble,
-                    size: 11,
+                    size: 10,
                     color: Colors.white,
                   ),
-                  SizedBox(width: 4),
+                  const SizedBox(width: 4),
                   Text(
-                    'Đánh dấu đã đọc',
-                    style: TextStyle(
-                      fontSize: 12,
+                    'Đánh dấu',
+                    style: TextStyles.defaultStyle.copyWith(
+                      fontSize: 11,
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
                     ),

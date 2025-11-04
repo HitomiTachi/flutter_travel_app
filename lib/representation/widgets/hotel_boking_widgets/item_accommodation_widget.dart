@@ -5,7 +5,6 @@ import 'package:flutter_travels_apps/core/helpers/asset_helper.dart';
 import 'package:flutter_travels_apps/core/helpers/images_helpers.dart';
 import 'package:flutter_travels_apps/representation/widgets/common/button_widget.dart';
 import 'package:flutter_travels_apps/representation/widgets/common/dashline_widget.dart';
-import 'package:flutter_travels_apps/representation/screen/accommodation_details_screen.dart';
 import 'package:flutter_travels_apps/data/models/accommodation_model.dart';
 import 'package:flutter_travels_apps/data/models/trip_plan_data.dart';
 
@@ -169,13 +168,9 @@ class ItemAccommodationWidget extends StatelessWidget {
   }
 
   void _addToTripPlan(BuildContext context) {
-    // Điều hướng đến trang chi tiết accommodation
-    Navigator.of(context).pushNamed(
-      AccommodationDetailsScreen.routeName,
-      arguments: {
-        'accommodationModel': accommodationModel,
-        'tripData': tripData,
-      },
+    // TODO: Implement accommodation detail navigation
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Chức năng đang phát triển')),
     );
   }
 }

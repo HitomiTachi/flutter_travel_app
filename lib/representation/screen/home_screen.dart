@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
+import 'package:flutter_travels_apps/core/constants/color_constants.dart';
+import 'package:flutter_travels_apps/core/constants/textstyle_constants.dart';
 import 'package:flutter_travels_apps/core/helpers/asset_helper.dart';
 import 'package:flutter_travels_apps/core/helpers/images_helpers.dart';
 import 'package:flutter_travels_apps/core/helpers/navigation_helper.dart';
 import 'package:flutter_travels_apps/representation/widgets/common/app_bar_container.dart';
 import 'package:flutter_travels_apps/representation/widgets/homescreen_widgets/popular_destinations_widget.dart';
 import 'package:flutter_travels_apps/representation/widgets/homescreen_widgets/article_widgets.dart';
+import 'package:flutter_travels_apps/data/mock/destination_data_provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_travels_apps/representation/screen/global_search_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -62,45 +65,197 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
   }
-  Widget _buildItemCategory(
-    Widget icon,
-    Color color,
-    Function() onTap,
-    String title,
-  ) {
+
+  // ============================================================
+  // METHOD HỖ TRỢ CHO "ĐỊA ĐIỂM YÊU THÍCH"
+  // ============================================================
+  Widget _buildFavoriteDestinationItem({
+    required String imageUrl,
+    required String name,
+    VoidCallback? onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              height: 60,
-              padding: EdgeInsets.symmetric(vertical: kMediumPadding),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(kItemPadding),
-              ),
-              child: Center(child: icon),
-            ),
-            SizedBox(height: kDefaultPadding / 2),
-            Container(
-              height: 32,
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  height: 1.2,
+      child: Column(
+        children: [
+          Container(
+            width: 70,
+            height: 70,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: Offset(0, 4),
                 ),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+              ],
+            ),
+            child: ClipOval(
+              child: ImageHelper.loadFromAsset(
+                imageUrl,
+                fit: BoxFit.cover,
+                width: 70,
+                height: 70,
               ),
             ),
-          ],
-        ),
+          ),
+          SizedBox(height: kTopPadding),
+          SizedBox(
+            width: 80,
+            child: Text(
+              name,
+              style: TextStyles.defaultStyle.copyWith(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: ColorPalette.textColor,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildFavoritesSection() {
+    // Lấy danh sách yêu thích từ data provider (tạm thời lấy top 5)
+    final favoriteDestinations = DestinationDataProvider.getTopRatedDestinations(limit: 5);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Header
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: kDefaultPadding),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Địa điểm yêu thích',
+                style: TextStyles.defaultStyle.copyWith(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: ColorPalette.textColor,
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  NavigationHelper().goToLike(initialTab: 0, showAll: true);
+                },
+                child: Text(
+                  'Xem tất cả',
+                  style: TextStyles.defaultStyle.copyWith(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: ColorPalette.primaryColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: kDefaultPadding),
+
+        // Kiểm tra nếu không có địa điểm yêu thích
+        if (favoriteDestinations.isEmpty)
+          // Empty state
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: kDefaultPadding),
+            child: Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(kMediumPadding),
+              decoration: BoxDecoration(
+                color: ColorPalette.primaryColor.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(kItemPadding),
+                border: Border.all(
+                  color: ColorPalette.primaryColor.withOpacity(0.2),
+                  width: 1,
+                ),
+              ),
+              child: Column(
+                children: [
+                  Icon(
+                    FontAwesomeIcons.heart,
+                    size: 40,
+                    color: ColorPalette.primaryColor.withOpacity(0.5),
+                  ),
+                  SizedBox(height: kDefaultPadding),
+                  Text(
+                    'Hãy khám phá địa điểm yêu thích',
+                    style: TextStyles.defaultStyle.copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: ColorPalette.textColor,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: kTopPadding),
+                  Text(
+                    'Lưu những địa điểm bạn muốn ghé thăm\nvào danh sách yêu thích',
+                    style: TextStyles.defaultStyle.copyWith(
+                      fontSize: 13,
+                      color: ColorPalette.subTitleColor,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: kDefaultPadding),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      NavigationHelper().goToLike(initialTab: 0);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: ColorPalette.primaryColor,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: kMediumPadding,
+                        vertical: kDefaultPadding / 2,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(kItemPadding),
+                      ),
+                    ),
+                    icon: Icon(FontAwesomeIcons.compass, size: 16),
+                    label: Text(
+                      'Khám phá ngay',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+        else
+          // Hiển thị danh sách địa điểm yêu thích dạng hình tròn
+          SizedBox(
+            height: 120,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.symmetric(horizontal: kDefaultPadding),
+              itemCount: favoriteDestinations.length,
+              itemBuilder: (context, index) {
+                final destination = favoriteDestinations[index];
+                return Padding(
+                  padding: EdgeInsets.only(
+                    right: index < favoriteDestinations.length - 1 ? kMediumPadding : 0,
+                  ),
+                  child: _buildFavoriteDestinationItem(
+                    imageUrl: destination.imageUrl,
+                    name: destination.name,
+                    onTap: () {
+                      NavigationHelper().goToLike(initialTab: 0);
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
+      ],
     );
   }
 
@@ -291,68 +446,25 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // Content có thể cuộn - Categories và widgets khác
+          // Content có thể cuộn - Các widget chính
           Expanded(
             child: SingleChildScrollView(
               padding: EdgeInsets.only(top: kDefaultPadding),
               child: Column(
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildItemCategory(
-                          ImageHelper.loadFromAsset(
-                            AssetHelper.iconlocation,
-                            width: kBottomBarIconSize,
-                            height: kBottomBarIconSize,
-                          ),
-                          Colors.blue,
-                          () {
-                            Navigator.of(
-                              context,
-                            ).pushNamed('/trip_plans_list_screen');
-                          },
-                          'Kế hoạch\nchuyến đi',
-                        ),
-                      ),
-                      SizedBox(width: kDefaultPadding),
-                      Expanded(
-                        child: _buildItemCategory(
-                          ImageHelper.loadFromAsset(
-                            AssetHelper.icoMap,
-                            width: kBottomBarIconSize,
-                            height: kBottomBarIconSize,
-                          ),
-                          Colors.green,
-                          () {
-                            // Sử dụng NavigationHelper để chuyển tab thay vì push screen mới
-                            NavigationHelper().goToMap();
-                          },
-                          'Bản đồ',
-                        ),
-                      ),
-                      SizedBox(width: kDefaultPadding),
-                      Expanded(
-                        child: _buildItemCategory(
-                          ImageHelper.loadFromAsset(
-                            AssetHelper.allservices,
-                            width: kBottomBarIconSize,
-                            height: kBottomBarIconSize,
-                          ),
-                          Colors.orange,
-                          () {},
-                          'Tất cả dịch vụ',
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: kTopPadding),
+                  // ============================================================
+                  // ĐỊA ĐIỂM YÊU THÍCH
+                  // ============================================================
+                  _buildFavoritesSection(),
+                  SizedBox(height: kMediumPadding),
+                  
                   // Popular Destinations Section
                   PopularDestinationsWidget(),
-                  SizedBox(height: kTopPadding),
-                  // Featured Articles Section
+                  SizedBox(height: kMediumPadding),
+                  
+                  // Featured Articles Section → Hiển thị "Đánh giá nổi bật"
                   FeaturedArticlesWidget(),
-                  SizedBox(height: kTopPadding),
+                  SizedBox(height: kMediumPadding),
                 ],
               ),
             ),

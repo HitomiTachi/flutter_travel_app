@@ -40,7 +40,7 @@ class NavigationHelper {
   void goToMap() => navigateToTab(mapTab);
   
   /// Chuyển đến Like tab với options
-  /// [initialTab] - Tab con bên trong LikeScreen (0: Địa điểm, 1: Bài viết, 2: Kế hoạch)
+  /// [initialTab] - Tab con bên trong LikeScreen (0: Địa điểm, 1: Bình luận, 2: Kế hoạch)
   /// [showAll] - Hiển thị tất cả items thay vì chỉ favorites
   void goToLike({int? initialTab, bool? showAll}) {
     final args = <String, dynamic>{};

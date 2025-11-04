@@ -7,6 +7,7 @@ import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/core/constants/textstyle_constants.dart';
 import 'package:flutter_travels_apps/representation/widgets/common/app_bar_container.dart';
 import 'package:flutter_travels_apps/core/helpers/local_storage_helper.dart';
+import 'package:flutter_travels_apps/representation/screen/destination_reviews_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:math' as math;
@@ -14,6 +15,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_travels_apps/services/trip_plan_service.dart';
 import 'package:flutter_travels_apps/data/models/trip_activity_model.dart';
+import 'package:flutter_travels_apps/data/models/popular_destination.dart';
+import 'package:flutter_travels_apps/core/helpers/asset_helper.dart';
 
 class MapScreen extends StatefulWidget {
   static const String routeName = '/map_screen';
@@ -545,6 +548,19 @@ class _MapScreenState extends State<MapScreen> {
     LocalStorageHelper.setValue('map_recent_searches', _recentSearches);
   }
 
+  PopularDestination _convertToPopularDestination(MapLocation location) {
+    return PopularDestination(
+      id: location.id,
+      name: location.name,
+      country: location.address ?? 'Việt Nam',
+      imageUrl: location.imageUrl ?? AssetHelper.imgHotel3,
+      rating: location.rating ?? 4.5,
+      reviewCount: location.reviewCount ?? 100,
+      description: location.description,
+      isPopular: location.type == 'destination',
+    );
+  }
+
   void _focusOnLocation(MapLocation location) {
     setState(() {
       _selectedLocation = location;
@@ -720,48 +736,93 @@ class _MapScreenState extends State<MapScreen> {
                   ),
                 ],
               ),
+              SizedBox(height: kTopPadding),
+              // Nút xem đánh giá
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.pushNamed(
+                      context,
+                      DestinationReviewsScreen.routeName,
+                      arguments: {
+                        'destinationId': location.id,
+                        'destinationName': location.name,
+                        'targetType': location.type,
+                      },
+                    );
+                  },
+                  icon: Icon(Icons.rate_review, size: 18),
+                  label: Text('Xem đánh giá'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: ColorPalette.primaryColor,
+                    side: BorderSide(color: ColorPalette.primaryColor),
+                  ),
+                ),
+              ),
+              SizedBox(height: kTopPadding),
+              // Nút xem chi tiết
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/destination_detail_screen',
+                      arguments: _convertToPopularDestination(location),
+                    );
+                  },
+                  icon: Icon(Icons.info_outline, size: 18, color: Colors.white),
+                  label: Text(
+                    'Xem chi tiết',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: ColorPalette.primaryColor,
+                  ),
+                ),
+              ),
               SizedBox(height: kItemPadding),
               // Nút thêm/xóa điểm dừng
-              if (_selectedLocation != null)
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed:
-                            _routeWaypoints.any((wp) => wp.id == location.id)
-                            ? () => _removeWaypoint(location)
-                            : () => _addWaypoint(location),
-                        icon: Icon(
-                          _routeWaypoints.any((wp) => wp.id == location.id)
-                              ? Icons.remove_circle
-                              : Icons.add_circle,
-                        ),
-                        label: Text(
-                          _routeWaypoints.any((wp) => wp.id == location.id)
-                              ? 'Xóa điểm dừng'
-                              : 'Thêm điểm dừng',
-                        ),
-                      ),
-                    ),
-                    if (_routeWaypoints.isNotEmpty || _routeLine != null)
-                      SizedBox(width: kTopPadding),
-                    if (_routeWaypoints.isNotEmpty || _routeLine != null)
-                      IconButton(
-                        tooltip: 'Xóa tuyến',
-                        onPressed: _clearRoute,
-                        icon: Icon(Icons.clear_all),
-                        color: Colors.red,
-                      ),
-                  ],
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                  onPressed:
+                      _routeWaypoints.any((wp) => wp.id == location.id)
+                      ? () => _removeWaypoint(location)
+                      : () => _addWaypoint(location),
+                  icon: Icon(
+                    _routeWaypoints.any((wp) => wp.id == location.id)
+                        ? Icons.remove_circle
+                        : Icons.add_circle,
+                  ),
+                  label: Text(
+                    _routeWaypoints.any((wp) => wp.id == location.id)
+                        ? 'Xóa điểm dừng'
+                        : 'Thêm điểm dừng',
+                  ),
+                ),
+              ),
+              if (_routeWaypoints.isNotEmpty || _routeLine != null)
+                SizedBox(width: kTopPadding),
+              if (_routeWaypoints.isNotEmpty || _routeLine != null)
+                IconButton(
+                  tooltip: 'Xóa tuyến',
+                  onPressed: _clearRoute,
+                  icon: Icon(Icons.clear_all),
+                  color: Colors.red,
                 ),
             ],
           ),
-        ),
+        ],
       ),
-    );
-  }
+    ),
+  ),
+);
+}
 
-  Widget _buildSearchBar() {
+Widget _buildSearchBar() {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,

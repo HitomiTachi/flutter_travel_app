@@ -3,6 +3,8 @@ import 'package:flutter_travels_apps/core/constants/dismension_constants.dart';
 import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/constants/textstyle_constants.dart';
 import 'package:flutter_travels_apps/data/models/popular_destination.dart';
+import 'package:flutter_travels_apps/core/helpers/navigation_helper.dart';
+import 'package:flutter_travels_apps/representation/screen/destination_detail_screen.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ItemDestinationWidget extends StatelessWidget {
@@ -17,7 +19,20 @@ class ItemDestinationWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GestureDetector(
+      onTap: () {
+        // Chuyển sang tab Map
+        NavigationHelper().goToMap();
+        
+        // Đợi chút rồi hiển thị destination detail
+        Future.delayed(const Duration(milliseconds: 300), () {
+          Navigator.of(context).pushNamed(
+            DestinationDetailScreen.routeName,
+            arguments: destination,
+          );
+        });
+      },
+      child: Container(
       width: 220,
       margin: EdgeInsets.only(right: kDefaultPadding),
       child: Card(
@@ -183,6 +198,7 @@ class ItemDestinationWidget extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 }
