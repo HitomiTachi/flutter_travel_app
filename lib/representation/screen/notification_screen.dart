@@ -10,7 +10,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class NotificationScreen extends StatefulWidget {
   static const String routeName = '/notification_screen';
-  
+
   const NotificationScreen({Key? key}) : super(key: key);
 
   @override
@@ -20,7 +20,7 @@ class NotificationScreen extends StatefulWidget {
 class _NotificationScreenState extends State<NotificationScreen> {
   late List<NotificationModel> _allNotifications;
   late int _unreadCount;
-  
+
   @override
   void initState() {
     super.initState();
@@ -51,7 +51,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
       }
       _unreadCount = 0;
     });
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Đã đánh dấu tất cả là đã đọc'),
@@ -69,7 +69,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
         _allNotifications.removeAt(index);
         if (!notification.isRead) _unreadCount--;
       });
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Đã xóa thông báo'),
@@ -95,9 +95,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
             ),
 
           // Danh sách thông báo
-          Expanded(
-            child: _buildNotificationList(_allNotifications),
-          ),
+          Expanded(child: _buildNotificationList(_allNotifications)),
         ],
       ),
     );
@@ -109,7 +107,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
     }
 
     final grouped = NotificationDataProvider.groupByDate(notifications);
-    
+
     return ListView.builder(
       padding: const EdgeInsets.symmetric(
         horizontal: kDefaultPadding,
@@ -119,7 +117,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
       itemBuilder: (context, index) {
         final key = grouped.keys.elementAt(index);
         final items = grouped[key]!;
-        
+
         return _DateGroup(
           dateLabel: key,
           notifications: items,
@@ -136,10 +134,7 @@ class _ActionBar extends StatelessWidget {
   final int unreadCount;
   final VoidCallback onMarkAllRead;
 
-  const _ActionBar({
-    required this.unreadCount,
-    required this.onMarkAllRead,
-  });
+  const _ActionBar({required this.unreadCount, required this.onMarkAllRead});
 
   @override
   Widget build(BuildContext context) {
@@ -170,19 +165,23 @@ class _ActionBar extends StatelessWidget {
             color: ColorPalette.primaryColor,
           ),
           const SizedBox(width: 8),
-          Text(
-            'Bạn có $unreadCount thông báo chưa đọc',
-            style: TextStyles.defaultStyle.copyWith(
-              fontSize: 13,
-              color: ColorPalette.textColor,
-              fontWeight: FontWeight.w500,
+          Expanded(
+            child: Text(
+              'Bạn có $unreadCount thông báo chưa đọc',
+              style: TextStyles.defaultStyle.copyWith(
+                fontSize: 13,
+                color: ColorPalette.textColor,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          const Spacer(),
+          const SizedBox(width: 8),
           GestureDetector(
             onTap: onMarkAllRead,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: ColorPalette.primaryColor,
                 borderRadius: BorderRadius.circular(20),
@@ -192,14 +191,14 @@ class _ActionBar extends StatelessWidget {
                 children: [
                   const Icon(
                     FontAwesomeIcons.checkDouble,
-                    size: 11,
+                    size: 10,
                     color: Colors.white,
                   ),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: 4),
                   Text(
-                    'Đánh dấu đã đọc',
+                    'Đánh dấu',
                     style: TextStyles.defaultStyle.copyWith(
-                      fontSize: 12,
+                      fontSize: 11,
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
                     ),
@@ -251,13 +250,15 @@ class _DateGroup extends StatelessWidget {
             ),
           ),
         ),
-        
+
         // ✅ TỐI ƯU: Dùng ListView.builder thay vì map
-        ...notifications.map((notification) => _NotificationCard(
-          notification: notification,
-          onMarkAsRead: () => onMarkAsRead(notification),
-          onDelete: () => onDelete(notification),
-        )),
+        ...notifications.map(
+          (notification) => _NotificationCard(
+            notification: notification,
+            onMarkAsRead: () => onMarkAsRead(notification),
+            onDelete: () => onDelete(notification),
+          ),
+        ),
       ],
     );
   }
@@ -363,9 +364,9 @@ class _NotificationCard extends StatelessWidget {
                   ],
                 ],
               ),
-              
+
               const SizedBox(height: 6),
-              
+
               // Message
               Text(
                 notification.message,
@@ -377,9 +378,9 @@ class _NotificationCard extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              
+
               const SizedBox(height: 10),
-              
+
               // Thời gian
               Row(
                 children: [

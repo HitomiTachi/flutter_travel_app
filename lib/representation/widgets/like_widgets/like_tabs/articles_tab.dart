@@ -6,7 +6,7 @@ import 'package:flutter_travels_apps/data/mock/article_data_provider.dart';
 import 'package:flutter_travels_apps/representation/widgets/like_widgets/like_article_items.dart';
 import 'package:flutter_travels_apps/representation/widgets/common/empty_state_widget.dart';
 
-/// Tab hiển thị danh sách bài viết
+/// Tab hiển thị danh sách bình luận
 class ArticlesTab extends StatelessWidget {
   final bool grid;
   final bool editMode;

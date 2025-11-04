@@ -1,5 +1,13 @@
 {
     "cSpell.words": [
         "allprojects"
-    ]
+    ],
+    "dart.analysisExcludedFolders": [
+        "${workspaceFolder}/build",
+        "${workspaceFolder}/android/.gradle"
+    ],
+    "files.exclude": {
+        "**/.dart_tool": true,
+        "**/build": true
+    }
 }

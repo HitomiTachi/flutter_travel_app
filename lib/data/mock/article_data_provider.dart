@@ -58,17 +58,7 @@ class ArticleDataProvider {
       likes: 445,
       isFeatured: true,
     ),
-    FeaturedArticle(
-      id: '6',
-      title: 'Lịch Trình Du Lịch Đà Lạt 3 Ngày 2 Đêm',
-      subtitle: 'Khám phá thành phố ngàn hoa với lịch trình chi tiết và tiết kiệm',
-      imageUrl: 'assets/images/img2.jpg',
-      author: 'Thanh Hà',
-      publishDate: DateTime.now().subtract(Duration(days: 12)),
-      category: 'Lịch trình',
-      likes: 658,
-      isFeatured: true,
-    ),
+
     FeaturedArticle(
       id: '7',
       title: 'Khám Phá Sapa Mùa Lúa Chín',
@@ -133,16 +123,7 @@ class ArticleDataProvider {
       category: 'Khám phá',
       likes: 892,
     ),
-    FeaturedArticle(
-      id: '13',
-      title: 'Huế - Cố Đô Ngàn Năm Văn Hiến',
-      subtitle: 'Hoàng cung, lăng tẩm và ẩm thực cung đình đặc sắc',
-      imageUrl: 'assets/images/img3.jpg',
-      author: 'Thanh Bình',
-      publishDate: DateTime.now().subtract(Duration(days: 26)),
-      category: 'Lịch trình',
-      likes: 623,
-    ),
+
     FeaturedArticle(
       id: '14',
       title: 'Mũi Né - Thiên Đường Đồi Cát',
@@ -173,16 +154,7 @@ class ArticleDataProvider {
       category: 'Khám phá',
       likes: 389,
     ),
-    FeaturedArticle(
-      id: '17',
-      title: 'Mai Châu - Thung Lũng Yên Bình',
-      subtitle: 'Nhà sàn, ruộng lúa và văn hóa dân tộc Thái',
-      imageUrl: 'assets/images/img3.jpg',
-      author: 'Đình Phong',
-      publishDate: DateTime.now().subtract(Duration(days: 34)),
-      category: 'Lịch trình',
-      likes: 512,
-    ),
+
     FeaturedArticle(
       id: '18',
       title: 'Quy Nhơn - Bãi Biển Hoang Sơ',

@@ -5,15 +5,12 @@ import 'package:flutter_travels_apps/core/constants/textstyle_constants.dart';
 import 'package:flutter_travels_apps/representation/widgets/common/app_bar_container.dart';
 import 'package:flutter_travels_apps/data/mock/destination_data_provider.dart';
 import 'package:flutter_travels_apps/data/mock/article_data_provider.dart';
-import 'package:flutter_travels_apps/data/mock/trip_plans_list_data_provider.dart';
 import 'package:flutter_travels_apps/data/models/popular_destination.dart';
 import 'package:flutter_travels_apps/data/models/featured_article.dart';
-import 'package:flutter_travels_apps/data/models/trip_plan_list_model.dart';
 import 'package:flutter_travels_apps/providers/like_filter_provider.dart';
 import 'package:flutter_travels_apps/representation/widgets/like_widgets/like_filter_section.dart';
 import 'package:flutter_travels_apps/representation/widgets/like_widgets/like_tabs/places_tab.dart';
 import 'package:flutter_travels_apps/representation/widgets/like_widgets/like_tabs/articles_tab.dart';
-import 'package:flutter_travels_apps/representation/widgets/like_widgets/like_tabs/trips_tab.dart';
 
 class LikeScreen extends StatefulWidget {
   final Map<String, dynamic>? arguments;
@@ -40,13 +37,12 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
   // Filter state
   int _selectedFilterIndex = 0;
 
-  // Tab controller cho 3 nhóm chính
+  // Tab controller cho 2 nhóm chính
   late TabController _tabController;
 
   // Dữ liệu từ mock providers - hiển thị tất cả
   late List<PopularDestination> _allDestinations;
   late List<FeaturedArticle> _allArticles;
-  late List<TripPlan> _allTrips;
 
   @override
   void initState() {
@@ -54,10 +50,9 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
     // Load toàn bộ dữ liệu từ mock providers
     _allDestinations = DestinationDataProvider.getPopularDestinations();
     _allArticles = ArticleDataProvider.getFeaturedArticles();
-    _allTrips = TripPlansListDataProvider.getSampleTripPlans();
     
     // Initialize TabController
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_onTabChanged);
 
     // Initialize ScrollController với listener
@@ -116,7 +111,6 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
   // Getters trả về toàn bộ dữ liệu từ mock providers
   List<PopularDestination> get _destinations => _allDestinations;
   List<FeaturedArticle> get _articles => _allArticles;
-  List<TripPlan> get _trips => _allTrips;
 
   @override
   void dispose() {
@@ -150,7 +144,6 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
       // Xóa items được chọn
       _allDestinations.removeWhere((d) => _selectedIds.contains(d.id));
       _allArticles.removeWhere((a) => _selectedIds.contains(a.id));
-      _allTrips.removeWhere((t) => _selectedIds.contains(t.id));
       _selectedIds.clear();
       _editMode = false;
     });
@@ -241,7 +234,7 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
                       onToggleSelect: _toggleSelect,
                       scrollController: _scrollController,
                     ),
-                    // Tab 1: Bài viết
+                    // Tab 1: Bình luận
                     ArticlesTab(
                       grid: _grid,
                       editMode: _editMode,
@@ -250,16 +243,6 @@ class _LikeScreenState extends State<LikeScreen> with TickerProviderStateMixin {
                       filterIndex: _selectedFilterIndex,
                       filters: LikeFilterProvider.getFiltersForTab(LikeFilterProvider.tabArticles),
                       articles: _articles,
-                      onToggleSelect: _toggleSelect,
-                      scrollController: _scrollController,
-                    ),
-                    // Tab 2: Lịch trình
-                    TripsTab(
-                      grid: _grid,
-                      editMode: _editMode,
-                      selectedIds: _selectedIds,
-                      keyword: _searchCtl.text,
-                      data: _trips,
                       onToggleSelect: _toggleSelect,
                       scrollController: _scrollController,
                     ),

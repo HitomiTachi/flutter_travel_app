@@ -4,7 +4,7 @@ import 'package:flutter_travels_apps/core/constants/color_constants.dart';
 import 'package:flutter_travels_apps/core/constants/textstyle_constants.dart';
 
 class LikeFilterSection extends StatefulWidget {
-  final TabController tabController; // 3 tab nhóm chính - Tầng 1
+  final TabController tabController; // 2 tab nhóm chính - Tầng 1
   final List<String> allFilters; // Tất cả filters gộp chung - Tầng 2
   final int selectedFilterIndex; // Index filter đang chọn
   final ValueChanged<int> onFilterSelected; // Callback khi chọn filter
@@ -86,7 +86,7 @@ class _LikeFilterSectionState extends State<LikeFilterSection>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Tầng 1: TabBar 3 nhóm chính (Địa danh / Bài viết / Lịch trình)
+        // Tầng 1: TabBar 2 nhóm chính (Địa danh / Bình luận)
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
@@ -129,13 +129,7 @@ class _LikeFilterSectionState extends State<LikeFilterSection>
               Tab(
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: kMinPadding),
-                  child: Text('Bài viết'),
-                ),
-              ),
-              Tab(
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: kMinPadding),
-                  child: Text('Lịch trình'),
+                  child: Text('Bình luận'),
                 ),
               ),
             ],

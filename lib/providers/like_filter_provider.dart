@@ -53,8 +53,8 @@ class LikeFilterProvider {
   /// Label hiển thị cho tab Địa danh
   static const String labelPlaces = 'Địa danh';
   
-  /// Label hiển thị cho tab Bài viết
-  static const String labelArticles = 'Bài viết';
+  /// Label hiển thị cho tab Bình luận
+  static const String labelArticles = 'Bình luận';
   
   /// Label hiển thị cho tab Lịch trình
   static const String labelTrips = 'Lịch trình';
@@ -66,8 +66,8 @@ class LikeFilterProvider {
   /// Thông báo khi tab Địa danh trống
   static const String emptyPlaces = 'Không tìm thấy địa điểm nào';
   
-  /// Thông báo khi tab Bài viết trống
-  static const String emptyArticles = 'Không tìm thấy bài viết nào';
+  /// Thông báo khi tab Bình luận trống
+  static const String emptyArticles = 'Không tìm thấy bình luận nào';
   
   /// Thông báo khi tab Lịch trình trống
   static const String emptyTrips = 'Không tìm thấy lịch trình nào';
@@ -79,7 +79,7 @@ class LikeFilterProvider {
   /// Tỷ lệ aspect ratio cho card Địa danh (0.85 = gần vuông)
   static const double gridAspectRatioPlace = 0.85;
   
-  /// Tỷ lệ aspect ratio cho card Bài viết (0.78 = cao hơn)
+  /// Tỷ lệ aspect ratio cho card Bình luận (0.78 = cao hơn)
   static const double gridAspectRatioArticle = 0.78;
   
   /// Tỷ lệ aspect ratio cho card Lịch trình (0.9 = trung bình)
