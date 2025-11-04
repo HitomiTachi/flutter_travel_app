@@ -186,10 +186,10 @@ class _ActionBar extends StatelessWidget {
                 color: ColorPalette.primaryColor,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
+                  const Icon(
                     FontAwesomeIcons.checkDouble,
                     size: 10,
                     color: Colors.white,

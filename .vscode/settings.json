@@ -2,5 +2,12 @@
     "cSpell.words": [
         "allprojects"
     ],
-    "cmake.sourceDirectory": "C:/Flutter_Mobile/flutter_travels_apps/linux"
+    "dart.analysisExcludedFolders": [
+        "${workspaceFolder}/build",
+        "${workspaceFolder}/android/.gradle"
+    ],
+    "files.exclude": {
+        "**/.dart_tool": true,
+        "**/build": true
+    }
 }
